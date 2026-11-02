@@ -97,6 +97,7 @@ namespace RevitMcp
             ["set_view_overrides"] = SetViewOverrides,
             ["set_element_overrides"] = SetElementOverrides,
             ["remove_z_band"] = RemoveZBand,
+            ["set_viewport_no_title"] = SetViewportNoTitle,
             ["isolate_in_view"] = IsolateInView,
             ["create_keynote"] = CreateKeynote,
             ["set_family_category"] = SetFamilyCategory,
@@ -1965,6 +1966,26 @@ namespace RevitMcp
                 var leader = note.AddLeader(side);
                 leader.End = to;
                 return new JsonObject { ["id"] = note.Id.Value };
+            });
+        }
+
+        /// <summary>Gives a viewport a type that shows no title, creating the type if needed.</summary>
+        private static JsonNode SetViewportNoTitle(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var viewport = RequireElement(doc, ReqId(p, "viewport_id")) as Viewport ?? throw new ArgumentException("viewport_id is not a viewport.");
+            return InTransaction(doc, "Viewport no title", () =>
+            {
+                var current = (ElementType)doc.GetElement(viewport.GetTypeId());
+                var noTitle = new FilteredElementCollector(doc).OfClass(typeof(ElementType)).Cast<ElementType>()
+                    .FirstOrDefault(t => t.FamilyName == current.FamilyName && t.Name == "No Title");
+                if (noTitle == null)
+                {
+                    noTitle = current.Duplicate("No Title");
+                    noTitle.get_Parameter(BuiltInParameter.VIEWPORT_ATTR_SHOW_LABEL)?.Set(0);
+                }
+                viewport.ChangeTypeId(noTitle.Id);
+                return new JsonObject { ["type_id"] = noTitle.Id.Value };
             });
         }
 
