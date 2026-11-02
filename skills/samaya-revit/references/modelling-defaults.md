@@ -67,3 +67,7 @@ Manage AC condensate water above the ceiling. No exposed pipes or risers in the 
 
 - When a height changes, keep the design. Take the difference out of the straight parts, such as arch legs and panels, and never distort a curve or a detail. Keep base cabinets, worktops and curved heads as designed unless told otherwise.
 - `remove_z_band` removes a band between two heights from a unit or direct shape, and everything above drops. Choose a band that crosses no shelf or detail. It leaves a model seam at the cut; note that the real part is one piece. Rebuilding a family this way needs no change to its neighbours, but check the strips and panels it carries.
+
+## Fitting MEP from CAD to an as-built model
+
+The model follows the site as-built, so the MEP CAD may be drawn for a different room size. It is still the design: place each item by its proportion of the room and its relation to walls, units and ceiling features, keep real fixture sizes, and round positions to whole centimetres. Do not copy CAD coordinates directly.
