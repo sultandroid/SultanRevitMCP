@@ -23,3 +23,8 @@ Rfa\Title Blocks\                    title blocks and logos
 - Use reference planes for setting-out heights such as an arch springing, not extra levels.
 - Note assumptions in the element's Comments: anything not stated on the source drawing.
 - Take HVAC and other services from the latest revision of the source drawing, and record the source file in Comments.
+
+## Graphics
+
+- **Existing work is always halftone** in every view and on every sheet. This applies to existing elements in the model and to a linked existing model.
+- Set it on the view template where there is one, so new views inherit it. Check on a render.

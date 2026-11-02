@@ -20,4 +20,5 @@ Read these when relevant:
 1. **Ask before assuming project data.** Client name, project name and the other items in `project-setup.md` must come from the user. Never leave placeholder values on an issued sheet and never invent them.
 2. **Fill sign-off from the stakeholder list**, and confirm who the designer is on each project.
 3. **Check by looking.** Render the sheet or view with `export_view_image` and read the image before saying it is done. No error from Revit does not mean it looks right.
-4. **Keep this skill current.** When something new is learned or the user corrects a standard, update the matching file in this repository in the same session, then commit and push. See the README.
+4. **Existing work is always halftone** in every view and sheet. See `modelling-defaults.md`.
+5. **Keep this skill current.** When something new is learned or the user corrects a standard, update the matching file in this repository in the same session, then commit and push. See the README.
