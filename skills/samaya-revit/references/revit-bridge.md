@@ -53,4 +53,5 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - **Circuits go in a separate ELEC model** started from `Electrical-Default_Metric.rte`. Build devices with `make_unit_family` and its `connector` option, then `create_circuit` and `create_panel_schedule`.
 - **Panel schedule views cannot be exported** with `export_view_image`.
 - **Ceiling plan view range cannot be raised** with `set_view_range` ("Plan view range is not valid"). Lights recessed above the top of the range do not draw in hidden line, so draw their symbols with detail lines and check every light against the legend.
+- **Device connectors must be Power - Balanced to carry load.** A Power - Circuit connector has no load field, so its circuit reads 0 VA. Pass `system: "PowerBalanced"` in the `connector` option. The field is named "Apparent Power" on the family connector, not "Apparent Load".
 

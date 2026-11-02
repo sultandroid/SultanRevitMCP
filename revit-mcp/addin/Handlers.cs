@@ -1376,7 +1376,7 @@ namespace RevitMcp
             {
                 var internalLoad = UnitUtils.ConvertToInternalUnits(load, UnitTypeId.VoltAmperes);
                 foreach (Parameter q in connector.Parameters)
-                    if (q.Definition.Name.Contains("Apparent Load") && !q.IsReadOnly && q.StorageType == StorageType.Double) q.Set(internalLoad);
+                    if ((q.Definition.Name == "Apparent Power" || q.Definition.Name == "Apparent Power Phase 1" || q.Definition.Name.Contains("Apparent Load")) && !q.IsReadOnly && q.StorageType == StorageType.Double) q.Set(internalLoad);
                 var classification = new FilteredElementCollector(connector.Document).OfClass(typeof(Autodesk.Revit.DB.Electrical.ElectricalLoadClassification)).FirstElementId();
                 if (classification != ElementId.InvalidElementId) connector.get_Parameter(BuiltInParameter.RBS_ELEC_LOAD_CLASSIFICATION)?.Set(classification);
             }
