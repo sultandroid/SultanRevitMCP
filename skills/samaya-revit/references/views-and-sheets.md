@@ -92,6 +92,32 @@ Every fit-out set includes joinery shop drawings in the A-700 series:
 - List each unit's mark and exact size on its type sheet, because built sizes differ slightly.
 - A quantity schedule of all units, and a material legend with colour swatches, finish names and codes, and where each is used.
 
+## Fabrication sheet layout guide
+
+Use this on every fabrication sheet, every time. Do not start from an older sheet. An old sheet in the model is replaced, not patched.
+
+```
++------------------------------+------------+-----------+-------+
+| 1 FRONT ELEVATION            | 2 SIDE     | keynotes  | title |
+|                              | beside the | material  | block |
+|                              | front, same| table     |       |
+|                              | levels     |           |-------|
++------------------------------+------------+-----------+ KEY   |
+| 3 PLAN (TOP VIEW)            | sections, rear elev.,  | PLAN  |
+| directly under the front,    | details, in the empty  |-------|
+| same left and right edges    | area                   |       |
++------------------------------+------------------------+       |
+| details and general notes                             |       |
++-------------------------------------------------------+-------+
+```
+
+1. Front, plan and side are the fixed main views, all at the same scale. Place them first.
+2. The front's left and right edges line up with the plan's. The front's floor and top line up with the side's.
+3. Everything else goes in the empty area only: rear elevation, sections, details, keynotes, material table, notes.
+4. The key plan goes in the title block's KEY PLAN panel on every sheet, unit in red, no title.
+5. Isolate the unit, with dimensions, keynotes, skirting, door swings, and wire routes where they apply. The Saudi figure goes on the side view only.
+6. Before sending, render the sheet and check each item above, and that no text overlaps or runs out of its area.
+
 ## Schedules
 
 - Filter to the phase and discipline. Set Phase on the schedule to New Construction.
