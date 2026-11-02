@@ -96,6 +96,7 @@ namespace RevitMcp
             ["view_category_counts"] = ViewCategoryCounts,
             ["set_view_overrides"] = SetViewOverrides,
             ["set_element_overrides"] = SetElementOverrides,
+            ["remove_z_band"] = RemoveZBand,
         };
 
         public static bool Has(string command) => Table.ContainsKey(command);
@@ -1725,6 +1726,89 @@ namespace RevitMcp
                     ["origin_mm"] = new JsonArray(origin.X * MmPerFoot, origin.Y * MmPerFoot, origin.Z * MmPerFoot),
                 };
             });
+        }
+
+        /// <summary>Takes a horizontal band out of a solid: what is below stays, what is above drops by the band's height.</summary>
+        private static List<Solid> WithoutBand(Solid solid, double z0, double z1)
+        {
+            var box = solid.GetBoundingBox();
+            var bottom = box.Transform.OfPoint(box.Min).Z;
+            var top = box.Transform.OfPoint(box.Max).Z;
+            const double tolerance = 1e-6;
+            var drop = Transform.CreateTranslation(new XYZ(0, 0, z0 - z1));
+            if (top <= z0 + tolerance) return new List<Solid> { solid };
+            if (bottom >= z1 - tolerance) return new List<Solid> { SolidUtils.CreateTransformed(solid, drop) };
+            var pieces = new List<Solid>();
+            if (bottom < z0 - tolerance)
+            {
+                var below = BooleanOperationsUtils.CutWithHalfSpace(solid, Plane.CreateByNormalAndOrigin(-XYZ.BasisZ, new XYZ(0, 0, z0)));
+                if (below != null && below.Volume > 0) pieces.Add(below);
+            }
+            if (top > z1 + tolerance)
+            {
+                var above = BooleanOperationsUtils.CutWithHalfSpace(solid, Plane.CreateByNormalAndOrigin(XYZ.BasisZ, new XYZ(0, 0, z1)));
+                if (above != null && above.Volume > 0) pieces.Add(SolidUtils.CreateTransformed(above, drop));
+            }
+            return pieces;
+        }
+
+        /// <summary>Shortens a direct shape or a family's solids by removing a band between two project heights. Everything above the band drops.</summary>
+        private static JsonNode RemoveZBand(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var element = RequireElement(doc, ReqId(p, "element_id"));
+            var z0 = FromMm(ReqNum(p, "z0_mm"));
+            var z1 = FromMm(ReqNum(p, "z1_mm"));
+            if (z1 <= z0) throw new ArgumentException("z1_mm must be above z0_mm.");
+            var options = new Options { DetailLevel = ViewDetailLevel.Fine };
+
+            if (element is DirectShape shape)
+            {
+                var before = SolidsOf(shape.get_Geometry(options)).ToList();
+                return InTransaction(doc, "Remove band", () =>
+                {
+                    var after = before.SelectMany(s => WithoutBand(s, z0, z1)).Cast<GeometryObject>().ToList();
+                    if (after.Count == 0) throw new ArgumentException("The band removes the whole element.");
+                    shape.SetShape(after);
+                    return new JsonObject { ["solids_before"] = before.Count, ["solids_after"] = after.Count };
+                });
+            }
+
+            var instance = element as FamilyInstance ?? throw new ArgumentException("element_id is neither a direct shape nor a family instance.");
+            var originZ = ((LocationPoint)instance.Location).Point.Z;
+            var familyDoc = doc.EditFamily(instance.Symbol.Family);
+            try
+            {
+                int before = 0, after = 0;
+                using (var transaction = new Transaction(familyDoc, "MCP: Remove band"))
+                {
+                    transaction.Start();
+                    var forms = new FilteredElementCollector(familyDoc).OfClass(typeof(FreeFormElement)).Cast<FreeFormElement>().ToList();
+                    foreach (var form in forms)
+                    {
+                        var material = form.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.AsElementId() ?? ElementId.InvalidElementId;
+                        var solids = SolidsOf(form.get_Geometry(options)).ToList();
+                        before += solids.Count;
+                        var replacements = solids.SelectMany(s => WithoutBand(s, z0 - originZ, z1 - originZ)).ToList();
+                        familyDoc.Delete(form.Id);
+                        foreach (var solid in replacements)
+                        {
+                            var created = FreeFormElement.Create(familyDoc, solid);
+                            if (material != ElementId.InvalidElementId) created.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.Set(material);
+                            after++;
+                        }
+                    }
+                    transaction.Commit();
+                }
+                var saveDir = Str(p, "save_dir");
+                if (saveDir != null) familyDoc.SaveAs(Path.Combine(saveDir, instance.Symbol.Family.Name + ".rfa"), new SaveAsOptions { OverwriteExistingFile = true });
+                familyDoc.LoadFamily(doc, new OverwriteFamily());
+                return new JsonObject { ["solids_before"] = before, ["solids_after"] = after };
+            }
+            finally
+            {
+                familyDoc.Close(false);
+            }
         }
 
         private static int ColorInt(JsonNode node) =>

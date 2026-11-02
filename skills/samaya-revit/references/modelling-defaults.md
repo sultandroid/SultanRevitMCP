@@ -44,3 +44,8 @@ Rfa\Title Blocks\                    title blocks and logos
 ## AC condensate
 
 Manage AC condensate water above the ceiling. No exposed pipes or risers in the shop. If the drawing's discharge point is not above the ceiling, ask for it instead of assuming.
+
+## Changing heights
+
+- When a height changes, keep the design. Take the difference out of the straight parts, such as arch legs and panels, and never distort a curve or a detail. Keep base cabinets, worktops and curved heads as designed unless told otherwise.
+- `remove_z_band` removes a band between two heights from a unit or direct shape, and everything above drops. Choose a band that crosses no shelf or detail.
