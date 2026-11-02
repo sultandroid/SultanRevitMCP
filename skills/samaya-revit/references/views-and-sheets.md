@@ -85,7 +85,7 @@ Every fit-out set includes joinery shop drawings in the A-700 series:
 - **Keynote every part or material:** numbered leaders on the views, with a keynote legend on the sheet.
 - **Material quantities, not a cutting list:** a table of net consumable area for each material, in m2, with length or count for items such as plinths and grommets.
 - **Main three views in standard projection, always aligned:** front elevation, top view directly under it, side view beside it. All three at the same scale, the front and top sharing vertical alignment, the front and side sharing horizontal alignment. The top view is turned so its length runs the same way as the front; rotate its crop, not the viewport, so text and the title stay upright.
-- **Scale and use references on the main three views:** a human figure of standard height (1750 mm) and any device the unit carries, such as a POS, drawn in halftone as view-only detail lines, so they stay out of the model and the quantities. Note them as indicative.
+- **Scale and use references on the main three views:** a Saudi human figure in thobe and shemagh, 1700 mm tall, not a generic or stick figure, and any device the unit carries, such as a POS, drawn in halftone as view-only detail lines, so they stay out of the model and the quantities. Note them as indicative.
 - **Door swing:** dashed lines on every door elevation, the triangle pointing at the hinge side, plus a dashed 90 degree arc in the top view.
 - Rear elevation, sections, details, keynotes and the material table go in the white space left around the three main views, never in place of them.
 - List each unit's mark and exact size on its type sheet, because built sizes differ slightly.
