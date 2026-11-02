@@ -133,7 +133,7 @@ Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped 
 
 ## Section lines stay clean
 
-General plans show only the building sections. Every fabrication, detail or working section has "Hide at scales coarser than" set to 1:20 when it is created, so its line never appears on a general plan. Section lines should be evenly placed, must not cross text, and their heads sit outside the plan.
+General plans show only the building sections. Every fabrication, detail or working section has "Hide at scales coarser than" set to 1:2 when it is created (the master plan here runs at 1:9, so 1:20 is not enough), so its line never appears on a general plan. Section lines should be evenly placed, must not cross text, and their heads sit outside the plan.
 
 ## Every sheet uses a grid
 
