@@ -55,4 +55,4 @@ Set the type with `set_parameter`. Tick Mark takes an element id: scan low ids w
 - Marble always gets its own details: edge profile, such as bird's-nose, the top at the wall, and a section showing how it is fixed. Marble is bonded with stone-safe silicone. No screws through it.
 - Show an indicative logo in halftone on units that carry branding, sized and marked to confirm.
 - L-shaped marble, such as an arch head: join the two legs on a 45 degree mitre, with a small chamfer at the outer corner and on the free ends. Do not round this corner.
-- **Light strips always sit in a recessed cove, never on the surface, even in marble.** In marble, cut the slot through the stone into the backing. Model and detail the recess.
+- **Light strips always sit in a recessed cove, never on the surface, even in marble.** In marble, cut the slot through the stone into the backing. Model and detail the recess. Default: 8 mm wide, 2 mm thick 24V COB strip in a 12 x 10 mm aluminium channel with diffuser. Common strips are 8, 10 and 12 mm wide; a 10 mm strip needs about a 15 mm channel. Confirm against the supplier's datasheet.
