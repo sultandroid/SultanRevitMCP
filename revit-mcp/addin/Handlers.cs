@@ -97,6 +97,10 @@ namespace RevitMcp
             ["set_view_overrides"] = SetViewOverrides,
             ["set_element_overrides"] = SetElementOverrides,
             ["remove_z_band"] = RemoveZBand,
+            ["set_revision_numbering"] = SetRevisionNumbering,
+            ["set_revision_sequence"] = SetRevisionSequence,
+            ["paint_element"] = PaintElement,
+            ["export_sheets_pdf"] = ExportSheetsPdf,
             ["create_dimension_string"] = CreateDimensionString,
             ["tag_elements"] = TagElements,
             ["create_drafting_view"] = CreateDraftingView,
@@ -1832,6 +1836,74 @@ namespace RevitMcp
                 var region = FilledRegion.Create(doc, type.Id, view.Id, new List<CurveLoop> { loop });
                 return new JsonObject { ["id"] = region.Id.Value };
             });
+        }
+
+        /// <summary>Numbers project revisions with a numeric sequence, such as 03 for the first issue.</summary>
+        private static JsonNode SetRevisionNumbering(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var start = (int)(Num(p, "start") ?? 1);
+            var digits = (int)(Num(p, "min_digits") ?? 2);
+            return InTransaction(doc, "Set revision numbering", () =>
+            {
+                var settings = new NumericRevisionSettings { StartNumber = start, MinimumDigits = digits };
+                var sequence = RevisionNumberingSequence.CreateNumericSequence(doc, Str(p, "name") ?? "Samaya Numeric", settings);
+                foreach (var id in Revision.GetAllRevisionIds(doc)) ((Revision)doc.GetElement(id)).RevisionNumberingSequenceId = sequence.Id;
+                return new JsonObject { ["sequence_id"] = sequence.Id.Value };
+            });
+        }
+
+        /// <summary>Assigns a revision to a numbering sequence.</summary>
+        private static JsonNode SetRevisionSequence(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var revision = RequireElement(doc, ReqId(p, "revision_id")) as Revision ?? throw new ArgumentException("revision_id is not a revision.");
+            var sequence = ReqId(p, "sequence_id");
+            return InTransaction(doc, "Set revision sequence", () =>
+            {
+                revision.RevisionNumberingSequenceId = sequence;
+                return new JsonObject { ["number"] = revision.RevisionNumber };
+            });
+        }
+
+        /// <summary>Paints every face of an element with a material.</summary>
+        private static JsonNode PaintElement(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var element = RequireElement(doc, ReqId(p, "element_id"));
+            var material = ReqId(p, "material_id");
+            var options = new Options { ComputeReferences = true, DetailLevel = ViewDetailLevel.Fine };
+            return InTransaction(doc, "Paint element", () =>
+            {
+                int painted = 0, skipped = 0;
+                foreach (var solid in SolidsOf(element.get_Geometry(options)))
+                {
+                    foreach (Face face in solid.Faces)
+                    {
+                        if (doc.IsPainted(element.Id, face) || !IsPaintable(doc, element.Id, face)) { skipped++; continue; }
+                        doc.Paint(element.Id, face, material);
+                        painted++;
+                    }
+                }
+                return new JsonObject { ["painted"] = painted, ["skipped"] = skipped };
+            });
+        }
+
+        private static bool IsPaintable(Document doc, ElementId id, Face face)
+        {
+            try { doc.IsPainted(id, face); return true; } catch { return false; }
+        }
+
+        /// <summary>Exports sheets to one vector PDF, or one per sheet.</summary>
+        private static JsonNode ExportSheetsPdf(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var ids = ReqIds(p, "sheet_ids");
+            var folder = ReqStr(p, "folder");
+            Directory.CreateDirectory(folder);
+            var options = new PDFExportOptions { FileName = ReqStr(p, "file_name"), Combine = true, ZoomType = ZoomType.Zoom, ZoomPercentage = 100, PaperPlacement = PaperPlacementType.Center, HideCropBoundaries = true, HideScopeBoxes = true, ColorDepth = ColorDepthType.Color };
+            var done = doc.Export(folder, ids.ToList(), options);
+            return new JsonObject { ["exported"] = done };
         }
 
         /// <summary>Sets a view's phase filter by name.</summary>
