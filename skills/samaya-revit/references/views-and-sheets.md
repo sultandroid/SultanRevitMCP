@@ -131,6 +131,10 @@ Use this on every fabrication sheet, every time. Do not start from an older shee
 
 Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped plan with the area or unit on that sheet highlighted in red. Use a viewport with no title, because the panel already has its heading. A view can sit on only one sheet, so duplicate it for each sheet.
 
+## Section lines stay clean
+
+General plans show only the building sections. Every fabrication, detail or working section has "Hide at scales coarser than" set to 1:20 when it is created, so its line never appears on a general plan. Section lines should be evenly placed, must not cross text, and their heads sit outside the plan.
+
 ## Every sheet uses a grid
 
 Every sheet, of any kind, is laid out on one grid: A1 drawing area x 20 to 1012, 6 columns of 165 mm, lines at 20, 186, 351, 516, 682, 847, 1012, centres at 103, 268, 434, 599, 764, 929. Views centre on a column or a column line. Views in a row share a level, so the same height reads across them. Notes and tables start on a column line. Never place by eye.
