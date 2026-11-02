@@ -17,6 +17,10 @@ Rfa\Title Blocks\                    title blocks and logos
 - All discipline files use the same coordinates as ARCH.
 - Model the existing condition first, then the new model.
 
+## Materials
+
+Samaya Factory builds in **EGGER laminates and painted FR MDF**, and this replaces veneer and HPL shown on design drawings. Confirm the codes for each project. On Madina 1: EGGER H1113 ST10 Brown Kansas Oak, EGGER U775 ST9 White Grey and F186 ST9 Light Chicago Concrete. The legend shows the material actually used, not the design file's.
+
 ## Freestanding furniture
 
 Model counters, islands and displays as furniture families from the design file's furniture plan and detail sheets, named with their schedule code, such as D-01. Set the position from the furniture plan, and check it against the masonry, because built-in units may have moved since the drawing.
