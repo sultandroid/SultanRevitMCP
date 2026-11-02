@@ -15,6 +15,7 @@ Read these when relevant:
 - [references/views-and-sheets.md](references/views-and-sheets.md): view names, templates, scales, sheet numbers, sheet arrangement and schedules. Read before making any view or sheet.
 - [references/title-blocks.md](references/title-blocks.md): the title block and how to rebuild it.
 - [references/modelling-defaults.md](references/modelling-defaults.md): file structure and modelling rules.
+- [references/joinery-practice.md](references/joinery-practice.md): how joinery is really built: boards, edges, cladding existing structure. Read before detailing any unit or cladding.
 - [references/revit-bridge.md](references/revit-bridge.md): RevitMcp bridge use and known failures.
 
 ## Always
