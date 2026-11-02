@@ -32,3 +32,8 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 - **Revit does not cut the Furniture category in sections.** A section through a furniture family only shows an outside view. Build fixed joinery as Casework, so sections show real cuts through carcass, shelves and backs.
 - Check any new section on a render: if you can see parts beyond the far clip, or no cut faces, the category is the cause.
 - Fabrication sheets also need part sizes and a cutting list per unit, not just overall dimensions.
+
+## Pegboard and cable management
+
+- Metal pegboard: 25 mm hole pitch is the common metric standard, 25.4 mm imperial. Holes are 4 to 6 mm. Confirm the accessories first, because hooks must match hole size, pitch and panel thickness.
+- Every counter needs wire management: grommets in the top, usually 60 or 80 mm, a cable tray under the worktop, and trunking down to the floor outlet. Coordinate them with the power and data drawings.
