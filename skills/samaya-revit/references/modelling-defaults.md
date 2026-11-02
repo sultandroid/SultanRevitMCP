@@ -33,6 +33,12 @@ Rfa\Title Blocks\                    title blocks and logos
 
 - **Existing work is always halftone** in every view and on every sheet, through phase graphics. See `phases.md`.
 
+## Reading source drawings
+
+- Before modelling or making sheets, list every sheet in the latest source CAD: plans, flooring, RCP, lighting, power, details and schedules. Render each one and check it off. Do not stop at the area needed for the current task. On Madina 1 this was missed, and the Rev-03 flooring, power and lighting plans were found late.
+- Prefer plans in the architectural file, which are at the model's true scale, over a discipline file drawn at another scale.
+- Model finishes as drawn: tile size, layout, joints and start point.
+
 ## Reading services drawings
 
 - An architectural drawing shows only what touches the ceiling. Before modelling a service, also read the discipline's own submittal, for example `Submittal's\Mep\<Rev>\Mech`, even if it is an older revision.
