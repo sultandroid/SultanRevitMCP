@@ -26,6 +26,11 @@ namespace RevitMcp
         {
             // Read
             ["get_project_info"] = GetProjectInfo,
+            ["list_documents"] = ListDocuments,
+            ["open_document"] = OpenDocument,
+            ["activate_document"] = ActivateDocument,
+            ["save_document"] = SaveDocument,
+            ["close_document"] = CloseDocument,
             ["list_levels"] = ListLevels,
             ["list_views"] = ListViews,
             ["list_element_types"] = ListElementTypes,
@@ -57,6 +62,7 @@ namespace RevitMcp
             ["create_detail_lines"] = CreateDetailLines,
             ["create_text_note"] = CreateTextNote,
             ["extend_view_crop"] = ExtendViewCrop,
+            ["rotate_view_crop"] = RotateViewCrop,
             ["create_direct_shape"] = CreateDirectShape,
             ["ensure_line_style"] = EnsureLineStyle,
             ["ensure_text_type"] = EnsureTextType,
@@ -69,6 +75,7 @@ namespace RevitMcp
             ["set_view_categories"] = SetViewCategories,
             ["get_electrical_info"] = GetElectricalInfo,
             ["set_panel_system"] = SetPanelSystem,
+            ["diagnose_panel"] = DiagnosePanel,
             ["set_view_range"] = SetViewRange,
             ["probe_ray"] = ProbeRay,
             ["create_schedule"] = CreateSchedule,
@@ -85,6 +92,7 @@ namespace RevitMcp
             ["build_title_block"] = BuildTitleBlock,
             ["cut_with_voids"] = CutWithVoids,
             ["ensure_material"] = EnsureMaterial,
+            ["set_material_hatch"] = SetMaterialHatch,
             ["create_pipe_run"] = CreatePipeRun,
             ["list_family_text"] = ListFamilyText,
             ["set_family_text"] = SetFamilyText,
@@ -115,6 +123,153 @@ namespace RevitMcp
         public static bool Has(string command) => Table.ContainsKey(command);
 
         public static JsonNode Run(UIApplication app, string command, JsonObject p) => Table[command](app, p);
+
+        // ---- Documents -----------------------------------------------------------------------------
+
+        /// <summary>Returns the error Revit gives when a modal dialog or open transaction blocks the call.</summary>
+        private static JsonNode DocumentCall(Func<JsonNode> body)
+        {
+            try { return body(); }
+            catch (Autodesk.Revit.Exceptions.ModificationForbiddenException) { return Failed("Revit is busy — press Esc in Revit and retry."); }
+            catch (Autodesk.Revit.Exceptions.InvalidOperationException e) when (IsBusy(e.Message)) { return Failed("Revit is busy — press Esc in Revit and retry."); }
+            catch (Autodesk.Revit.Exceptions.ApplicationException e) { return Failed(e.Message); }
+        }
+
+        private static bool IsBusy(string message) =>
+            message.IndexOf("modal", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            message.IndexOf("transaction", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            message.IndexOf("busy", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        private static JsonObject Failed(string error) => new JsonObject { ["ok"] = false, ["error"] = error };
+
+        private static string BareTitle(string title) =>
+            title.EndsWith(".rvt", StringComparison.OrdinalIgnoreCase) || title.EndsWith(".rfa", StringComparison.OrdinalIgnoreCase)
+                ? title.Substring(0, title.Length - 4)
+                : title;
+
+        /// <summary>Open host documents with this title. Linked models can be neither activated, saved nor closed.</summary>
+        private static List<Document> DocumentsTitled(UIApplication app, string title) =>
+            app.Application.Documents.Cast<Document>()
+                .Where(d => !d.IsLinked && string.Equals(BareTitle(d.Title), BareTitle(title), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+        private static JsonNode Candidates(string title, List<Document> found)
+        {
+            var result = Failed(found.Count == 0 ? $"No open document is titled '{title}'." : $"{found.Count} open documents are titled '{title}'.");
+            result["candidates"] = new JsonArray(found.Select(d => (JsonNode)new JsonObject { ["title"] = d.Title, ["path"] = d.PathName }).ToArray());
+            return result;
+        }
+
+        private static JsonNode ListDocuments(UIApplication app, JsonObject p)
+        {
+            var active = app.ActiveUIDocument?.Document;
+            var documents = new JsonArray();
+            foreach (Document d in app.Application.Documents)
+                documents.Add(new JsonObject
+                {
+                    ["title"] = d.Title,
+                    ["path"] = d.PathName,
+                    ["is_modified"] = d.IsModified,
+                    ["is_active"] = active != null && d.Equals(active),
+                    ["is_family"] = d.IsFamilyDocument,
+                    ["is_linked"] = d.IsLinked,
+                });
+            return new JsonObject { ["documents"] = documents };
+        }
+
+        private static JsonNode OpenDocument(UIApplication app, JsonObject p)
+        {
+            var path = ReqStr(p, "path");
+            if (!System.IO.Path.IsPathRooted(path)) return Failed($"Path must be absolute: {path}");
+            if (!System.IO.File.Exists(path)) return Failed($"File not found: {path}");
+            return DocumentCall(() =>
+            {
+                var doc = app.OpenAndActivateDocument(path).Document;
+                return new JsonObject { ["ok"] = true, ["title"] = doc.Title, ["path"] = doc.PathName, ["is_modified"] = doc.IsModified };
+            });
+        }
+
+        private static JsonNode ActivateDocument(UIApplication app, JsonObject p)
+        {
+            var title = ReqStr(p, "title");
+            var found = DocumentsTitled(app, title);
+            if (found.Count != 1) return Candidates(title, found);
+            var doc = found[0];
+            var active = app.ActiveUIDocument?.Document;
+            if (active != null && doc.Equals(active))
+                return new JsonObject { ["ok"] = true, ["title"] = doc.Title, ["active_view"] = app.ActiveUIDocument.ActiveView?.Name, ["is_modified"] = doc.IsModified, ["note"] = "already active" };
+            if (string.IsNullOrEmpty(doc.PathName)) return Failed($"'{doc.Title}' has never been saved, so Revit cannot activate it by path.");
+            return DocumentCall(() =>
+            {
+                var ui = app.OpenAndActivateDocument(doc.PathName);
+                return new JsonObject { ["ok"] = true, ["title"] = ui.Document.Title, ["active_view"] = ui.ActiveView?.Name, ["is_modified"] = ui.Document.IsModified };
+            });
+        }
+
+        private static JsonNode SaveDocument(UIApplication app, JsonObject p)
+        {
+            var title = Str(p, "title");
+            Document doc;
+            if (title == null) doc = Doc(app);
+            else
+            {
+                var found = DocumentsTitled(app, title);
+                if (found.Count != 1) return Candidates(title, found);
+                doc = found[0];
+            }
+            var saveAs = Str(p, "path");
+            return DocumentCall(() =>
+            {
+                if (saveAs != null)
+                {
+                    if (!System.IO.Path.IsPathRooted(saveAs)) return Failed($"Path must be absolute: {saveAs}");
+                    doc.SaveAs(saveAs);
+                    return new JsonObject { ["ok"] = true, ["title"] = doc.Title, ["path"] = doc.PathName, ["saved"] = true, ["is_modified"] = doc.IsModified };
+                }
+                if (string.IsNullOrEmpty(doc.PathName)) return Failed($"'{doc.Title}' has never been saved. Pass a path.");
+                if (!doc.IsModified) return new JsonObject { ["ok"] = true, ["title"] = doc.Title, ["path"] = doc.PathName, ["saved"] = false, ["reason"] = "not modified", ["is_modified"] = false };
+                doc.Save();
+                return new JsonObject { ["ok"] = true, ["title"] = doc.Title, ["path"] = doc.PathName, ["saved"] = true, ["is_modified"] = doc.IsModified };
+            });
+        }
+
+        private static JsonNode CloseDocument(UIApplication app, JsonObject p)
+        {
+            var title = Str(p, "title");
+            var save = p["save"]?.GetValue<bool>() ?? true;
+            var allowLast = p["allow_last"]?.GetValue<bool>() ?? false;
+            Document doc;
+            if (title == null) doc = Doc(app);
+            else
+            {
+                var found = DocumentsTitled(app, title);
+                if (found.Count != 1) return Candidates(title, found);
+                doc = found[0];
+            }
+            var others = app.Application.Documents.Cast<Document>().Where(d => !d.IsLinked && !d.Equals(doc)).ToList();
+            if (others.Count == 0 && !allowLast) return Failed($"'{doc.Title}' is the last open document. Pass allow_last to close it.");
+            return DocumentCall(() =>
+            {
+                if (save && doc.IsModified)
+                {
+                    if (string.IsNullOrEmpty(doc.PathName)) return Failed($"'{doc.Title}' has never been saved, so it was not closed.");
+                    doc.Save();
+                }
+                // Revit refuses to close the active document, so another one has to come forward first.
+                var active = app.ActiveUIDocument?.Document;
+                if (active != null && doc.Equals(active))
+                {
+                    var next = others.FirstOrDefault(d => !string.IsNullOrEmpty(d.PathName));
+                    if (next == null) return Failed($"Revit cannot close the active document '{doc.Title}' through the API while no other saved document is open. It was saved if requested, and left open.");
+                    app.OpenAndActivateDocument(next.PathName);
+                }
+                doc.Close(false);
+                var remaining = app.Application.Documents.Cast<Document>().Count(d => !d.IsLinked);
+                var result = new JsonObject { ["ok"] = true, ["closed"] = true, ["remaining"] = remaining };
+                if (app.ActiveUIDocument == null) result["note"] = "No document is active now.";
+                return result;
+            });
+        }
 
         // ---- Read ----------------------------------------------------------------------------------
 
@@ -840,6 +995,24 @@ namespace RevitMcp
             });
         }
 
+        private static JsonNode RotateViewCrop(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var angle = ReqNum(p, "angle_degrees") * Math.PI / 180;
+            return InTransaction(doc, "Rotate view crop", () =>
+            {
+                view.CropBoxActive = true;
+                var crop = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Viewers).WhereElementIsNotElementType()
+                               .FirstOrDefault(e => e.Name == view.Name && e.Id != view.Id)
+                           ?? throw new InvalidOperationException("Crop region element not found for this view.");
+                var box = view.CropBox;
+                var centre = box.Transform.OfPoint((box.Min + box.Max) / 2);
+                ElementTransformUtils.RotateElement(doc, crop.Id, Line.CreateBound(centre, centre + XYZ.BasisZ), angle);
+                return new JsonObject { ["id"] = view.Id.Value };
+            });
+        }
+
         private static JsonNode CreateDirectShape(UIApplication app, JsonObject p)
         {
             var doc = Doc(app);
@@ -1051,6 +1224,7 @@ namespace RevitMcp
             var lineToLine = ReqNum(p, "line_to_line_v");
             var lineToGround = ReqNum(p, "line_to_ground_v");
             var wires = (int)(Num(p, "wires") ?? 4);
+            var single = Str(p, "phase") == "single";
 
             return InTransaction(doc, $"Distribution system {name}", () =>
             {
@@ -1059,8 +1233,8 @@ namespace RevitMcp
                                  .FirstOrDefault(s => s.Name == name)
                              ?? settings.AddDistributionSysType(
                                  name,
-                                 Autodesk.Revit.DB.Electrical.ElectricalPhase.ThreePhase,
-                                 Autodesk.Revit.DB.Electrical.ElectricalPhaseConfiguration.Wye,
+                                 single ? Autodesk.Revit.DB.Electrical.ElectricalPhase.SinglePhase : Autodesk.Revit.DB.Electrical.ElectricalPhase.ThreePhase,
+                                 single ? Autodesk.Revit.DB.Electrical.ElectricalPhaseConfiguration.Undefined : Autodesk.Revit.DB.Electrical.ElectricalPhaseConfiguration.Wye,
                                  wires,
                                  EnsureVoltage(settings, lineToLine),
                                  EnsureVoltage(settings, lineToGround));
@@ -1137,6 +1311,28 @@ namespace RevitMcp
                         ["max"] = UnitUtils.ConvertFromInternalUnits(v.MaxValue, UnitTypeId.Volts),
                     }).ToArray()),
             };
+        }
+
+        /// <summary>Tries every distribution system on a panel, rolled back, and reports each system's voltages and the result.</summary>
+        private static JsonNode DiagnosePanel(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var instance = RequireElement(doc, ReqId(p, "panel_id")) as FamilyInstance ?? throw new ArgumentException("panel_id is not a family instance.");
+            var equipment = instance.MEPModel as Autodesk.Revit.DB.Electrical.ElectricalEquipment ?? throw new ArgumentException("panel_id is not electrical equipment.");
+            var rows = new JsonArray();
+            foreach (var s in new FilteredElementCollector(doc).OfClass(typeof(Autodesk.Revit.DB.Electrical.DistributionSysType)).Cast<Autodesk.Revit.DB.Electrical.DistributionSysType>())
+            {
+                string result;
+                using (var t = new Transaction(doc, "Try system"))
+                {
+                    t.Start();
+                    try { equipment.DistributionSystem = s; result = "ok"; }
+                    catch (Exception e) { result = e.Message; }
+                    t.RollBack();
+                }
+                rows.Add(new JsonObject { ["id"] = s.Id.Value, ["name"] = s.Name, ["phase"] = s.ElectricalPhase.ToString(), ["config"] = s.ElectricalPhaseConfiguration.ToString(), ["wires"] = s.NumWires, ["ll"] = s.VoltageLineToLine?.Name, ["lg"] = s.VoltageLineToGround?.Name, ["result"] = result });
+            }
+            return new JsonObject { ["systems"] = rows };
         }
 
         private static JsonNode SetPanelSystem(UIApplication app, JsonObject p)
@@ -2469,6 +2665,42 @@ namespace RevitMcp
                 material.Shininess = (int)(Num(p, "shininess") ?? material.Shininess);
                 material.Smoothness = (int)(Num(p, "smoothness") ?? material.Smoothness);
                 return new JsonObject { ["id"] = material.Id.Value, ["name"] = material.Name };
+            });
+        }
+
+        /// <summary>Sets a material's cut pattern: solid, or a drafting hatch that is created when missing.</summary>
+        private static JsonNode SetMaterialHatch(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var name = ReqStr(p, "material");
+            var material = new FilteredElementCollector(doc).OfClass(typeof(Material)).Cast<Material>().FirstOrDefault(m => m.Name == name)
+                           ?? throw new ArgumentException($"No material named '{name}'.");
+            var solid = p["solid"]?.GetValue<bool>() ?? false;
+            var cross = p["cross"]?.GetValue<bool>() ?? false;
+            var angle = Num(p, "angle_degrees") ?? 45;
+            var spacing = Num(p, "spacing_mm") ?? 1.5;
+            return InTransaction(doc, $"Hatch {name}", () =>
+            {
+                var patterns = new FilteredElementCollector(doc).OfClass(typeof(FillPatternElement)).Cast<FillPatternElement>().ToList();
+                FillPatternElement pattern;
+                if (solid) pattern = patterns.First(f => f.GetFillPattern().IsSolidFill);
+                else
+                {
+                    var patternName = $"Hatch {(cross ? "Cross " : "")}{angle:0.##} {spacing:0.##}";
+                    pattern = patterns.FirstOrDefault(f => f.Name == patternName && f.GetFillPattern().Target == FillPatternTarget.Drafting);
+                    if (pattern == null)
+                    {
+                        var radians = angle * Math.PI / 180;
+                        var gap = FromMm(spacing);
+                        var fill = cross
+                            ? new FillPattern(patternName, FillPatternTarget.Drafting, FillPatternHostOrientation.ToView, radians, gap, gap)
+                            : new FillPattern(patternName, FillPatternTarget.Drafting, FillPatternHostOrientation.ToView, radians, gap);
+                        pattern = FillPatternElement.Create(doc, fill);
+                    }
+                }
+                material.CutForegroundPatternId = pattern.Id;
+                material.CutForegroundPatternColor = solid ? new Color(0, 0, 0) : new Color(128, 128, 128);
+                return new JsonObject { ["id"] = material.Id.Value, ["pattern"] = pattern.Name };
             });
         }
 

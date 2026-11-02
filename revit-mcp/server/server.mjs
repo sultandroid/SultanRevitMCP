@@ -64,6 +64,11 @@ const destructive = { readOnlyHint: false, destructiveHint: true };
 
 // All lengths and coordinates are in millimetres. Every model change is one named undo step in Revit.
 const tools = [
+  ["list_documents", "List the documents open in Revit, including linked models. No activation, no writes.", {}, read],
+  ["open_document", "Open a model by absolute path and make it active. A model linked into an open host cannot be opened until the host closes.", { path: z.string() }, { readOnlyHint: false, destructiveHint: false }],
+  ["activate_document", "Make an open document active by title. Extension and case are ignored; several matches come back as candidates.", { title: z.string() }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
+  ["save_document", "Save a document, the active one by default, only if it is modified. Pass path to save a copy under a new name.", { title: z.string().optional(), path: z.string().optional() }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
+  ["close_document", "Close a document, the active one by default. Saves first unless save is false. Refuses the last document unless allow_last is set.", { title: z.string().optional(), save: z.boolean().optional(), allow_last: z.boolean().optional() }, { readOnlyHint: false, destructiveHint: true }],
   ["get_project_info", "Get the open model's title, path, Revit version, active view and project information.", {}, read],
   ["list_levels", "List levels with ids and elevations.", {}, read],
   ["list_views", "List views and sheets (templates excluded).", {
@@ -283,6 +288,7 @@ const tools = [
     comments: z.string().optional(),
   }, additive],
   ["ensure_distribution_system", "Create a three-phase wye distribution system, or return the existing one with that name.", {
+    phase: z.enum(["three", "single"]).optional(),
     name: z.string(),
     line_to_line_v: z.number().positive(),
     line_to_ground_v: z.number().positive(),
@@ -296,6 +302,7 @@ const tools = [
   ["get_electrical_info", "Read a device or panel's electrical connectors, plus the distribution systems in the model.", {
     element_id: id,
   }, read],
+  ["diagnose_panel", "Try every distribution system on a panel without keeping the change, and report each result.", { panel_id: id }, read],
   ["set_panel_system", "Set a panel's distribution system through its electrical equipment model.", {
     panel_id: id,
     system_id: id,
@@ -322,6 +329,13 @@ const tools = [
     color: rgb,
     shininess: z.number().int().min(0).max(128).optional(),
     smoothness: z.number().int().min(0).max(100).optional(),
+  }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
+  ["set_material_hatch", "Set a material's cut pattern, shown where it is cut in sections: solid, or a drafting hatch of lines created when missing. Spacing is on paper.", {
+    material: z.string(),
+    solid: z.boolean().optional(),
+    cross: z.boolean().optional(),
+    angle_degrees: z.number().optional(),
+    spacing_mm: z.number().positive().optional(),
   }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["create_pipe_run", "Model connected pipes through a list of points, adding elbows where the routing preferences allow.", {
     system: z.enum(["DomesticColdWater", "DomesticHotWater", "Sanitary"]),
@@ -355,6 +369,10 @@ const tools = [
     right_mm: z.number().optional(),
     top_mm: z.number().optional(),
     bottom_mm: z.number().optional(),
+  }, { readOnlyHint: false, destructiveHint: false }],
+  ["rotate_view_crop", "Rotate a plan view's crop region about its centre, so the view turns on the sheet while its text and title stay upright. Positive is counterclockwise.", {
+    view_id: id,
+    angle_degrees: z.number(),
   }, { readOnlyHint: false, destructiveHint: false }],
   ["build_title_block", "Restyle a title block family: keep its labels, replace all other sheet graphics, save a copy and load it. Points are sheet millimetres.", {
     source_rfa: z.string(),
