@@ -19,7 +19,7 @@ Rfa\Title Blocks\                    title blocks and logos
 
 ## Materials
 
-Samaya Factory builds in **EGGER laminates and painted FR MDF**, and this replaces veneer and HPL shown on design drawings. Confirm the codes for each project. On Madina 1: EGGER H1113 ST10 Brown Kansas Oak, EGGER U775 ST9 White Grey and F186 ST9 Light Chicago Concrete. The legend shows the material actually used, not the design file's.
+Samaya Factory builds in **EGGER laminates and painted FR MDF**, and this replaces veneer and HPL shown on design drawings. Confirm the codes for each project. On Madina 1: EGGER H1113 ST10 Brown Kansas Oak, EGGER U775 ST9 White Grey and F186 ST9 Light Chicago Concrete. EGGER thickness is 18 or 8 mm only. The legend shows the material actually used, not the design file's.
 
 ## Freestanding furniture
 

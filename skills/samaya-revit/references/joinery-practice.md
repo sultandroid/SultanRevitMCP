@@ -4,7 +4,7 @@ Use this to detail how a unit is really built. Sizes here are normal shop practi
 
 ## Boards
 
-- EGGER decor boards are usually 18 mm melamine faced board, commonly 2800 x 2070 mm. Check the grade, FR or MR, against the project.
+- **EGGER boards come only in 18 mm and 8 mm. Never use 20 or 25 mm EGGER.** Thicker looks need built-up edges or a frame. Sheets are commonly 2800 x 2070 mm. Check the grade, FR or MR, against the project.
 - Use one piece wherever the size fits. Plan any joint on a centre line or behind a unit.
 - Grain direction is set by the sheet. Keep it the same on panels that are seen together.
 - Cut edges that show get matching ABS or PVC edge, 1 to 2 mm. Hidden edges still get sealed in damp locations.
