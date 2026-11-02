@@ -36,3 +36,12 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - A rebuild script that fails midway leaves its views behind, and the next run cannot reuse their names. Clear views by name prefix at the start of the script.
 - Rotating a viewport on a sheet (Rotation on Sheet) also throws it far from its place and turns its title and text. Rotate the crop with rotate_view_crop instead.
 - Detail lines are the way to draw indicative items in a section view: create_swatch only works in drafting views and sheets. Grey shade is close horizontal lines until a filled region tool exists.
+
+## Compiling and document control
+
+- **Never ask the user to close Revit to compile.** Revit locks the live DLL, so compile-check into a throwaway folder, which works with Revit open: `dotnet build addin/RevitMcp.csproj -c Release -p:OutDir="$TEMP/revitmcp_check/"`. Only a real install needs Revit closed: do it once, at the end, when the user agrees.
+- **Never send keystrokes to Revit** (SendKeys, PostMessage, Ctrl+S). Revit hung on one. Use list_documents, open_document, activate_document, save_document and close_document.
+- A model linked into an open host cannot be opened until the host closes. Linked models appear in list_documents with is_linked true.
+- Revit will not close the active document through the API, so close_document brings another open saved document forward first. With no other document open, the last one has to be closed by hand, even with allow_last.
+- The source is `revit-mcp/` in this repository. Edit and install from here. `revit-mcp-project` is an old copy.
+- Verify a save from the file's LastWriteTime, not from the return value. `tools/doc_control_check.mjs` runs the check.

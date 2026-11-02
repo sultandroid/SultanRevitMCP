@@ -7,8 +7,9 @@ const send = (command, params = {}) => new Promise((resolve, reject) => {
   const s = createConnection(48884, "127.0.0.1");
   let buf = "";
   s.setTimeout(600000, () => { s.destroy(); reject(new Error("timeout " + command)); });
-  s.on("connect", () => s.write(JSON.stringify({ id: 1, command, params }) + "\n"));
-  s.on("data", (d) => { buf += d; const i = buf.indexOf("\n"); if (i >= 0) { s.end(); console.log(command, buf.slice(0, i)); resolve(JSON.parse(buf.slice(0, i))); } });
+  s.on("connect", () => s.write(JSON.stringify({ command, params }) + "\n"));
+  s.on("data", (d) => { buf += d; });
+  s.on("end", () => { const raw = buf.trim(); console.log(command, raw); resolve(JSON.parse(raw)); });
   s.on("error", reject);
 });
 
