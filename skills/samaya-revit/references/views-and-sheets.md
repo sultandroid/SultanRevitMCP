@@ -131,9 +131,9 @@ Use this on every fabrication sheet, every time. Do not start from an older shee
 
 Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped plan with the area or unit on that sheet highlighted in red. Use a viewport with no title, because the panel already has its heading. A view can sit on only one sheet, so duplicate it for each sheet.
 
-## Detail sheets use a grid
+## Every sheet uses a grid
 
-Lay out every detail sheet on columns and rows, with views, tables and notes starting on the same lines. Do not scatter details in free space.
+Every sheet, of any kind, is laid out on one grid: A1 drawing area x 20 to 1012, 6 columns of 165 mm, lines at 20, 186, 351, 516, 682, 847, 1012, centres at 103, 268, 434, 599, 764, 929. Views centre on a column or a column line. Views in a row share a level, so the same height reads across them. Notes and tables start on a column line. Never place by eye.
 
 ## Key plan must be correct
 
