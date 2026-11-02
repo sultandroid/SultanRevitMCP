@@ -5,6 +5,7 @@ Source is in `revit-mcp/`. Client helper: `tools/rvt.mjs`. Raw socket on 127.0.0
 ## Rules
 
 - It works only on the **active document**. Check `get_project_info` title before every write.
+- To work in a linked discipline file, close the host and open that file alone. Confirm from the title before any write, and reload the link in the host afterwards.
 - There are no save, open or link commands. The user saves: click in the drawing area, press Ctrl+S. Do not send save keystrokes, Revit hung after one. Verify with file time and `is_modified`.
 - Use `export_view_image` to see results. Otherwise check with `probe_ray`, bounding boxes and counts.
 
