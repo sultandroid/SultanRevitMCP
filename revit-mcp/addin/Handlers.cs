@@ -26,6 +26,7 @@ namespace RevitMcp
         {
             // Read
             ["get_project_info"] = GetProjectInfo,
+            ["set_view_display"] = SetViewDisplay,
             ["list_documents"] = ListDocuments,
             ["open_document"] = OpenDocument,
             ["activate_document"] = ActivateDocument,
@@ -123,6 +124,19 @@ namespace RevitMcp
         public static bool Has(string command) => Table.ContainsKey(command);
 
         public static JsonNode Run(UIApplication app, string command, JsonObject p) => Table[command](app, p);
+
+        /// <summary>Sets a view's visual style, such as HLR for black line drawings.</summary>
+        private static JsonNode SetViewDisplay(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var style = Enum.TryParse<DisplayStyle>(ReqStr(p, "style"), true, out var parsed) ? parsed : throw new ArgumentException("style must be Wireframe, HLR, Shading, ShadingWithEdges or Realistic.");
+            return InTransaction(doc, "Set view display", () =>
+            {
+                view.DisplayStyle = style;
+                return new JsonObject { ["id"] = view.Id.Value, ["style"] = view.DisplayStyle.ToString() };
+            });
+        }
 
         // ---- Documents -----------------------------------------------------------------------------
 

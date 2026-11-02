@@ -75,3 +75,5 @@ The model follows the site as-built, so the MEP CAD may be drawn for a different
 Each MEP sheet shows only its own system, with the room in halftone, device labels, a legend with quantities, and the key plan. Do not invent positions the CAD does not show: flag them.
 
 Do not write "to be confirmed by the electrical engineer" on sheets. Samaya Factory does the electrical engineering in-house.
+
+MEP sheets follow ISO 128: black lines on white, hidden line views, never colour. Tell systems apart with line type and weight, and materials with hatches. Fabrication exploded and 3D views stay shaded.

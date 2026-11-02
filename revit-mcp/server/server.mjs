@@ -69,6 +69,7 @@ const tools = [
   ["activate_document", "Make an open document active by title. Extension and case are ignored; several matches come back as candidates.", { title: z.string() }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["save_document", "Save a document, the active one by default, only if it is modified. Pass path to save a copy under a new name.", { title: z.string().optional(), path: z.string().optional() }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["close_document", "Close a document, the active one by default. Saves first unless save is false. Refuses the last document unless allow_last is set.", { title: z.string().optional(), save: z.boolean().optional(), allow_last: z.boolean().optional() }, { readOnlyHint: false, destructiveHint: true }],
+  ["set_view_display", "Set a view's visual style: HLR is black hidden line, Shading is colour.", { view_id: id, style: z.enum(["Wireframe", "HLR", "Shading", "ShadingWithEdges", "Realistic"]) }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["get_project_info", "Get the open model's title, path, Revit version, active view and project information.", {}, read],
   ["list_levels", "List levels with ids and elevations.", {}, read],
   ["list_views", "List views and sheets (templates excluded).", {
