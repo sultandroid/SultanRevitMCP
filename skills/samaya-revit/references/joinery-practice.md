@@ -37,3 +37,7 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 
 - Metal pegboard: 25 mm hole pitch is the common metric standard, 25.4 mm imperial. Holes are 4 to 6 mm. Confirm the accessories first, because hooks must match hole size, pitch and panel thickness.
 - Every counter needs wire management: grommets in the top, usually 60 or 80 mm, a cable tray under the worktop, and trunking down to the floor outlet. Coordinate them with the power and data drawings.
+
+## Dimension style
+
+Use filled 30 degree arrows, 3 mm Arial text, thin lines and dark blue, so dimensions stand apart from the linework. Set the type with `set_parameter`. Tick Mark takes an element id: scan low ids with `get_element` to find the arrowhead. Hide the reference ticks from `create_dimension_string` with a near-white line style.
