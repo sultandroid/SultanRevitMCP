@@ -97,6 +97,11 @@ namespace RevitMcp
             ["set_view_overrides"] = SetViewOverrides,
             ["set_element_overrides"] = SetElementOverrides,
             ["remove_z_band"] = RemoveZBand,
+            ["create_dimension_string"] = CreateDimensionString,
+            ["tag_elements"] = TagElements,
+            ["create_drafting_view"] = CreateDraftingView,
+            ["create_swatch"] = CreateSwatch,
+            ["set_phase_filter"] = SetPhaseFilter,
         };
 
         public static bool Has(string command) => Table.ContainsKey(command);
@@ -1725,6 +1730,122 @@ namespace RevitMcp
                     ["solids"] = parts.Count,
                     ["origin_mm"] = new JsonArray(origin.X * MmPerFoot, origin.Y * MmPerFoot, origin.Z * MmPerFoot),
                 };
+            });
+        }
+
+        /// <summary>Dimensions a string of points along a line in a view, using short detail ticks as the references.</summary>
+        private static JsonNode CreateDimensionString(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var points = (p["points"] as JsonArray ?? throw new ArgumentException("points is required.")).Select(ToPoint).Select(q => OnViewPlane(view, q)).ToList();
+            if (points.Count < 2) throw new ArgumentException("points needs at least 2 points.");
+            var along = (points.Last() - points.First()).Normalize();
+            var across = view.ViewDirection.CrossProduct(along).Normalize();
+            var offset = FromMm(Num(p, "offset_mm") ?? 0);
+            var tick = FromMm(Num(p, "tick_mm") ?? 20);
+            return InTransaction(doc, "Create dimension", () =>
+            {
+                var references = new ReferenceArray();
+                foreach (var point in points)
+                {
+                    var at = point + across * offset;
+                    var curve = doc.Create.NewDetailCurve(view, Line.CreateBound(at - across * tick / 2, at + across * tick / 2));
+                    references.Append(curve.GeometryCurve.Reference);
+                }
+                var line = Line.CreateBound(points.First() + across * offset, points.Last() + across * offset);
+                var dimension = doc.Create.NewDimension(view, line, references);
+                return new JsonObject { ["id"] = dimension.Id.Value, ["value_mm"] = dimension.Value.HasValue ? dimension.Value.Value * MmPerFoot : null };
+            });
+        }
+
+        /// <summary>Tags elements in a view with a tag type, each at its own point.</summary>
+        private static JsonNode TagElements(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var typeId = ReqId(p, "tag_type_id");
+            var leader = Bool(p, "leader");
+            var items = p["items"] as JsonArray ?? throw new ArgumentException("items is required.");
+            return InTransaction(doc, "Tag elements", () =>
+            {
+                var created = new JsonArray();
+                var failed = new JsonArray();
+                foreach (var node in items)
+                {
+                    var o = node.AsObject();
+                    var element = RequireElement(doc, ReqId(o, "element_id"));
+                    try
+                    {
+                        var tag = IndependentTag.Create(doc, typeId, view.Id, new Reference(element), leader, TagOrientation.Horizontal, OnViewPlane(view, ReqPoint(o, "location")));
+                        created.Add(tag.Id.Value);
+                    }
+                    catch (Exception e)
+                    {
+                        failed.Add($"{element.Id.Value}: {e.Message}");
+                    }
+                }
+                return new JsonObject { ["created"] = created, ["failed"] = failed };
+            });
+        }
+
+        /// <summary>Creates a drafting view, for legends and notes.</summary>
+        private static JsonNode CreateDraftingView(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var name = ReqStr(p, "name");
+            var scale = (int)(Num(p, "scale") ?? 20);
+            var familyType = new FilteredElementCollector(doc).OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>().First(t => t.ViewFamily == ViewFamily.Drafting);
+            return InTransaction(doc, "Create drafting view", () =>
+            {
+                var view = ViewDrafting.Create(doc, familyType.Id);
+                view.Name = name;
+                view.Scale = scale;
+                return new JsonObject { ["id"] = view.Id.Value, ["name"] = view.Name };
+            });
+        }
+
+        /// <summary>Draws a solid colour rectangle in a drafting view or sheet, for a legend swatch.</summary>
+        private static JsonNode CreateSwatch(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var min = ReqPoint(p, "min");
+            var max = ReqPoint(p, "max");
+            var color = ColorOf(p, "color");
+            return InTransaction(doc, "Create swatch", () =>
+            {
+                var solid = new FilteredElementCollector(doc).OfClass(typeof(FillPatternElement)).Cast<FillPatternElement>().First(f => f.GetFillPattern().IsSolidFill);
+                var baseType = new FilteredElementCollector(doc).OfClass(typeof(FilledRegionType)).Cast<FilledRegionType>().First();
+                var typeName = $"Swatch {color.Red}-{color.Green}-{color.Blue}";
+                var type = new FilteredElementCollector(doc).OfClass(typeof(FilledRegionType)).Cast<FilledRegionType>().FirstOrDefault(t => t.Name == typeName);
+                if (type == null)
+                {
+                    type = (FilledRegionType)baseType.Duplicate(typeName);
+                    type.ForegroundPatternId = solid.Id;
+                    type.ForegroundPatternColor = color;
+                    type.BackgroundPatternId = ElementId.InvalidElementId;
+                }
+                var corners = new[] { new XYZ(min.X, min.Y, 0), new XYZ(max.X, min.Y, 0), new XYZ(max.X, max.Y, 0), new XYZ(min.X, max.Y, 0) };
+                var loop = new CurveLoop();
+                for (var i = 0; i < 4; i++) loop.Append(Line.CreateBound(corners[i], corners[(i + 1) % 4]));
+                var region = FilledRegion.Create(doc, type.Id, view.Id, new List<CurveLoop> { loop });
+                return new JsonObject { ["id"] = region.Id.Value };
+            });
+        }
+
+        /// <summary>Sets a view's phase filter by name.</summary>
+        private static JsonNode SetPhaseFilter(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var name = ReqStr(p, "name");
+            var filter = new FilteredElementCollector(doc).OfClass(typeof(PhaseFilter)).FirstOrDefault(f => f.Name == name)
+                ?? throw new ArgumentException($"No phase filter named '{name}'.");
+            return InTransaction(doc, "Set phase filter", () =>
+            {
+                view.get_Parameter(BuiltInParameter.VIEW_PHASE_FILTER).Set(filter.Id);
+                return new JsonObject { ["view"] = view.Name, ["filter"] = filter.Name };
             });
         }
 
