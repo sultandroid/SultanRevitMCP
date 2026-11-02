@@ -97,6 +97,7 @@ namespace RevitMcp
             ["set_view_overrides"] = SetViewOverrides,
             ["set_element_overrides"] = SetElementOverrides,
             ["remove_z_band"] = RemoveZBand,
+            ["set_family_category"] = SetFamilyCategory,
             ["set_revision_numbering"] = SetRevisionNumbering,
             ["set_revision_sequence"] = SetRevisionSequence,
             ["paint_element"] = PaintElement,
@@ -1904,6 +1905,31 @@ namespace RevitMcp
             var options = new PDFExportOptions { FileName = ReqStr(p, "file_name"), Combine = true, ZoomType = ZoomType.Zoom, ZoomPercentage = 100, PaperPlacement = PaperPlacementType.Center, HideCropBoundaries = true, HideScopeBoxes = true, ColorDepth = ColorDepthType.Color };
             var done = doc.Export(folder, ids.ToList(), options);
             return new JsonObject { ["exported"] = done };
+        }
+
+        /// <summary>Changes the category of an instance's family, for example to one that sections can cut, and reloads it.</summary>
+        private static JsonNode SetFamilyCategory(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var instance = RequireElement(doc, ReqId(p, "element_id")) as FamilyInstance ?? throw new ArgumentException("element_id is not a family instance.");
+            var familyDoc = doc.EditFamily(instance.Symbol.Family);
+            try
+            {
+                using (var transaction = new Transaction(familyDoc, "MCP: Family category"))
+                {
+                    transaction.Start();
+                    familyDoc.OwnerFamily.FamilyCategory = ResolveCategory(familyDoc, ReqStr(p, "category"));
+                    transaction.Commit();
+                }
+                var saveDir = Str(p, "save_dir");
+                if (saveDir != null) familyDoc.SaveAs(Path.Combine(saveDir, instance.Symbol.Family.Name + ".rfa"), new SaveAsOptions { OverwriteExistingFile = true });
+                familyDoc.LoadFamily(doc, new OverwriteFamily());
+                return new JsonObject { ["category"] = familyDoc.OwnerFamily.FamilyCategory.Name };
+            }
+            finally
+            {
+                familyDoc.Close(false);
+            }
         }
 
         /// <summary>Sets a view's phase filter by name.</summary>

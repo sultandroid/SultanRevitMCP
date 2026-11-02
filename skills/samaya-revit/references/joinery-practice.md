@@ -26,3 +26,9 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 - Fit cladding before the cabinet or trim that covers its edge.
 - A modelled clash with structure means the unit must change. Report it instead of hiding it.
 - Check that a sheet can get through the doors and be lifted into place. Split it if it can't.
+
+## Modelling for shop drawings
+
+- **Revit does not cut the Furniture category in sections.** A section through a furniture family only shows an outside view. Build fixed joinery as Casework, so sections show real cuts through carcass, shelves and backs.
+- Check any new section on a render: if you can see parts beyond the far clip, or no cut faces, the category is the cause.
+- Fabrication sheets also need part sizes and a cutting list per unit, not just overall dimensions.

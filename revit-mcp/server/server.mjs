@@ -139,6 +139,7 @@ const tools = [
   ["set_revision_sequence", "Assign a revision to a numbering sequence.", { revision_id: id, sequence_id: id }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["paint_element", "Paint every face of an element with a material.", { element_id: id, material_id: id }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["export_sheets_pdf", "Export sheets to one combined vector PDF.", { sheet_ids: ids, folder: z.string(), file_name: z.string() }, additive],
+  ["set_family_category", "Change the category of an instance's family and reload it. Furniture cannot be cut in sections; Casework can.", { element_id: id, category: z.string(), save_dir: z.string().optional() }, { readOnlyHint: false, destructiveHint: true, idempotentHint: true }],
   ["remove_z_band", "Shorten a direct shape or a family's solids by removing the band between two project heights; everything above drops. A very high z1_mm trims the top.", { element_id: id, z0_mm: z.number(), z1_mm: z.number(), save_dir: z.string().optional() }, { readOnlyHint: false, destructiveHint: true, idempotentHint: false }],
   ["set_element_overrides", "Set halftone on specific elements in a view, such as one linked model.", { view_id: id, element_ids: ids, halftone: z.boolean().optional() }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["view_category_counts", "Count a view's elements per category and list long diagonal lines. Changes nothing.", { view_id: id }, read],
