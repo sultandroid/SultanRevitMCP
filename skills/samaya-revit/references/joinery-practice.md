@@ -37,7 +37,7 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 
 - Metal pegboard: 25 mm hole pitch is the common metric standard, 25.4 mm imperial. Holes are 4 to 6 mm. Confirm the accessories first, because hooks must match hole size, pitch and panel thickness.
 - Perforated metal sheets are flat with no bends, and have a solid 50 mm border with no holes all round. Centre the hole grid in the sheet.
-- Every counter needs wire management: grommets in the top, usually 60 or 80 mm, a cable tray under the worktop, and a **double back**: a removable inner back with a cable void, about 80 mm, running from the worktop to the floor. Shelves stop at the inner back. Coordinate with the power and data drawings.
+- Every counter manages its wires in a **double back**: a removable inner back with a cable void, about 80 mm, running from the floor to the top. No cable tray. Grommets in the top sit directly over the void, sized to fit it, usually 60 mm. Shelves stop at the inner back, and the bottom panel and plinth stay open at the void. Coordinate with the power and data drawings.
 
 ## Dimension style
 
