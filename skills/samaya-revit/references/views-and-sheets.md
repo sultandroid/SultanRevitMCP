@@ -61,7 +61,7 @@ M- for mechanical, E- for electrical, P- for plumbing, with the same pattern. As
 
 ## Sheet arrangement
 
-**One view per sheet, at the largest standard scale that fits the sheet.** The user set this over any scale in the tables above. For a small shop on A1, plans and sections come out at 1:10 and details at 1:5.
+**One view per sheet, sized to fill the sheet.** The user set this over any scale in the tables above, and whole-number scales outside the ISO series are fine for it. On a small shop on A1, plans are about 1:9, sections 1:8 and tall details 1:5. Render each sheet: tags, level heads and view titles must stay clear of the title strip and the sheet edge.
 
 For the A1 title block, the drawing area is x 10 to 1022, y 10 to 831, in sheet mm. Keep 15 mm clear inside it.
 
