@@ -16,6 +16,7 @@ Read these when relevant:
 - [references/title-blocks.md](references/title-blocks.md): the title block and how to rebuild it.
 - [references/modelling-defaults.md](references/modelling-defaults.md): file structure and modelling rules.
 - [references/joinery-practice.md](references/joinery-practice.md): how joinery is really built: boards, edges, cladding existing structure. Read before detailing any unit or cladding.
+- [references/material-hatching.md](references/material-hatching.md): the hatch for each material in sections and details. Read before making any section, detail or material legend.
 - [references/revit-bridge.md](references/revit-bridge.md): RevitMcp bridge use and known failures.
 
 ## Always
