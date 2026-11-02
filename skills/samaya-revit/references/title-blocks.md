@@ -20,6 +20,10 @@ Strip on the right, x 1022 to 1182, from top to bottom: logo, CLIENT, CONSULTANT
 
 `tools/tb_build.mjs` is the build script. It uses `build_title_block` and its paths point at the Madina 1 project, so change them before reuse.
 
+## Consultant
+
+The CONSULTANT panel has no label. Add the name as a text note on each sheet, at x 1027, y 672, not in the family. The name comes from the project.
+
 ## Lessons
 
 - **White shows as black.** Revit draws pure white 255,255,255 as black.
