@@ -130,6 +130,16 @@ Use this on every fabrication sheet, every time. Do not start from an older shee
 
 Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped plan with the area or unit on that sheet highlighted in red. Use a viewport with no title, because the panel already has its heading. A view can sit on only one sheet, so duplicate it for each sheet.
 
+## Key plan must be correct
+
+Check the key plan on every sheet before sending it, by looking at it in the render:
+
+- Mark every unit the sheet covers. A typical sheet for 6 units shows all 6 in red, never just one.
+- Read positions from the real elements in the model at build time. Never type coordinates by hand, and never use a sample or temporary element.
+- Mark nothing the sheet does not cover. A count of red marks must match the QTY on the sheet.
+- It shows the current plan, in the KEY PLAN panel, at 1:100, without a title.
+- After any unit moves or changes size, rebuild the key plans that show it.
+
 ## Before issuing
 
 - Render every sheet with `export_view_image` and read it, or export a test PDF.
