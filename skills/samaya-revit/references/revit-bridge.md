@@ -23,7 +23,7 @@ Compile check while Revit is open: build with `-p:OutDir="$TEMP/revitmcp_check/"
 
 | Symptom | Cause and action |
 |---|---|
-| Bridge stalls after renaming a level | `set_parameter` Name on a level opens a modal dialog. Do not rename levels, use `create_level`. |
+| Bridge stalls after renaming a level or plan view | Renaming a level, or a plan view named like its level, opens a modal dialog. Do not rename them: use `create_level`, or set Title on Sheet. |
 | Family conversions vanish | Revit reverted 14 `make_unit_family` conversions with no journaled Undo, cause unknown. Check families are present after each batch. |
 | "Curve length is too small" | Geometry under Revit's short curve tolerance, about 0.8 mm. |
 | "Sketch plane creation is not allowed in this family" | Old add-in build in the `lines` branch of `build_title_block`. Source is fixed, reinstall. |
