@@ -20,6 +20,10 @@ Strip on the right, x 1022 to 1182, from top to bottom: logo, CLIENT, CONSULTANT
 
 `tools/tb_build.mjs` is the build script. It uses `build_title_block` and its paths point at the Madina 1 project, so change them before reuse.
 
+## ISO 5457 frame
+
+Filing margin 20 mm on the left, 10 mm elsewhere, centring marks and lettered and numbered reference zones. Note: the family named A1 is 1192 x 841 mm, which is close to ISO A0 (1189 x 841), not A1 (841 x 594).
+
 ## Logos
 
 The title block carries the client, designer and consultant logos as well as Samaya Factory's. Each has a panel under the Samaya Factory logo: name on the left, logo on the right. Take logos only from sources the user names, on opaque white, as the project's Rfa/Title Blocks/logo-client, logo-consultant and logo-designer.png files; they are project data and stay out of this repository's family defaults.
