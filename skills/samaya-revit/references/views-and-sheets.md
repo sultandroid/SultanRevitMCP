@@ -130,6 +130,10 @@ Use this on every fabrication sheet, every time. Do not start from an older shee
 
 Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped plan with the area or unit on that sheet highlighted in red. Use a viewport with no title, because the panel already has its heading. A view can sit on only one sheet, so duplicate it for each sheet.
 
+## Detail sheets use a grid
+
+Lay out every detail sheet on columns and rows, with views, tables and notes starting on the same lines. Do not scatter details in free space.
+
 ## Key plan must be correct
 
 Check the key plan on every sheet before sending it, by looking at it in the render:
