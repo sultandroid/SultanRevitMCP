@@ -8,6 +8,7 @@ Use this to detail how a unit is really built. Sizes here are normal shop practi
 - Use one piece wherever the size fits. Plan any joint on a centre line or behind a unit.
 - Grain direction is set by the sheet. Keep it the same on panels that are seen together.
 - Cut edges that show get matching ABS or PVC edge, 1 to 2 mm. Hidden edges still get sealed in damp locations.
+- **Plinths are always painted softwood**, never EGGER or MDF.
 - Painted work is FR MDF, sanded and sealed before paint. Prime cut edges twice, because MDF edges absorb paint.
 
 ## Cladding existing structure
