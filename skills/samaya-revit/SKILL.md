@@ -27,4 +27,5 @@ Read these when relevant:
 5. **Always use Revit revisions.** Never type a revision by hand. See `revisions.md`.
 6. **Always add grids** to every project and show them on plans and sections. See `modelling-defaults.md`.
 7. **Use the standard dimension style** on shop drawings: 5 mm black Arial, Diagonal 3mm ticks, strings 12 mm apart. See `joinery-practice.md`.
-8. **Keep this skill current.** When something new is learned or the user corrects a standard, update the matching file in this repository in the same session, then commit and push. See the README.
+8. **Fabrication sheets follow one layout.** Front, plan directly under it, side beside it, key plan in its panel, the rest in the empty area. Read the Fabrication sheet layout guide in `references/views-and-sheets.md` before making one.
+9. **Keep this skill current.** When something new is learned or the user corrects a standard, update the matching file in this repository in the same session, then commit and push. See the README.
