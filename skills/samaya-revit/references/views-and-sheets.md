@@ -1,0 +1,104 @@
+# Views, scales and sheets
+
+## View names
+
+Pattern: `<Discipline>-<Location>-<Type>-<Scope>`, for example `A-L01-PLAN-New`, `A-L01-RCP-New`, `A-L01-PLAN-Demo`, `A-SEC-A`.
+
+- **Title on Sheet** holds the readable title for the client, such as "Reflected Ceiling Plan".
+- Working views end in `-WK` and never go on a sheet.
+- Sort the browser by a browser organisation rule, not by number prefixes on names.
+- A view can sit on one sheet only. Duplicate it with `Duplicate as Dependent` or `Duplicate with Detailing` to reuse it.
+
+## View templates
+
+Every view on a sheet has a view template that controls scale, detail level, visibility, filters and phase filter. Do not fix graphics view by view.
+
+| Template | Scale | Detail | Phase Filter |
+|---|---|---|---|
+| Plan | 1:50 | Medium | Show Previous + New |
+| Demolition Plan | 1:50 | Medium | Show Previous + Demo |
+| Existing Plan | 1:50 | Medium | Show Complete |
+| Reflected Ceiling Plan | 1:50 | Medium | Show Previous + New |
+| Elevation | 1:50 | Medium | Show Previous + New |
+| Section | 1:50 | Fine | Show Previous + New |
+| Detail | 1:5 | Fine | Show New |
+| Shop Drawing Unit | 1:20 | Fine | Show New |
+
+The bridge has no command to create these. Check with `list_views` and ask the user to create what is missing, or add a command.
+
+## Scales
+
+Use the ISO 5455 series only: 1:1, 1:2, 1:5, 1:10, 1:20, 1:50, 1:100. Never imperial: 1/4" = 1'-0" is 1:48, not 1:50.
+
+| Content | Scale |
+|---|---|
+| Key plan | 1:200 or smaller, no dimensions |
+| Store plan, RCP, MEP layout | 1:50. Use 1:25 only if the store is too small to read, and agree it. |
+| Store elevations and sections | 1:50 or 1:25 |
+| Wall elevation, cabinet or unit elevation | 1:20 |
+| Joinery and unit sections | 1:10 |
+| Construction details | 1:5 |
+| Fixing details and profiles | 1:2 or 1:1 |
+
+Text and tags come out the same size on paper at any scale, so check them after a scale change. Show the scale bar or scale in every view title. Write "NTS" only for diagrams.
+
+## Sheet numbers
+
+Pattern: `<Discipline>-<Series><Number>`. Use a Sheet List schedule to manage them.
+
+| Series | Content |
+|---|---|
+| A-000 | Cover, drawing index, legends, general notes |
+| A-100 | Existing, demolition and new plans |
+| A-200 | RCP and ceiling details |
+| A-300 | Elevations |
+| A-400 | Sections |
+| A-500 | Details |
+| A-600 | Schedules: finishes, doors, marks |
+| A-700 | Unit shop drawings |
+
+M- for mechanical, E- for electrical, P- for plumbing, with the same pattern. Ask whether the client or project requires its own numbering.
+
+## Sheet arrangement
+
+For the A1 title block, the drawing area is x 10 to 1022, y 10 to 831, in sheet mm. Keep 15 mm clear inside it.
+
+1. Plan the sheet before placing anything. Largest and most important view first.
+2. Place the plan at left or centre. Stack supporting sections and details to the right, nearest the plan they explain.
+3. Keep the same view at the same sheet position on every sheet: all plans, all RCPs. Use one shared guide grid, 50 mm spacing, with an intersection at the drawing area corner.
+4. Align by grid lines or crop region, not by eye. Plans with the same scope use the same crop or scope box.
+5. Orient views the same way on all sheets, such as shop front at the bottom.
+6. Keep elevations on one line and sections in line with each other, each with its title below on the same line.
+7. Leave room for dimensions and tags, and don't fill every part of the sheet.
+8. One scale per sheet where possible, and group mixed scales.
+9. Schedules go at top right of the drawing area, next to the title strip, or on an A-600 sheet. Legends and notes also stack on the right.
+10. Use the same viewport type for all view titles.
+
+## Schedules
+
+- Filter to the phase and discipline. Set Phase on the schedule to New Construction.
+- Add units in the heading, and sort and group so it reads like a list.
+- Use the same text type on every schedule.
+- Split long schedules across columns instead of running past the sheet.
+- The cover has a Sheet List drawing index, updating itself.
+
+## Before issuing
+
+- Render every sheet with `export_view_image` and read it, or export a test PDF.
+- No placeholder text, working views or stray elements outside title block limits.
+- Every view has a title, scale and template.
+- Revision and sign-off are filled.
+
+## Sources
+
+- [Autodesk: guide grids](https://help.autodesk.com/cloudhelp/2024/ENU/RevitLT-GetStarted/files/GUID-73FDE1A3-4F91-46EC-9654-FC4573907D86.htm)
+- [Novedge: view placement and sheet composition](https://novedge.com/blogs/design-news/revit-tip-professional-revit-view-placement-and-sheet-composition-workflow)
+- [Novedge: consistent sheet layouts](https://novedge.com/blogs/design-news/revit-tip-consistent-sheet-layouts-with-view-templates-scope-boxes-and-guide-grids)
+- [Novedge: sheet setup standards](https://novedge.com/blogs/design-news/revit-tip-revit-sheet-setup-and-documentation-standards)
+- [Novedge: view and sheet naming](https://novedge.com/blogs/design-news/revit-tip-standardize-revit-view-and-sheet-naming)
+- [Archgyan: project browser](https://archgyan.com/mastering-revit-project-browser-organisation-tips-large-projects/)
+- [Arkance: browser organisation](https://emea.support.arkance.world/hc/fr/articles/36466124540818-Revit-Tip-Organising-the-Revit-Project-Browser-Part-1)
+- [ISO 5455 scales](https://www.iso.org/standard/11500.html)
+- [Learn Architecture: drawing scales](https://learnarchitecture.net/articles/39289-architectural-drawing-scales.html)
+
+The numbering, templates, spacing and placement here are Samaya defaults built from this guidance, not rules from those sources. Change them if the user sets a different standard.
