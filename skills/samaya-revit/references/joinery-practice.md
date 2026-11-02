@@ -8,6 +8,7 @@ Use this to detail how a unit is really built. Sizes here are normal shop practi
 - Use one piece wherever the size fits. Plan any joint on a centre line or behind a unit.
 - Grain direction is set by the sheet. Keep it the same on panels that are seen together.
 - Cut edges that show get matching ABS or PVC edge, 1 to 2 mm. Hidden edges still get sealed in damp locations.
+- **EGGER comes in 18 mm and 8 mm only.** For a thicker part, use two EGGER layers with a recessed 8 mm or 18 mm layer between them: 18+8+18 = 44 mm, 18+18+18 = 54 mm. No softwood core and no other thickness. Show the build-up in a detail.
 - **Plinths are always painted softwood**, never EGGER or MDF.
 - **Every unit gets the project's default skirting.** Read it from the project's existing skirting and match it. Madina 1: black, 50 mm high, face 50 mm behind the unit's faces. Keep the unit's overall height: the skirting takes its 50 mm from the lowest part.
 - Painted work is FR MDF, sanded and sealed before paint. Prime cut edges twice, because MDF edges absorb paint.
