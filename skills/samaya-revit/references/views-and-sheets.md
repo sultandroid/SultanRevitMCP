@@ -76,6 +76,14 @@ For the A1 title block, the drawing area is x 10 to 1022, y 10 to 831, in sheet 
 9. Schedules go at top right of the drawing area, next to the title strip, or on an A-600 sheet. Legends and notes also stack on the right.
 10. Use the same viewport type for all view titles.
 
+## Joinery sheets
+
+Every fit-out set includes joinery shop drawings in the A-700 series:
+
+- A sheet for each unit type, with its plan, front elevation and section, overall and key dimensions, and quantity.
+- List each unit's mark and exact size on its type sheet, because built sizes differ slightly.
+- A quantity schedule of all units, and a material legend with colour swatches, finish names and codes, and where each is used.
+
 ## Schedules
 
 - Filter to the phase and discipline. Set Phase on the schedule to New Construction.
