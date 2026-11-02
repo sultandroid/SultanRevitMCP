@@ -10,7 +10,7 @@
 
 ## Proposed, to confirm with the user
 
-- Numbering is two digits matching the folders: 01, 02, 03. Revit's Numeric sequence with a minimum of 2 digits does this. The revision continues the project's existing issue number instead of restarting: Madina 1's first Revit issue is Rev 02.
+- Numbering is two digits matching the folders: 01, 02, 03. Revit's Numeric sequence with a minimum of 2 digits does this. What the first issue is called is not confirmed.
 - Numbering is Per Project, so one revision has one number on every sheet.
 - Sheets take a revision only when they changed. The REV field then differs between sheets, and the drawing index shows each sheet's current one.
 
