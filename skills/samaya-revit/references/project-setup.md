@@ -21,7 +21,7 @@ Ask for anything not already given. Do not guess and do not leave Revit placehol
 
 | Name | Role | Default on sheets |
 |---|---|---|
-| Mohamed Sultan | Technical Office / BIM | **Always Checked By.** Sometimes also Designed By, confirm per project. |
+| Mohamed Sultan | Checker, sometimes designer | **Always Checked By.** Sometimes also Designed By, confirm per project. |
 | Raouf Aldeeb | Production Manager | Production stakeholder. Sheet field not yet defined. |
 
 Add other people here as the user names them. Spell names exactly as listed.
