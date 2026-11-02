@@ -40,4 +40,6 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 
 ## Dimension style
 
-Use filled 30 degree arrows, 3 mm Arial text, thin lines and dark blue, so dimensions stand apart from the linework. Set the type with `set_parameter`. Tick Mark takes an element id: scan low ids with `get_element` to find the arrowhead. Hide the reference ticks from `create_dimension_string` with a near-white line style.
+On A1 shop drawings: Arial 5 mm black text, Diagonal 3mm ticks at weight 3, lines at weight 1, text offset 1.5 mm, witness gap 2 mm, witness extension 3 mm, dimension line extension 2 mm, opaque text background. Stack strings 12 mm apart on paper. Keynote numbers 5 mm bold, sheet notes 3.5 mm. Don't dimension parts under about 25 mm in a chain, because the text won't fit: give them in a note or a larger detail. These values are practice-based judgement; 3.5 and 5 mm are ISO 3098 nominal sizes.
+
+Set the type with `set_parameter`. Tick Mark takes an element id: scan low ids with `get_element`. Hide the reference ticks from `create_dimension_string` with a near-white line style.
