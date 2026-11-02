@@ -46,7 +46,7 @@ Use IEC 60617 symbols, never invented marks: luminaire as a circle with a cross,
 
 ## Circuit colours
 
-Circuit layouts are the exception to black only: colour lines by phase using IEC 60445 conductor colours, L1 brown, L2 black, L3 grey, neutral blue, earth green and yellow. Line type shows the system. Label each circuit with its number, phase and system, and show the key in the legend. No ISO standard assigns colours by circuit type.
+Circuit layouts are the exception to black only: colour lines by phase using IEC 60445 conductor colours, L1 brown, L2 black, L3 grey, neutral blue, earth green and yellow. Line type shows the system. On a single-phase supply all circuits are the line colour, brown. Label each circuit with its number, phase where there is more than one, and system, and show the key in the legend. No ISO standard assigns colours by circuit type.
 
 ## ISO 19650 on projects
 
