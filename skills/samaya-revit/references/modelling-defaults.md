@@ -73,3 +73,5 @@ Manage AC condensate water above the ceiling. No exposed pipes or risers in the 
 The model follows the site as-built, so the MEP CAD may be drawn for a different room size. It is still the design: place each item by its proportion of the room and its relation to walls, units and ceiling features, keep real fixture sizes, and round positions to whole centimetres. Do not copy CAD coordinates directly.
 
 Each MEP sheet shows only its own system, with the room in halftone, device labels, a legend with quantities, and the key plan. Do not invent positions the CAD does not show: flag them.
+
+Do not write "to be confirmed by the electrical engineer" on sheets. Samaya Factory does the electrical engineering in-house.
