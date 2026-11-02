@@ -54,4 +54,6 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - **Panel schedule views cannot be exported** with `export_view_image`.
 - **Ceiling plan view range cannot be raised** with `set_view_range` ("Plan view range is not valid"). Lights recessed above the top of the range do not draw in hidden line, so draw their symbols with detail lines and check every light against the legend.
 - **Device connectors must be Power - Balanced to carry load.** A Power - Circuit connector has no load field, so its circuit reads 0 VA. Pass `system: "PowerBalanced"` in the `connector` option. The field is named "Apparent Power" on the family connector, not "Apparent Load".
+- **Read a panel schedule with `read_panel_schedule`,** since the view cannot be exported. Check breaker ratings, because new circuits default to 20 A and the panel's MCB rating to 1 A. Set "Rating" on each circuit and "Mains" and "MCB Rating" on the panel.
+- **Restarting Revit for an install:** save every open model through the bridge, close with `taskkill` without `/F`, install, start `Revit.exe` with the model path, then wait for port 48884. It can take over four minutes. Clean test types with `clean_electrical_types` and link models with `link_revit_model`.
 

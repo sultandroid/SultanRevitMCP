@@ -77,6 +77,9 @@ namespace RevitMcp
             ["get_electrical_info"] = GetElectricalInfo,
             ["set_panel_system"] = SetPanelSystem,
             ["diagnose_panel"] = DiagnosePanel,
+            ["read_panel_schedule"] = ReadPanelSchedule,
+            ["clean_electrical_types"] = CleanElectricalTypes,
+            ["link_revit_model"] = LinkRevitModel,
             ["set_family_connectors"] = SetFamilyConnectors,
             ["set_view_range"] = SetViewRange,
             ["probe_ray"] = ProbeRay,
@@ -1433,6 +1436,77 @@ namespace RevitMcp
             {
                 familyDoc.Close(false);
             }
+        }
+
+        /// <summary>Returns the text of a panel schedule, since the view cannot be exported as an image.</summary>
+        private static JsonNode ReadPanelSchedule(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as Autodesk.Revit.DB.Electrical.PanelScheduleView
+                       ?? throw new ArgumentException("view_id is not a panel schedule.");
+            var rows = new JsonArray();
+            foreach (var type in new[] { SectionType.Header, SectionType.Body, SectionType.Summary, SectionType.Footer })
+            {
+                var section = view.GetTableData().GetSectionData(type);
+                if (section == null) continue;
+                for (var r = section.FirstRowNumber; r <= section.LastRowNumber; r++)
+                {
+                    var cells = new List<string>();
+                    for (var c = section.FirstColumnNumber; c <= section.LastColumnNumber; c++)
+                    {
+                        var text = view.GetCellText(type, r, c);
+                        if (!string.IsNullOrWhiteSpace(text)) cells.Add(text);
+                    }
+                    if (cells.Count > 0) rows.Add($"{type}: {string.Join(" | ", cells)}");
+                }
+            }
+            return new JsonObject { ["rows"] = rows };
+        }
+
+        /// <summary>Removes unused distribution systems and voltage types, and renames voltage types.</summary>
+        private static JsonNode CleanElectricalTypes(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            return InTransaction(doc, "Clean electrical types", () =>
+            {
+                var settings = Autodesk.Revit.DB.Electrical.ElectricalSetting.GetElectricalSettings(doc);
+                var log = new JsonArray();
+                foreach (var n in p["systems"] as JsonArray ?? new JsonArray())
+                {
+                    var name = n.GetValue<string>();
+                    try { settings.RemoveDistributionSysType(settings.DistributionSysTypes.Cast<Autodesk.Revit.DB.Electrical.DistributionSysType>().First(q => q.Name == name)); log.Add("removed system " + name); }
+                    catch (Exception e) { log.Add($"kept system {name}: {e.Message}"); }
+                }
+                foreach (var n in p["voltages"] as JsonArray ?? new JsonArray())
+                {
+                    var name = n.GetValue<string>();
+                    try { settings.RemoveVoltageType(settings.VoltageTypes.Cast<Autodesk.Revit.DB.Electrical.VoltageType>().First(q => q.Name == name)); log.Add("removed voltage " + name); }
+                    catch (Exception e) { log.Add($"kept voltage {name}: {e.Message}"); }
+                }
+                if (p["rename_voltages"] is JsonObject renames)
+                    foreach (var pair in renames)
+                    {
+                        var voltage = settings.VoltageTypes.Cast<Autodesk.Revit.DB.Electrical.VoltageType>().FirstOrDefault(v => v.Name == pair.Key);
+                        if (voltage == null) { log.Add("no voltage " + pair.Key); continue; }
+                        voltage.Name = pair.Value.GetValue<string>();
+                        log.Add($"renamed {pair.Key} to {voltage.Name}");
+                    }
+                return new JsonObject { ["log"] = log };
+            });
+        }
+
+        /// <summary>Links another Revit model at the same origin.</summary>
+        private static JsonNode LinkRevitModel(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var path = ReqStr(p, "path");
+            if (!File.Exists(path)) throw new ArgumentException($"Model not found: '{path}'.");
+            return InTransaction(doc, "Link model", () =>
+            {
+                var type = RevitLinkType.Create(doc, ModelPathUtils.ConvertUserVisiblePathToModelPath(path), new RevitLinkOptions(false));
+                var instance = RevitLinkInstance.Create(doc, type.ElementId, ImportPlacement.Origin);
+                return new JsonObject { ["type_id"] = type.ElementId.Value, ["id"] = instance.Id.Value };
+            });
         }
 
         private static JsonNode SetViewRange(UIApplication app, JsonObject p)
