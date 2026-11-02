@@ -26,6 +26,10 @@ The title block carries the client, designer and consultant logos as well as Sam
 
 **A text note and a label cannot share a size and weight in build_title_block**: it fails with "The type typeId is not valid". Use a slightly different size for the text.
 
+## Sign-off
+
+The title block says DRAWN BY, not DESIGNED BY. Madina 1: Lorch. The designer has its own logo panel.
+
 ## Consultant
 
 The CONSULTANT panel has no label. Add the name as a text note on each sheet, at x 1027, y 672, not in the family. The name comes from the project.

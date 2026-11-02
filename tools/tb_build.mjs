@@ -24,7 +24,7 @@ const spec = {
     head("CLIENT", X, 737), head("CONSULTANT", X, 687), head("DESIGNER", X, 637), { text: "Insignia Design Group", at: P(X, 622), size_mm: 3.4, color: BLACK }, head("NOTES", X, 587), head("KEY PLAN", X, 467), head("REVISIONS", X, 367),
     head("PROJECT", X, 277), head("DRAWING TITLE", X, 237),
     head("DRAWING NO.", X, 182), head("REV", 1154, 182),
-    head("SCALE", X, 142), head("DATE", M + 5, 142), head("DESIGNED BY", X, 112), head("CHECKED BY", M + 5, 112), head("APPROVED BY", X, 82), head("PROJECT NO.", M + 5, 82),
+    head("SCALE", X, 142), head("DATE", M + 5, 142), head("DRAWN BY", X, 112), head("CHECKED BY", M + 5, 112), head("APPROVED BY", X, 82), head("PROJECT NO.", M + 5, 82),
     { text: "This drawing is the property of Samaya Factory. Do not scale. Check all dimensions on site before fabrication.", at: P(X, 51), size_mm: 2, color: BLACK },
     { text: "samaya-factory.com", at: P(X, 20), size_mm: 3, color: BLACK, bold: true },
   ],
