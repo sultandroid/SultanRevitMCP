@@ -44,6 +44,10 @@ This is a working summary, not the text of the standards. Editions change, so ch
 
 Use IEC 60617 symbols, never invented marks: luminaire as a circle with a cross, socket outlet as a semicircle with a stub, earth contact with a bar. Show a graphic symbol legend on every electrical sheet. Check any project-specific symbol against the CAD legend and the published standard before issue.
 
+## Circuit colours
+
+Circuit layouts are the exception to black only: colour lines by phase using IEC 60445 conductor colours, L1 brown, L2 black, L3 grey, neutral blue, earth green and yellow. Line type shows the system. Label each circuit with its number, phase and system, and show the key in the legend. No ISO standard assigns colours by circuit type.
+
 ## ISO 19650 on projects
 
 - **Common data environment:** information moves through work in progress, shared, published and archived.
