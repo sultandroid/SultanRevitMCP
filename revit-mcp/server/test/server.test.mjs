@@ -1,0 +1,109 @@
+// End-to-end test of the MCP server over stdio, against a fake add-in speaking the bridge protocol.
+import assert from "node:assert/strict";
+import net from "node:net";
+import path from "node:path";
+import { after, before, test } from "node:test";
+import { fileURLToPath } from "node:url";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+
+const serverPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "server.mjs");
+const PNG = "iVBORw0KGgo=";
+
+let fake;
+let client;
+const received = [];
+
+function connectClient(port) {
+  const transport = new StdioClientTransport({
+    command: process.execPath,
+    args: [serverPath],
+    env: { ...process.env, REVIT_MCP_PORT: String(port) },
+  });
+  const c = new Client({ name: "test", version: "1.0.0" });
+  return c.connect(transport).then(() => c);
+}
+
+before(async () => {
+  fake = net.createServer((socket) => {
+    let buffer = "";
+    socket.on("data", (chunk) => {
+      buffer += chunk;
+      if (!buffer.includes("\n")) return;
+      const request = JSON.parse(buffer);
+      received.push(request);
+
+      let response;
+      if (request.command === "export_view_image") {
+        response = { ok: true, result: { view: "Level 1", mime_type: "image/png", data_base64: PNG } };
+      } else if (request.params.element_id === 404) {
+        response = { ok: false, error: "No element with id 404." };
+      } else {
+        response = { ok: true, result: { echoed: request.command } };
+      }
+      socket.end(JSON.stringify(response) + "\n");
+    });
+  });
+  await new Promise((resolve) => fake.listen(0, "127.0.0.1", resolve));
+  client = await connectClient(fake.address().port);
+});
+
+after(async () => {
+  await client.close();
+  fake.close();
+});
+
+test("lists every tool with read-only hints set correctly", async () => {
+  const { tools } = await client.listTools();
+  assert.equal(tools.length, 65);
+  const byName = Object.fromEntries(tools.map((t) => [t.name, t]));
+  assert.equal(byName.query_elements.annotations.readOnlyHint, true);
+  assert.equal(byName.delete_elements.annotations.destructiveHint, true);
+});
+
+test("forwards the command and arguments to the bridge", async () => {
+  const start = { x: 0, y: 0 };
+  const end = { x: 5000, y: 0 };
+  const result = await client.callTool({ name: "create_wall", arguments: { start, end, level_id: 311 } });
+  assert.deepEqual(JSON.parse(result.content[0].text), { echoed: "create_wall" });
+  assert.deepEqual(received.at(-1), { command: "create_wall", params: { start, end, level_id: 311 } });
+});
+
+test("surfaces bridge errors as tool errors", async () => {
+  const result = await client.callTool({ name: "get_element", arguments: { element_id: 404 } });
+  assert.equal(result.isError, true);
+  assert.match(result.content[0].text, /No element with id 404/);
+});
+
+test("returns exported views as image content", async () => {
+  const result = await client.callTool({ name: "export_view_image", arguments: {} });
+  const image = result.content.find((c) => c.type === "image");
+  assert.equal(image.data, PNG);
+  assert.equal(image.mimeType, "image/png");
+});
+
+test("rejects invalid arguments before reaching Revit", async () => {
+  const before = received.length;
+  const result = await client.callTool({ name: "delete_elements", arguments: { element_ids: [] } }).catch((err) => ({
+    isError: true,
+    content: [{ text: err.message }],
+  }));
+  assert.equal(result.isError, true);
+  assert.equal(received.length, before);
+});
+
+test("explains when Revit is not running", async () => {
+  const unused = net.createServer();
+  await new Promise((resolve) => unused.listen(0, "127.0.0.1", resolve));
+  const port = unused.address().port;
+  await new Promise((resolve) => unused.close(resolve));
+
+  const offline = await connectClient(port);
+  try {
+    const result = await offline.callTool({ name: "list_levels", arguments: {} });
+    assert.equal(result.isError, true);
+    assert.match(result.content[0].text, /Start Revit/);
+  } finally {
+    await offline.close();
+  }
+});

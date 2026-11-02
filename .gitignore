@@ -1,0 +1,7 @@
+node_modules/
+bin/
+obj/
+*.0001.rfa
+*.0002.rfa
+*.0003.rfa
+*.rvt
