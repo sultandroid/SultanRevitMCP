@@ -79,3 +79,5 @@ Do not write "to be confirmed by the electrical engineer" on sheets. Samaya Fact
 MEP sheets follow ISO 128: black lines on white, hidden line views, never colour. Tell systems apart with line type and weight, and materials with hatches. Fabrication exploded and 3D views stay shaded.
 
 Circuit layouts use curved arcs between devices, as on real projects, never straight lines across the room, and each circuit ends in a home-run arrow labelled with its number, not a line to the panel.
+
+Read the CAD's own DB schedule before writing one. Loads, breakers and cables come from it, not from assumptions. Confirm the site supply, single or three phase, before sizing. Electrical packages include a schedules sheet: mark, description, quantity, load, mounting, circuit and sheet.
