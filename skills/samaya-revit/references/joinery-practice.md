@@ -46,3 +46,5 @@ On A1 shop drawings: Arial 5 mm black text, Diagonal 3mm ticks at weight 3, line
 
 Set the type with `set_parameter`. Tick Mark takes an element id: scan low ids with `get_element`. Hide the reference ticks from `create_dimension_string` with a near-white line style.
 - Metal pegboard never sits directly on the panel. It sits on a softwood frame under its solid border, which leaves space behind the sheet for hooks, inside an 18 mm trim flush with the sheet. Show this in a detail on the fabrication sheet.
+- Show the wire route for any powered device: dashed grey, from the floor through the bottom hole and double back to the device.
+- No free Saudi figure block was found online, so draw it as outlines: thobe, shemagh, agal, 1700 mm.
