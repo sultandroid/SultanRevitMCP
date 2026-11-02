@@ -16,6 +16,7 @@ Ask for anything not already given. Do not guess and do not leave Revit placehol
 | Approver on this project | Approved By |
 | Current revision and its purpose | Revisions, see `revisions.md` |
 | Sheet size, if not A1 | Title block choice |
+| Site-measured clear height and slab soffit | `Clear Height` level; check the design fits before detailing |
 
 ## Stakeholders
 
