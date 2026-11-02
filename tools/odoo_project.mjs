@@ -1,6 +1,6 @@
 // Read a project and its client from Samaya's Odoo. Read only.
 // Usage: ODOO_LOGIN=<email> ODOO_KEY=<api key> node odoo_project.mjs "<project code or name>"
-const U = "https://erp.samayainvest.com/jsonrpc", D = "peerless-tech-samaya-18-0-18447146", L = process.env.ODOO_LOGIN, K = process.env.ODOO_KEY;
+const U = "https://samayainv.odoo.com/jsonrpc", D = "peerless-tech-samaya-18-0-18447146", L = process.env.ODOO_LOGIN, K = process.env.ODOO_KEY;
 const rpc = async (service, method, args) => {
   const r = await (await fetch(U, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", method: "call", params: { service, method, args } }) })).json();
   if (r.error) throw new Error(r.error.data?.message || r.error.message);
