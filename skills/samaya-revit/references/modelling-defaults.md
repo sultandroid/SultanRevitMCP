@@ -35,6 +35,11 @@ Rfa\Title Blocks\                    title blocks and logos
 - Identify equipment from the plan and the discipline drawing, not from a legend alone. On Madina 1 the architectural legend called a symbol "exhaust fan", and the mechanical layout shows the same symbol as the concealed AC unit.
 - List what was left out when reporting a service as modelled.
 
+## Services above the ceiling
+
+- Before routing, find the height available: ceiling top to slab soffit, less any beams. Report the clearance for each item. Search level markers in the drawings, such as `SL` and `CL`, and confirm they are placed on this shop's sheets.
+- On small shops, flexible hoses from a discharge box can replace rigid duct, with the mechanical engineer's approval.
+
 ## AC condensate
 
 Manage AC condensate water above the ceiling. No exposed pipes or risers in the shop. If the drawing's discharge point is not above the ceiling, ask for it instead of assuming.
