@@ -97,7 +97,7 @@ Every fit-out set includes joinery shop drawings in the A-700 series:
 
 ## Key plan
 
-Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped plan with the area or unit on that sheet highlighted in red. A view can sit on only one sheet, so duplicate it for each sheet.
+Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped plan with the area or unit on that sheet highlighted in red. Use a viewport with no title, because the panel already has its heading. A view can sit on only one sheet, so duplicate it for each sheet.
 
 ## Before issuing
 
@@ -105,6 +105,7 @@ Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped 
 - No placeholder text, working views or stray elements outside title block limits.
 - Every view has a title, scale and template.
 - Every sheet has its key plan.
+- **No overlaps or overflow, ever.** No text, title, tag, dimension or view may overlap anything or leave its panel or the sheet. Check every sheet at full size before reporting it.
 - Revision and sign-off are filled.
 
 ## Sources

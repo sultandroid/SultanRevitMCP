@@ -22,7 +22,7 @@ Read these when relevant:
 
 1. **Ask before assuming project data.** Client name, project name and the other items in `project-setup.md` must come from the user. Never leave placeholder values on an issued sheet and never invent them.
 2. **Fill sign-off from the stakeholder list**, and confirm who the designer is on each project.
-3. **Check by looking.** Render the sheet or view with `export_view_image` and read the image before saying it is done. No error from Revit does not mean it looks right.
+3. **Check by looking.** Render the sheet or view with `export_view_image` and read the image before saying it is done. No error from Revit does not mean it looks right. No text or view may overlap or overflow.
 4. **Always use phases.** Every element and view has one, and existing work is always halftone through the phase graphics. See `phases.md`.
 5. **Always use Revit revisions.** Never type a revision by hand. See `revisions.md`.
 6. **Always add grids** to every project and show them on plans and sections. See `modelling-defaults.md`.
