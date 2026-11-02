@@ -77,6 +77,7 @@ namespace RevitMcp
             ["get_electrical_info"] = GetElectricalInfo,
             ["set_panel_system"] = SetPanelSystem,
             ["diagnose_panel"] = DiagnosePanel,
+            ["set_family_connectors"] = SetFamilyConnectors,
             ["set_view_range"] = SetViewRange,
             ["probe_ray"] = ProbeRay,
             ["create_schedule"] = CreateSchedule,
@@ -1365,6 +1366,64 @@ namespace RevitMcp
             });
         }
 
+        /// <summary>Writes voltage, poles, load and power factor to one family connector.</summary>
+        private static void SetConnectorValues(Element connector, JsonObject c)
+        {
+            if (Num(c, "voltage") is double volts) connector.get_Parameter(BuiltInParameter.RBS_ELEC_VOLTAGE)?.Set(UnitUtils.ConvertToInternalUnits(volts, UnitTypeId.Volts));
+            if (Num(c, "poles") is double poles) connector.get_Parameter(BuiltInParameter.RBS_ELEC_NUMBER_OF_POLES)?.Set((int)poles);
+            if (Num(c, "load_va") is double load) connector.get_Parameter(BuiltInParameter.RBS_ELEC_APPARENT_LOAD)?.Set(UnitUtils.ConvertToInternalUnits(load, UnitTypeId.VoltAmperes));
+            if (Num(c, "power_factor") is double factor) connector.get_Parameter(BuiltInParameter.RBS_ELEC_POWER_FACTOR)?.Set(factor);
+        }
+
+        private static void SetFamilyPartType(Document familyDoc, JsonObject c)
+        {
+            if (Str(c, "part_type") is string part && Enum.TryParse<PartType>(part, true, out var parsed))
+                familyDoc.OwnerFamily.get_Parameter(BuiltInParameter.FAMILY_CONTENT_PART_TYPE)?.Set((int)parsed);
+        }
+
+        /// <summary>Adds a power connector to a family on its largest planar face, for a unit family that must carry a circuit.</summary>
+        private static void AddElectricalConnector(Document familyDoc, IEnumerable<Element> forms, JsonObject c)
+        {
+            var system = Enum.TryParse<Autodesk.Revit.DB.Electrical.ElectricalSystemType>(Str(c, "system") ?? "PowerCircuit", true, out var parsed)
+                ? parsed : Autodesk.Revit.DB.Electrical.ElectricalSystemType.PowerCircuit;
+            var options = new Options { ComputeReferences = true };
+            var face = forms.SelectMany(form => SolidsOf(form.get_Geometry(options)))
+                .SelectMany(solid => solid.Faces.Cast<Face>())
+                .OfType<PlanarFace>().Where(q => q.Reference != null).OrderByDescending(q => q.Area).FirstOrDefault()
+                ?? throw new InvalidOperationException("The family has no planar face to host a connector.");
+            SetConnectorValues(ConnectorElement.CreateElectricalConnector(familyDoc, system, face.Reference), c);
+            SetFamilyPartType(familyDoc, c);
+        }
+
+        /// <summary>Sets the connectors of a loaded family, so devices and panels can agree on voltage and poles.</summary>
+        private static JsonNode SetFamilyConnectors(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var target = RequireElement(doc, ReqId(p, "element_id")) as FamilyInstance ?? throw new ArgumentException("element_id is not a family instance.");
+            var familyDoc = doc.EditFamily(target.Symbol.Family);
+            try
+            {
+                var changed = 0;
+                using (var transaction = new Transaction(familyDoc, "MCP: Family connectors"))
+                {
+                    transaction.Start();
+                    foreach (var connector in new FilteredElementCollector(familyDoc).OfClass(typeof(ConnectorElement)).Cast<ConnectorElement>().Where(q => q.Domain == Domain.DomainElectrical))
+                    {
+                        SetConnectorValues(connector, p);
+                        changed++;
+                    }
+                    SetFamilyPartType(familyDoc, p);
+                    transaction.Commit();
+                }
+                familyDoc.LoadFamily(doc, new OverwriteFamily());
+                return new JsonObject { ["connectors"] = changed };
+            }
+            finally
+            {
+                familyDoc.Close(false);
+            }
+        }
+
         private static JsonNode SetViewRange(UIApplication app, JsonObject p)
         {
             var doc = Doc(app);
@@ -1903,9 +1962,11 @@ namespace RevitMcp
                 {
                     transaction.Start();
                     var materials = new Dictionary<string, ElementId>();
+                    var forms = new List<Element>();
                     foreach (var part in parts)
                     {
                         var form = FreeFormElement.Create(familyDoc, SolidUtils.CreateTransformed(part.Solid, toFamily));
+                        forms.Add(form);
                         if (part.Material == null) continue;
                         if (!materials.TryGetValue(part.Material, out var materialId))
                         {
@@ -1914,6 +1975,11 @@ namespace RevitMcp
                             materials[part.Material] = materialId;
                         }
                         form.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.Set(materialId);
+                    }
+                    if (p["connector"] is JsonObject connector)
+                    {
+                        familyDoc.Regenerate();
+                        AddElectricalConnector(familyDoc, forms, connector);
                     }
                     transaction.Commit();
                 }
