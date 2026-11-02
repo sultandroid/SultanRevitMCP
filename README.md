@@ -23,3 +23,7 @@ The link makes Claude read the skill straight from this repository, so `git pull
 When a new lesson or standard comes up, update the matching file under `skills/samaya-revit/references/`, then commit and push. Add new or changed title blocks to `title-blocks/`.
 
 Project models and project data do not belong here.
+
+## Third-party skills
+
+These add-in development skills are installed in `~/.claude/skills` and not stored here, because their source has no license: `revit-addin`, `revit-debug`, `revit-test`, `revit-wpf-mvvm` and `revit-xaml-styles`, from [revit-api-2027-with-claude](https://github.com/tony-hoang-ai-automation/revit-api-2027-with-claude/tree/main/.claude/skills). Copy those folders on another computer.
