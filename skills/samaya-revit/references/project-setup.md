@@ -23,16 +23,20 @@ Ask for anything not already given. Do not guess and do not leave Revit placehol
 |---|---|---|
 | Mohamed Sultan | Checker, sometimes designer | **Always Checked By.** Sometimes also Designed By, confirm per project. |
 | Raouf Aldeeb | Production Manager | Production stakeholder. Sheet field not yet defined. |
+| Anas Matter | Approver | Approved By on HT-KEC-MAD01. Confirm on other projects. |
+| Insignia | External designer | Designed By on HT-KEC-MAD01. Confirm on other projects. |
 
 Add other people here as the user names them. Spell names exactly as listed.
 
 Not yet confirmed by the user:
 
-- Who normally signs Approved By.
-- Who normally signs Designed By when it is not Mohamed Sultan.
+- Whether Anas Matter approves all projects.
+- Whether Insignia designs other projects, and who signs Designed By otherwise.
 - Whether Raouf Aldeeb signs a field on the sheet.
 
 Ask on the next project, then record the answer here.
+
+Designed By, Checked By and Approved By are per-sheet parameters, so set them on every new sheet.
 
 ## Getting project data from Odoo
 
