@@ -20,7 +20,8 @@ Rfa\Title Blocks\                    title blocks and logos
 ## Modelling
 
 - Build fabricated units as families, one per unit, with a Mark and a Comments note. Export the marks and unit parts to CSV.
-- Use reference planes for setting-out heights such as an arch springing, not extra levels.
+- Every shop has a level at the underside of the main ceiling, named `Clear Height +x.xx`. This is the shop's clear height.
+- Use reference planes for other setting-out heights such as an arch springing, not extra levels.
 - Note assumptions in the element's Comments: anything not stated on the source drawing.
 - Take HVAC and other services from the latest revision of the source drawing, and record the source file in Comments.
 
