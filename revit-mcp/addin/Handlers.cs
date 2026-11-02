@@ -95,6 +95,7 @@ namespace RevitMcp
             ["set_schedule_format"] = SetScheduleFormat,
             ["view_category_counts"] = ViewCategoryCounts,
             ["set_view_overrides"] = SetViewOverrides,
+            ["set_element_overrides"] = SetElementOverrides,
         };
 
         public static bool Has(string command) => Table.ContainsKey(command);
@@ -1474,6 +1475,24 @@ namespace RevitMcp
                     changed++;
                 }
                 return new JsonObject { ["changed"] = changed, ["skipped"] = skipped };
+            });
+        }
+
+        private static JsonNode SetElementOverrides(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var ids = (p["element_ids"] as JsonArray ?? throw new ArgumentException("element_ids is required.")).Select(n => new ElementId(n.GetValue<long>())).ToList();
+            var halftone = p["halftone"]?.GetValue<bool>() ?? false;
+            return InTransaction(doc, "Set element overrides", () =>
+            {
+                foreach (var id in ids)
+                {
+                    var settings = view.GetElementOverrides(id);
+                    settings.SetHalftone(halftone);
+                    view.SetElementOverrides(id, settings);
+                }
+                return new JsonObject { ["changed"] = ids.Count };
             });
         }
 
