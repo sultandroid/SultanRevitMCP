@@ -57,3 +57,4 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - **Read a panel schedule with `read_panel_schedule`,** since the view cannot be exported. Check breaker ratings, because new circuits default to 20 A and the panel's MCB rating to 1 A. Set "Rating" on each circuit and "Mains" and "MCB Rating" on the panel.
 - **Restarting Revit for an install:** save every open model through the bridge, close with `taskkill` without `/F`, install, start `Revit.exe` with the model path, then wait for port 48884. It can take over four minutes. Clean test types with `clean_electrical_types` and link models with `link_revit_model`.
 
+- **A model linked into the open host cannot be opened through the bridge.** `open_document` fails with "Object reference not set". Close the host first.
