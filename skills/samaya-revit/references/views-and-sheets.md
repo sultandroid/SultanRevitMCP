@@ -84,7 +84,8 @@ Every fit-out set includes joinery shop drawings in the A-700 series:
 - **Isolate the unit:** every view on the sheet shows that unit alone, with no neighbours, levels or section marks.
 - **Keynote every part or material:** numbered leaders on the views, with a keynote legend on the sheet.
 - **Material quantities, not a cutting list:** a table of net consumable area for each material, in m2, with length or count for items such as plinths and grommets.
-- Arrange the sheet in order: views on the left and centre, keynotes and the material table on the right.
+- **Main three views in standard projection, always aligned:** front elevation, top view directly under it, side view beside it. All three at the same scale, the front and top sharing vertical alignment, the front and side sharing horizontal alignment. The top view is turned so its length runs the same way as the front; rotate its crop, not the viewport, so text and the title stay upright.
+- Rear elevation, sections, details, keynotes and the material table go in the white space left around the three main views, never in place of them.
 - List each unit's mark and exact size on its type sheet, because built sizes differ slightly.
 - A quantity schedule of all units, and a material legend with colour swatches, finish names and codes, and where each is used.
 
