@@ -114,7 +114,7 @@ Use this on every fabrication sheet, every time. Do not start from an older shee
 1. Front, plan and side are the fixed main views, all at the same scale. Place them first.
 2. The front's left and right edges line up with the plan's. The front's floor and top line up with the side's.
 3. Everything else goes in the empty area only: rear elevation, sections, details, keynotes, material table, notes.
-3b. The first sheet of each unit also carries an isolated 3D view, so the technician understands the unit at a glance.
+3b. The first sheet of each unit also carries an isolated 3D view, so the technician understands the unit at a glance. Each unit also gets an exploded view, numbered in assembly order, on its own sheet if it does not fit.
 4. The key plan goes in the title block's KEY PLAN panel on every sheet, unit in red, no title.
 5. Isolate the unit, with dimensions, keynotes, skirting, door swings, and wire routes where they apply. The Saudi figure goes on the side view only.
 6. Before sending, render the sheet and check each item above, and that no text overlaps or runs out of its area.

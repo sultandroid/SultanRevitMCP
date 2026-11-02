@@ -9,7 +9,7 @@ const P = (x, y) => ({ x, y, z: 0 });
 const rect = (a, b, y0, y1, color) => ({ points: [P(a, y0), P(b, y0), P(b, y1), P(a, y1)], color });
 const line = (x1, y1, x2, y2) => ({ start: P(x1, y1), end: P(x2, y2) });
 const head = (text, x, y, color = BLACK) => ({ text, at: P(x, y), size_mm: 2.5, color, bold: true });
-const ROWS = [741, 691, 641, 471, 371, 281, 241, 186, 146, 116, 86, 56, 24];
+const ROWS = [741, 691, 641, 591, 471, 371, 281, 241, 186, 146, 116, 86, 56, 24];
 
 const spec = {
   source_rfa: ROOT + "Assetes/Revit Familes/Title Block/A1 metric_Samaya.rfa",
@@ -19,9 +19,9 @@ const spec = {
     ...ROWS.map((y) => line(L, y, R, y)),
     line(M, 56, M, 146),
   ],
-  images: [{ path: RFA + "samaya-factory-logo-black.png", center: P((L + R) / 2, 786), width_mm: 130 }],
+  images: [{ path: RFA + "samaya-factory-logo-black.png", center: P((L + R) / 2, 786), width_mm: 130 }, { path: RFA + "logo-client.png", center: P(1155, 716), width_mm: 42 }, { path: RFA + "logo-consultant.png", center: P(1148, 666), width_mm: 56 }, { path: RFA + "logo-designer.png", center: P(1148, 616), width_mm: 56 }],
   texts: [
-    head("CLIENT", X, 737), head("CONSULTANT", X, 687), head("NOTES", X, 637), head("KEY PLAN", X, 467), head("REVISIONS", X, 367),
+    head("CLIENT", X, 737), head("CONSULTANT", X, 687), head("DESIGNER", X, 637), { text: "Insignia Design Group", at: P(X, 622), size_mm: 3.4, color: BLACK }, head("NOTES", X, 587), head("KEY PLAN", X, 467), head("REVISIONS", X, 367),
     head("PROJECT", X, 277), head("DRAWING TITLE", X, 237),
     head("DRAWING NO.", X, 182), head("REV", 1154, 182),
     head("SCALE", X, 142), head("DATE", M + 5, 142), head("DESIGNED BY", X, 112), head("CHECKED BY", M + 5, 112), head("APPROVED BY", X, 82), head("PROJECT NO.", M + 5, 82),

@@ -22,7 +22,9 @@ Strip on the right, x 1022 to 1182, from top to bottom: logo, CLIENT, CONSULTANT
 
 ## Logos
 
-The title block carries the client, designer and consultant logos as well as Samaya Factory's. Use only logo files the user supplies, never one guessed or copied from the web.
+The title block carries the client, designer and consultant logos as well as Samaya Factory's. Each has a panel under the Samaya Factory logo: name on the left, logo on the right. Take logos only from sources the user names, on opaque white, as the project's Rfa/Title Blocks/logo-client, logo-consultant and logo-designer.png files; they are project data and stay out of this repository's family defaults.
+
+**A text note and a label cannot share a size and weight in build_title_block**: it fails with "The type typeId is not valid". Use a slightly different size for the text.
 
 ## Consultant
 
