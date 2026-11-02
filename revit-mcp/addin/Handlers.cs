@@ -97,6 +97,8 @@ namespace RevitMcp
             ["set_view_overrides"] = SetViewOverrides,
             ["set_element_overrides"] = SetElementOverrides,
             ["remove_z_band"] = RemoveZBand,
+            ["isolate_in_view"] = IsolateInView,
+            ["create_keynote"] = CreateKeynote,
             ["set_family_category"] = SetFamilyCategory,
             ["set_revision_numbering"] = SetRevisionNumbering,
             ["set_revision_sequence"] = SetRevisionSequence,
@@ -1930,6 +1932,40 @@ namespace RevitMcp
             {
                 familyDoc.Close(false);
             }
+        }
+
+        /// <summary>Hides everything in a view except the given elements, permanently, so the view shows one unit alone.</summary>
+        private static JsonNode IsolateInView(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var keep = new HashSet<ElementId>(ReqIds(p, "element_ids"));
+            return InTransaction(doc, "Isolate in view", () =>
+            {
+                var others = new FilteredElementCollector(doc, view.Id).WhereElementIsNotElementType().ToElements()
+                    .Where(e => !keep.Contains(e.Id) && e.Category != null && e.CanBeHidden(view) && e.Category.Id.Value != (long)BuiltInCategory.OST_Viewers)
+                    .Select(e => e.Id).ToList();
+                if (others.Count > 0) view.HideElements(others);
+                return new JsonObject { ["hidden"] = others.Count };
+            });
+        }
+
+        /// <summary>Adds a keynote: text at a point with a leader to another point.</summary>
+        private static JsonNode CreateKeynote(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var at = OnViewPlane(view, ReqPoint(p, "at"));
+            var to = OnViewPlane(view, ReqPoint(p, "to"));
+            return InTransaction(doc, "Create keynote", () =>
+            {
+                var typeId = OptId(p, "text_type_id") ?? doc.GetDefaultElementTypeId(ElementTypeGroup.TextNoteType);
+                var note = TextNote.Create(doc, view.Id, at, ReqStr(p, "text"), typeId);
+                var side = view.RightDirection.DotProduct(to - at) >= 0 ? TextNoteLeaderTypes.TNLT_STRAIGHT_R : TextNoteLeaderTypes.TNLT_STRAIGHT_L;
+                var leader = note.AddLeader(side);
+                leader.End = to;
+                return new JsonObject { ["id"] = note.Id.Value };
+            });
         }
 
         /// <summary>Sets a view's phase filter by name.</summary>
