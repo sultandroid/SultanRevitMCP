@@ -51,6 +51,8 @@ Set these once in Phasing > Graphic Overrides, not per view:
 
 No command creates phases or edits their graphic overrides, so the user does those in Revit, or add a command. Element and view phases can be set with `set_parameter`: Phase Created, Phase Demolished, Phase, Phase Filter. Check values and render the view.
 
+`set_parameter` does not accept a Phase Filter by name, because the parameter holds an element id and the bridge can't list filters yet. Set filters in Revit through a view template, or add a command.
+
 ## Sources
 
 - [The CAD Masters: phasing](https://thecadmasters.com/revit-phasing-demolition-new-construction/)
