@@ -30,6 +30,7 @@
 - Never edit or delete an issued revision. Make a new one.
 - Clouds of earlier revisions stay or hide according to Show in the revision settings. Agree this per project, and keep the history in the schedule either way.
 - The REV field and schedule are empty until a revision is on the sheet. This is normal.
+- A new project already holds a default Revision 1, which takes the first number. To issue as Rev 03, use `set_revision_numbering` with start 2, then check the REV field on a rendered sheet.
 - If the client or project sets ISO 19650 codes, such as S2 with P01, or C01 for construction, use those. They vary between organisations, so take them from the project's requirements.
 
 ## Sources
