@@ -40,6 +40,10 @@ This is a working summary, not the text of the standards. Editions change, so ch
 - **Lettering:** one upright sans serif font, with no overlap on lines or other text. Minimum printed height is 2.5 mm; our sheet standard uses 5 mm.
 - **Dimensions** in mm without the unit, with one consistent style and terminator. Do not repeat a dimension without reason.
 
+## Electrical symbols
+
+Use IEC 60617 symbols, never invented marks: luminaire as a circle with a cross, socket outlet as a semicircle with a stub, earth contact with a bar. Show a graphic symbol legend on every electrical sheet. Check any project-specific symbol against the CAD legend and the published standard before issue.
+
 ## ISO 19650 on projects
 
 - **Common data environment:** information moves through work in progress, shared, published and archived.
