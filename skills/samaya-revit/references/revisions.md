@@ -17,7 +17,7 @@
 ## Procedure
 
 1. Ask what the issue is for and its date, if not given.
-2. Add the revision in Sheet Issues/Revisions with date, description, Issued To and Issued By.
+2. Add the revision with `create_revision` or in Sheet Issues/Revisions, with date, description, Issued To and Issued By.
 3. Draw revision clouds in the view that changed, so they follow the view onto the sheet. Use a cloud on the sheet only for sheet notes. Tag each cloud.
 4. Assign the revision to changed sheets. A sheet with a cloud gets it automatically. Use `set_sheet_revisions` for changes without a cloud.
 5. Render one changed sheet, and confirm the REV field and the REVISIONS panel.

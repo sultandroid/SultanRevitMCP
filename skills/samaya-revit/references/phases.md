@@ -53,7 +53,6 @@ No command creates phases or edits their graphic overrides, so the user does tho
 
 ## Sources
 
-- [Autodesk Revit help](https://help.autodesk.com/view/RVT/2026/ENU/)
 - [The CAD Masters: phasing](https://thecadmasters.com/revit-phasing-demolition-new-construction/)
 - [Novedge: phasing for renovation](https://novedge.com/blogs/design-news/revit-tip-revit-phasing-best-practices-for-renovation-documentation)
 - [Novedge: phase filters](https://novedge.com/blogs/design-news/revit-tip-revit-phase-filters-for-clear-renovation-and-demolition-documentation)
