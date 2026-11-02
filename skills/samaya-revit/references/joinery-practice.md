@@ -54,3 +54,4 @@ Set the type with `set_parameter`. Tick Mark takes an element id: scan low ids w
 - No free Saudi figure block was found online, so draw it as outlines: thobe, shemagh, agal, 1700 mm.
 - Marble always gets its own details: edge profile, such as bird's-nose, the top at the wall, and a section showing how it is fixed. Marble is bonded with stone-safe silicone. No screws through it.
 - Show an indicative logo in halftone on units that carry branding, sized and marked to confirm.
+- L-shaped marble, such as an arch head: join the two legs on a 45 degree mitre, with a small chamfer at the outer corner and on the free ends. Do not round this corner.
