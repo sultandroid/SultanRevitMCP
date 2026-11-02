@@ -26,4 +26,5 @@ Read these when relevant:
 4. **Always use phases.** Every element and view has one, and existing work is always halftone through the phase graphics. See `phases.md`.
 5. **Always use Revit revisions.** Never type a revision by hand. See `revisions.md`.
 6. **Always add grids** to every project and show them on plans and sections. See `modelling-defaults.md`.
-7. **Keep this skill current.** When something new is learned or the user corrects a standard, update the matching file in this repository in the same session, then commit and push. See the README.
+7. **Use the standard dimension style** on shop drawings: 5 mm black Arial, Diagonal 3mm ticks, strings 12 mm apart. See `joinery-practice.md`.
+8. **Keep this skill current.** When something new is learned or the user corrects a standard, update the matching file in this repository in the same session, then commit and push. See the README.
