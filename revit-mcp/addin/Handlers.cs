@@ -1228,7 +1228,8 @@ namespace RevitMcp
             var name = $"{volts:0} V";
             var existing = settings.VoltageTypes.Cast<Autodesk.Revit.DB.Electrical.VoltageType>().FirstOrDefault(v => v.Name == name);
             if (existing != null) return existing;
-            double Internal(double v) => UnitUtils.ConvertToInternalUnits(v, UnitTypeId.Volts);
+            // Voltage types hold plain volts here, not internal units. Converting makes a 220 V system about 2370 V, and panels reject it.
+            double Internal(double v) => v;
             return settings.AddVoltageType(name, Internal(volts), Internal(volts * 0.95), Internal(volts * 1.05));
         }
 
@@ -1371,7 +1372,14 @@ namespace RevitMcp
         {
             if (Num(c, "voltage") is double volts) connector.get_Parameter(BuiltInParameter.RBS_ELEC_VOLTAGE)?.Set(UnitUtils.ConvertToInternalUnits(volts, UnitTypeId.Volts));
             if (Num(c, "poles") is double poles) connector.get_Parameter(BuiltInParameter.RBS_ELEC_NUMBER_OF_POLES)?.Set((int)poles);
-            if (Num(c, "load_va") is double load) connector.get_Parameter(BuiltInParameter.RBS_ELEC_APPARENT_LOAD)?.Set(UnitUtils.ConvertToInternalUnits(load, UnitTypeId.VoltAmperes));
+            if (Num(c, "load_va") is double load)
+            {
+                var internalLoad = UnitUtils.ConvertToInternalUnits(load, UnitTypeId.VoltAmperes);
+                foreach (Parameter q in connector.Parameters)
+                    if (q.Definition.Name.Contains("Apparent Load") && !q.IsReadOnly && q.StorageType == StorageType.Double) q.Set(internalLoad);
+                var classification = new FilteredElementCollector(connector.Document).OfClass(typeof(Autodesk.Revit.DB.Electrical.ElectricalLoadClassification)).FirstElementId();
+                if (classification != ElementId.InvalidElementId) connector.get_Parameter(BuiltInParameter.RBS_ELEC_LOAD_CLASSIFICATION)?.Set(classification);
+            }
             if (Num(c, "power_factor") is double factor) connector.get_Parameter(BuiltInParameter.RBS_ELEC_POWER_FACTOR)?.Set(factor);
         }
 
@@ -1416,7 +1424,10 @@ namespace RevitMcp
                     transaction.Commit();
                 }
                 familyDoc.LoadFamily(doc, new OverwriteFamily());
-                return new JsonObject { ["connectors"] = changed };
+                var report = new JsonArray();
+                foreach (var connector in new FilteredElementCollector(familyDoc).OfClass(typeof(ConnectorElement)).Cast<Element>())
+                    foreach (Parameter q in connector.Parameters) report.Add($"{q.Definition.Name}={q.AsValueString()}{(q.IsReadOnly ? " (ro)" : "")}");
+                return new JsonObject { ["connectors"] = changed, ["parameters"] = report };
             }
             finally
             {

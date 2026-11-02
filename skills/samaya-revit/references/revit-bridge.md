@@ -45,3 +45,12 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - Revit will not close the active document through the API, so close_document brings another open saved document forward first. With no other document open, the last one has to be closed by hand, even with allow_last.
 - The source is `revit-mcp/` in this repository. Edit and install from here. `revit-mcp-project` is an old copy.
 - Verify a save from the file's LastWriteTime, not from the return value. `tools/doc_control_check.mjs` runs the check.
+
+## Electrical circuits and panels
+
+- **Voltage types hold plain volts, not internal units.** `AddVoltageType` with a converted value makes a 220 V system about 2370 V, and every panel then refuses it: "The Distribution System can not be assigned" and "The panel and circuit do not match". The add-in now passes plain volts. Systems already made with the old code stay wrong and must be replaced.
+- **The panel connector must match the system.** Connector voltage equals the system's line-to-line voltage, or line-to-ground on a two-wire system, and the poles must fit. Single phase 220 V: two-wire system, connector 220 V, 1 pole, part type PanelBoard. Check with `diagnose_panel`.
+- **Circuits go in a separate ELEC model** started from `Electrical-Default_Metric.rte`. Build devices with `make_unit_family` and its `connector` option, then `create_circuit` and `create_panel_schedule`.
+- **Panel schedule views cannot be exported** with `export_view_image`.
+- **Ceiling plan view range cannot be raised** with `set_view_range` ("Plan view range is not valid"). Lights recessed above the top of the range do not draw in hidden line, so draw their symbols with detail lines and check every light against the legend.
+
