@@ -17,6 +17,10 @@ Rfa\Title Blocks\                    title blocks and logos
 - All discipline files use the same coordinates as ARCH.
 - Model the existing condition first, then the new model.
 
+## Grids
+
+**Every project has grids.** Take them from the source drawing where it has any. Otherwise set them on the existing structure, such as column or wall centre lines. Number one direction (1, 2, 3) and letter the other (A, B, C), and keep the same grids in every discipline file. Show them on all plans and sections, and dimension key items from them.
+
 ## Modelling
 
 - Build fabricated units as families, one per unit, with a Mark and a Comments note. Export the marks and unit parts to CSV.
