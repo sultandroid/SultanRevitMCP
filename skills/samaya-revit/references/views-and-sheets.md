@@ -95,11 +95,16 @@ Every fit-out set includes joinery shop drawings in the A-700 series:
 - Split long schedules across columns instead of running past the sheet.
 - The cover has a Sheet List drawing index, updating itself.
 
+## Key plan
+
+Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped plan with the area or unit on that sheet highlighted in red. A view can sit on only one sheet, so duplicate it for each sheet.
+
 ## Before issuing
 
 - Render every sheet with `export_view_image` and read it, or export a test PDF.
 - No placeholder text, working views or stray elements outside title block limits.
 - Every view has a title, scale and template.
+- Every sheet has its key plan.
 - Revision and sign-off are filled.
 
 ## Sources
