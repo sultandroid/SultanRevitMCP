@@ -1781,6 +1781,8 @@ namespace RevitMcp
                         if (field["heading"] != null) added.ColumnHeading = field["heading"].GetValue<string>();
                         added.GridColumnWidth = FromMm(field["width_mm"].GetValue<double>());
                     }
+                    // The REVISIONS panel already has its heading, so the schedule shows no title of its own.
+                    definition.ShowTitle = false;
                     ScheduleSheetInstance.Create(familyDoc, sheet.Id, schedule.Id, location);
                     transaction.Commit();
                 }
@@ -2714,6 +2716,19 @@ namespace RevitMcp
                     {
                         if (keep.Contains(id) || !fd.GetElement(id).IsValidObject) continue;
                         try { fd.Delete(id); } catch (Autodesk.Revit.Exceptions.ArgumentException) { }
+                    }
+
+                    // The source's sheet-edge lines cannot be deleted; for another paper size, reshape them to the new sheet edge.
+                    if (p["sheet_size_mm"] is JsonObject sheetSize)
+                    {
+                        var w = FromMm(sheetSize["w"].GetValue<double>());
+                        var h = FromMm(sheetSize["h"].GetValue<double>());
+                        var corners = new[] { XYZ.Zero, new XYZ(w, 0, 0), new XYZ(w, h, 0), new XYZ(0, h, 0) };
+                        var edges = new FilteredElementCollector(fd, view.Id).OfClass(typeof(CurveElement)).Cast<CurveElement>()
+                            .Where(c => !keep.Contains(c.Id) && c.GeometryCurve is Line).ToList();
+                        for (var i = 0; i < edges.Count && i < 4; i++)
+                            edges[i].SetGeometryCurve(Line.CreateBound(corners[i], corners[(i + 1) % 4]), true);
+                        report.Add($"sheet edge {edges.Count} lines set to {sheetSize["w"]} x {sheetSize["h"]} mm");
                     }
 
                     var textTypes = new Dictionary<string, ElementId>();
