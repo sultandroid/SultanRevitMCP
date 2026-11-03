@@ -25,8 +25,10 @@ Every material shows its own hatch where it is cut in a section or detail, so th
 | Marble and stone | Diagonal lines, wide | 45° | 4 mm |
 | Metal (pegboard, gold tube, supports) | Solid black | | |
 | Veneer, HPL, PVC and ABS edge | Solid black thin line | | |
-| Concrete and existing structure | Keep the project's concrete pattern, halftone as existing work | | |
-| Glass | No hatch | | |
+| Existing concrete (material "Existing Concrete") | Crosshatch, wide; halftone as existing work | 45° | 4 mm |
+| Window and door aluminium | Solid black | | |
+| Glass | Diagonal lines, its own angle so it is never mistaken for a board | 60° | 1 mm |
+| Mall floor finish (existing) | Diagonal lines, wide, as stone | 45° | 4 mm |
 
 ## Applying it
 

@@ -1925,15 +1925,41 @@ namespace RevitMcp
             var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
             var ids = (p["element_ids"] as JsonArray ?? throw new ArgumentException("element_ids is required.")).Select(n => new ElementId(n.GetValue<long>())).ToList();
             var halftone = p["halftone"]?.GetValue<bool>() ?? false;
+            // Optional: line_pattern (name) for projection and cut lines, line_weight (1-16), hide_patterns (outline only).
+            var patternName = Str(p, "line_pattern");
+            var weight = Num(p, "line_weight");
+            var hidePatterns = p["hide_patterns"]?.GetValue<bool>() ?? false;
+            // Optional: surface_transparency 0-100; 100 leaves only the edges in shaded views.
+            var transparency = Num(p, "surface_transparency");
+            var linePattern = patternName == null ? null
+                : LinePatternElement.GetLinePatternElementByName(doc, patternName) ?? throw new ArgumentException($"No line pattern named '{patternName}'.");
             return InTransaction(doc, "Set element overrides", () =>
             {
                 foreach (var id in ids)
                 {
                     var settings = view.GetElementOverrides(id);
                     settings.SetHalftone(halftone);
+                    if (linePattern != null)
+                    {
+                        settings.SetProjectionLinePatternId(linePattern.Id);
+                        settings.SetCutLinePatternId(linePattern.Id);
+                    }
+                    if (weight != null)
+                    {
+                        settings.SetProjectionLineWeight((int)weight);
+                        settings.SetCutLineWeight((int)weight);
+                    }
+                    if (hidePatterns)
+                    {
+                        settings.SetSurfaceForegroundPatternVisible(false);
+                        settings.SetSurfaceBackgroundPatternVisible(false);
+                        settings.SetCutForegroundPatternVisible(false);
+                        settings.SetCutBackgroundPatternVisible(false);
+                    }
+                    if (transparency != null) settings.SetSurfaceTransparency(Math.Max(0, Math.Min(100, (int)transparency)));
                     view.SetElementOverrides(id, settings);
                 }
-                return new JsonObject { ["changed"] = ids.Count };
+                return new JsonObject { ["changed"] = ids.Count, ["line_pattern"] = linePattern?.Name, ["hide_patterns"] = hidePatterns };
             });
         }
 

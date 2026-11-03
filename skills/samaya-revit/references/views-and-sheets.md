@@ -131,6 +131,10 @@ Use this on every fabrication sheet, every time. Do not start from an older shee
 
 Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped plan with the area or unit on that sheet highlighted in red. Use a viewport with no title, because the panel already has its heading. A view can sit on only one sheet, so duplicate it for each sheet.
 
+## Free-standing units in sections
+
+In every section, free-standing units (island displays, counters, display units) are shown as an indicative outline: halftone, Dash lines at weight 1, no fill patterns and 100% surface transparency, so the wall units behind read clearly. The exception is the unit's own detail sheet (on Madina 1, J131 is the counter D-01 and J132 is the island D-02). Apply it per element in each section with `set_element_overrides`, and re-apply it to every new section.
+
 ## Section lines stay clean
 
 General plans show only the building sections. Every fabrication, detail or working section has "Hide at scales coarser than" set to 1:2 when it is created (the master plan here runs at 1:9, so 1:20 is not enough), so its line never appears on a general plan. Section lines should be evenly placed, must not cross text, and their heads sit outside the plan.
