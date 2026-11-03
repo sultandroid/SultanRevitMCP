@@ -35,7 +35,7 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 
 - **Use the keel arch (pointed broken arch, عقد مدبب منكسر)** on Madina-style shopfronts. Two arcs with centres on the springing line, radius R, each running into a straight tangent line that meets the other at the apex. The user chose it over the five-centred arch (العقد المخموس) because it matches the designer's shape. Applies to Madina 1 and Madina 2.
 - Get R and the rise from the designer's CAD line: fit the keel to the outline and keep the ratios. Madina 2: rise 0.60 x span, R 0.43 x span (side arches); rise 0.57, R 0.38 (rear centre). Round R, rise and springing to whole cm.
-- Keep the span and apex. The springing follows (apex minus rise), and the marble head starts at the springing.
+- All arches in one shop share one springing level (where the marble head starts), rear and side alike. Keep each arch's rise and R; the apex follows (apex = springing + rise). Check the tallest apex stays under the cladding top. With the same counter height and shelf count, the shelves then line up across the shop.
 - Frame and inner lines: inner arc is the same centre with R minus the frame width; the inner straight line runs parallel to the outer one.
 - Before a shape change, show it on the real elevation with the old shape overlaid and the largest gap in mm.
 
