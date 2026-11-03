@@ -181,6 +181,14 @@ A regenerated sheet is a new sheet: it loses its "Sheet Group", so the drawing i
 
 General plans show only the building sections. Every fabrication, detail or working section has "Hide at scales coarser than" set to 1:2 when it is created (the master plan here runs at 1:9, so 1:20 is not enough), so its line never appears on a general plan. Section lines should be evenly placed, must not cross text, and their heads sit outside the plan.
 
+## Design studies (arches and other repeated features)
+
+A study that changes a design element gets two sheets in the item's fabrication block (Madina 2: A-2100 and A-2101):
+
+- **Study on the real elevations (x00):** sections through each wall from the model, at one scale, with the chosen geometry highlighted (thick green, 0 140 60), the designer's original dashed grey over it, and a 1700 mm Saudi figure (thobe, shemagh, agal) in front of a bay, so the change reads against the design and a person. Dimension FFL, springing and apex outside the units, and the figure's height. Show only the levels that matter (FFL and the ceilings), and hide other views' section marks. Add a table of what moves (designer, chosen, difference) and a short plain-English note.
+- **Set-out (x01):** for each type, the designer's arch as drawn beside the chosen one, at the same scale, with the chosen one highlighted, the construction (divisions, centres, radii) and blue ISO dimensions. Then the rule, a schedule of every instance with its type, and any proposed typical sizes marked "not yet applied".
+- Read the designer's geometry from the source model and measure it (fit circles to the curve). Say plainly where the designer already used the chosen form (Madina 2 rear arches) and where it changes (west and east).
+
 ## Every sheet uses a grid
 
 Every sheet, of any kind, is laid out on one grid: A1 drawing area x 20 to 1012, 6 columns of 165 mm, lines at 20, 186, 351, 516, 682, 847, 1012, centres at 103, 268, 434, 599, 764, 929. Views centre on a column or a column line. Views in a row share a level, so the same height reads across them. Notes and tables start on a column line. Never place by eye.
