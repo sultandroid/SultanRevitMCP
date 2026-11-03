@@ -26,6 +26,11 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 5. Allow 2 to 3 mm at each edge to scribe to the frame, or use a deliberate shadow gap.
 6. Keep access to any services behind, and seal against damp walls.
 
+## Typical sizes for production
+
+- **Round every unit size to whole centimetres** (1210, not 1212 or 1211.5), so the workshop works in round numbers. Take the leftover millimetres up in a filler, a post or the gap to the wall, never in the unit.
+- **One size per repeated element** wherever the eye cannot see the difference. On Madina 2 the user kept only the rear middle arch (the feature) different, and made the other 8 arches one size and type. Keep a size different only where it is part of the design (a feature or a centre emphasis), and say why on the study sheet.
+
 ## Fitting between units
 
 - Fit cladding before the cabinet or trim that covers its edge.
