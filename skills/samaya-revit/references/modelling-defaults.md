@@ -32,6 +32,11 @@ Model counters, islands and displays as furniture families from the design file'
 ## Modelling
 
 - Build fabricated units as families, one per unit, with a Mark and a Comments note. Export the marks and unit parts to CSV.
+- The existing model carries the existing levels, all on phase Existing with the shell:
+  - `FFL +0.000`: the datum, top of the shop's floor finish. All joinery sits on it.
+  - `SSL -0.0xx Existing Slab`: top of the existing slab on grade, one floor-finish build-up below FFL. The slab element sits on SSL. Where the finish build-up is not given, assume 20 mm (tile on adhesive) and ask for it in red as an input.
+  - `Existing Ceiling +x.xxx`: the existing ceiling or soffit, taken from the as-built height, to be confirmed on site.
+  - Name levels by what they are. Never leave `Level 1` or `Level 2`. Levels closer than about 300 mm get a duplicated level type with the head at one end only, so the tags don't overlap.
 - Every shop has a level at the underside of the main ceiling, named `Clear Height +x.xx`. This is the shop's clear height.
 - Use reference planes for other setting-out heights such as an arch springing, not extra levels.
 - Note assumptions in the element's Comments: anything not stated on the source drawing.
