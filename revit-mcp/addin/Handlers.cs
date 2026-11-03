@@ -14,7 +14,7 @@ namespace RevitMcp
     /// boundary is in millimetres (model coordinates relative to the internal origin) so callers never see
     /// Revit's internal decimal feet.
     /// </summary>
-    internal static class Handlers
+    internal static partial class Handlers
     {
         private const double MmPerFoot = 304.8;
         private const int DefaultLimit = 100;
@@ -27,6 +27,7 @@ namespace RevitMcp
             // Read
             ["get_project_info"] = GetProjectInfo,
             ["set_view_display"] = SetViewDisplay,
+            ["create_3d_view"] = Create3DView,
             ["list_documents"] = ListDocuments,
             ["open_document"] = OpenDocument,
             ["activate_document"] = ActivateDocument,
@@ -78,6 +79,7 @@ namespace RevitMcp
             ["set_panel_system"] = SetPanelSystem,
             ["diagnose_panel"] = DiagnosePanel,
             ["read_panel_schedule"] = ReadPanelSchedule,
+            ["scale_panel_schedule"] = ScalePanelSchedule,
             ["clean_electrical_types"] = CleanElectricalTypes,
             ["link_revit_model"] = LinkRevitModel,
             ["set_family_connectors"] = SetFamilyConnectors,
@@ -123,6 +125,10 @@ namespace RevitMcp
             ["create_drafting_view"] = CreateDraftingView,
             ["create_swatch"] = CreateSwatch,
             ["set_phase_filter"] = SetPhaseFilter,
+            // Device symbols (Handlers.Symbols.cs)
+            ["duplicate_type"] = DuplicateType,
+            ["create_annotation_symbol"] = CreateAnnotationSymbol,
+            ["nest_annotation_in_family"] = NestAnnotationInFamily,
         };
 
         public static bool Has(string command) => Table.ContainsKey(command);
@@ -872,6 +878,13 @@ namespace RevitMcp
                     var instance = ScheduleSheetInstance.Create(doc, sheet.Id, view.Id, location);
                     return new JsonObject { ["id"] = instance.Id.Value };
                 }
+                // Panel schedules are table views too, with their own sheet instance.
+                if (view is Autodesk.Revit.DB.Electrical.PanelScheduleView)
+                {
+                    var instance = Autodesk.Revit.DB.Electrical.PanelScheduleSheetInstance.Create(doc, view.Id, sheet);
+                    instance.Origin = location;
+                    return new JsonObject { ["id"] = instance.Id.Value };
+                }
                 if (!Viewport.CanAddViewToSheet(doc, sheet.Id, view.Id))
                     throw new InvalidOperationException($"View '{view.Name}' cannot be placed; it may already be on a sheet.");
                 var viewport = Viewport.Create(doc, sheet.Id, view.Id, location);
@@ -1461,6 +1474,64 @@ namespace RevitMcp
                 }
             }
             return new JsonObject { ["rows"] = rows };
+        }
+
+        /// <summary>Scales a panel schedule's template: text, row heights and column widths. Panel schedules have no view scale.</summary>
+        private static JsonNode ScalePanelSchedule(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as Autodesk.Revit.DB.Electrical.PanelScheduleView
+                       ?? throw new ArgumentException("view_id is not a panel schedule.");
+            var factor = Num(p, "factor") ?? throw new ArgumentException("factor is required.");
+            var template = doc.GetElement(view.GetTemplate()) as Autodesk.Revit.DB.Electrical.PanelScheduleTemplate
+                           ?? throw new InvalidOperationException("The panel schedule has no template.");
+            return InTransaction(doc, "Scale panel schedule", () =>
+            {
+                var data = template.GetTableData();
+                var cells = 0;
+                var errors = new JsonArray();
+                void Try(string what, Action act)
+                {
+                    try { act(); }
+                    catch (Exception e) { if (errors.Count < 10) errors.Add($"{what}: {e.Message}"); }
+                }
+                foreach (var type in new[] { SectionType.Header, SectionType.Body, SectionType.Summary, SectionType.Footer })
+                {
+                    TableSectionData section = null;
+                    Try($"{type} section", () => section = data.GetSectionData(type));
+                    if (section == null) continue;
+                    // Merged cells share one style, so a cell can refuse; skip it and carry on.
+                    for (var r = section.FirstRowNumber; r <= section.LastRowNumber; r++)
+                        for (var c = section.FirstColumnNumber; c <= section.LastColumnNumber; c++)
+                        {
+                            int rr = r, cc = c;
+                            Try($"{type} cell {rr},{cc}", () =>
+                            {
+                                var style = section.GetTableCellStyle(rr, cc);
+                                var over = style.GetCellStyleOverrideOptions();
+                                over.FontSize = true;
+                                style.SetCellStyleOverrideOptions(over);
+                                style.TextSize *= factor;
+                                section.SetCellStyle(rr, cc, style);
+                                cells++;
+                            });
+                        }
+                    for (var r = section.FirstRowNumber; r <= section.LastRowNumber; r++)
+                    {
+                        int rr = r;
+                        Try($"{type} row {rr}", () => section.SetRowHeight(rr, section.GetRowHeight(rr) * factor));
+                    }
+                    for (var c = section.FirstColumnNumber; c <= section.LastColumnNumber; c++)
+                    {
+                        int cc = c;
+                        Try($"{type} column {cc}", () => section.SetColumnWidth(cc, section.GetColumnWidth(cc) * factor));
+                    }
+                }
+                // Take the slot count from the panel's Max Number of Single Pole Breakers, not the template's default.
+                if (p["slots_from_panel"]?.GetValue<bool>() == true) Try("slots", () => data.ShowSlotFromDeviceInsteadOfTemplate = true);
+                Try("save template", () => template.SetTableData(data));
+                return new JsonObject { ["template_id"] = template.Id.Value, ["cells"] = cells, ["errors"] = errors };
+            });
         }
 
         /// <summary>Removes unused distribution systems and voltage types, and renames voltage types.</summary>
@@ -2297,6 +2368,41 @@ namespace RevitMcp
         }
 
         /// <summary>Hides everything in a view except the given elements, permanently, so the view shows one unit alone.</summary>
+        /// <summary>Creates a 3D view looking from eye to target, cut by an optional section box. Replaces a view of the same name.</summary>
+        private static JsonNode Create3DView(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var name = ReqStr(p, "name");
+            var eye = ReqPoint(p, "eye");
+            var target = ReqPoint(p, "target");
+            var perspective = p["perspective"]?.GetValue<bool>() == true;
+            var type = new FilteredElementCollector(doc).OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>()
+                           .FirstOrDefault(t => t.ViewFamily == ViewFamily.ThreeDimensional)
+                       ?? throw new InvalidOperationException("The model has no 3D view type.");
+            return InTransaction(doc, $"3D view {name}", () =>
+            {
+                var old = new FilteredElementCollector(doc).OfClass(typeof(View3D)).Cast<View3D>().FirstOrDefault(v => !v.IsTemplate && v.Name == name);
+                if (old != null) doc.Delete(old.Id);
+                var view = perspective ? View3D.CreatePerspective(doc, type.Id) : View3D.CreateIsometric(doc, type.Id);
+                view.Name = name;
+                var forward = (target - eye).Normalize();
+                // Up is square to forward and as close to world Z as it can be.
+                var right = forward.CrossProduct(XYZ.BasisZ);
+                var up = right.IsZeroLength() ? XYZ.BasisY : right.CrossProduct(forward).Normalize();
+                view.SetOrientation(new ViewOrientation3D(eye, up, forward));
+                if (p["box_min"] != null && p["box_max"] != null)
+                {
+                    view.SetSectionBox(new BoundingBoxXYZ { Min = ReqPoint(p, "box_min"), Max = ReqPoint(p, "box_max") });
+                    view.IsSectionBoxActive = true;
+                    // Hide the box outline itself.
+                    var box = new FilteredElementCollector(doc, view.Id).OfCategory(BuiltInCategory.OST_SectionBox).FirstElementId();
+                    if (box != null && box != ElementId.InvalidElementId && doc.GetElement(box).CanBeHidden(view)) view.HideElements(new List<ElementId> { box });
+                }
+                if (Str(p, "style") is string s && Enum.TryParse<DisplayStyle>(s, true, out var style)) view.DisplayStyle = style;
+                return new JsonObject { ["id"] = view.Id.Value, ["name"] = view.Name };
+            });
+        }
+
         private static JsonNode IsolateInView(UIApplication app, JsonObject p)
         {
             var doc = Doc(app);

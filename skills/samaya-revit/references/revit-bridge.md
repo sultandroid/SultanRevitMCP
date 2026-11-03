@@ -35,6 +35,9 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - query_elements returns at most 1000 per call: page with offset, or later elements are silently missed.
 - A rebuild script that fails midway leaves its views behind, and the next run cannot reuse their names. Clear views by name prefix at the start of the script.
 - Rotating a viewport on a sheet (Rotation on Sheet) also throws it far from its place and turns its title and text. Rotate the crop with rotate_view_crop instead.
+- `create_3d_view` makes a 3D view from an eye point to a target, with a section box and a display style. Use it for check views and photos to send the user.
+- `query_elements` takes `view_id`: clear a view's own detail lines, text notes and dimensions with it before redrawing, instead of recreating the view and sheet.
+- Every new add-in build brings back Revit's "Security - Unsigned Add-In" prompt, which only the user can clear. Batch changes into as few builds as possible.
 - Detail lines are the way to draw indicative items in a section view: create_swatch only works in drafting views and sheets. Grey shade is close horizontal lines until a filled region tool exists.
 
 ## Compiling and document control
@@ -51,7 +54,8 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - **Voltage types hold plain volts, not internal units.** `AddVoltageType` with a converted value makes a 220 V system about 2370 V, and every panel then refuses it: "The Distribution System can not be assigned" and "The panel and circuit do not match". The add-in now passes plain volts. Systems already made with the old code stay wrong and must be replaced.
 - **The panel connector must match the system.** Connector voltage equals the system's line-to-line voltage, or line-to-ground on a two-wire system, and the poles must fit. Single phase 220 V: two-wire system, connector 220 V, 1 pole, part type PanelBoard. Check with `diagnose_panel`.
 - **Circuits go in a separate ELEC model** started from `Electrical-Default_Metric.rte`. Build devices with `make_unit_family` and its `connector` option, then `create_circuit` and `create_panel_schedule`.
-- **Panel schedule views cannot be exported** with `export_view_image`.
+- **Panel schedule views cannot be exported on their own,** but they can go on a sheet: `place_view_on_sheet` takes a panel schedule view, and the sheet exports.
+- **A panel schedule has no view scale.** Its size comes from the template's text, row heights and column widths, about 2 mm text by default, which is tiny on A1. Use `scale_panel_schedule` with a factor (2.4 fills A1) and `slots_from_panel: true` so the slot count follows the panel's Max Number of Single Pole Breakers. An existing view keeps the old look: delete it, `create_panel_schedule` again, and place it again.
 - **Ceiling plan view range cannot be raised** with `set_view_range` ("Plan view range is not valid"). Lights recessed above the top of the range do not draw in hidden line, so draw their symbols with detail lines and check every light against the legend.
 - **Device connectors must be Power - Balanced to carry load.** A Power - Circuit connector has no load field, so its circuit reads 0 VA. Pass `system: "PowerBalanced"` in the `connector` option. The field is named "Apparent Power" on the family connector, not "Apparent Load".
 - **Read a panel schedule with `read_panel_schedule`,** since the view cannot be exported. Check breaker ratings, because new circuits default to 20 A and the panel's MCB rating to 1 A. Set "Rating" on each circuit and "Mains" and "MCB Rating" on the panel.

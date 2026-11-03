@@ -42,7 +42,14 @@ This is a working summary, not the text of the standards. Editions change, so ch
 
 ## Electrical symbols
 
-Use IEC 60617 symbols, never invented marks: luminaire as a circle with a cross, socket outlet as a semicircle with a stub, earth contact with a bar. Show a graphic symbol legend on every electrical sheet. Check any project-specific symbol against the CAD legend and the published standard before issue.
+Use IEC 60617 symbols, never invented marks or library family graphics (the US receptacle families print "GFCI"): luminaire as a circle with a cross, linear luminaire as a line with end bars, socket outlet as a semicircle with its line to the wall and an earth bar, turned to face away from its wall, loudspeaker and camera as a box with horn or lens, distribution board as a half-hatched rectangle. Exit signs follow ISO 7010 E001. ISO 6790, the fire protection plan symbols, is withdrawn: mark fire alarm symbols as to be checked against the civil defence code. Draw the symbols with detail lines at each device, hide the device categories in that view, and put a graphic legend in a drafting view at the plan scale, with mark, description and quantity, on every electrical sheet. Check any project-specific symbol against the CAD legend before issue.
+
+## Device layout
+
+- **Ceiling devices follow the ceiling design,** not the room outline. Find each ceiling level (tray, band, bulkhead) and put lights, speakers, detectors, emergency lights and cameras on one grid within each zone, aligned with the downlights and symmetric about the zone's centre lines. Never leave them at scattered CAD points.
+- **Dimension every layout** from the unit faces, the ceiling zone edges and the centre lines, in the house dimension type. Hide the reference marks `create_dimension_string` draws.
+- **Sockets for display units go on the inner face of the unit's back panel,** not on the room face in front of the unit. Check the panel face with `probe_ray`.
+- **Background music speakers:** one ceiling speaker covers about 3 x 3 m at even level from a 3 m ceiling. Size the count to the floor area, not the CAD count, and check the amplifier: total tap watts times about 1.25.
 
 ## Circuit colours
 
