@@ -36,7 +36,8 @@ Model counters, islands and displays as furniture families from the design file'
   - `FFL +0.000`: the datum, top of the shop's floor finish. All joinery sits on it.
   - `SSL -0.xxx Existing Slab`: top of the existing slab on grade, one floor build-up (screed and finish) below FFL. The slab element sits on SSL. Ask the site for it; until then ask for it in red as an input. Madina 1: SSL -0.100.
   - `Existing Ceiling +x.xxx`: the existing ceiling or soffit, from the site. Madina 1: +3.720.
-  - Model the mall floor finish outside the shop front in the existing model: top at FFL +0.000 (the mall finish sets the shop FFL), down to SSL. Where the corridor is not surveyed, show an indicative strip and say so in Comments.
+  - The existing model is complete: slab on grade, walls, piers, columns, beams, lintels, windows and the ceiling slab, with its soffit at the existing ceiling level. Where the slab thickness is not surveyed, assume 200 mm and say so in Comments.
+  - Model the mall floor finish outside the shop on every open side (front and back) in the existing model: top at FFL +0.000 (the mall finish sets the shop FFL), down to SSL. Where the corridor is not surveyed, show an indicative strip and say so in Comments.
   - Model every existing beam on the survey, including a middle downstand beam shown as a double line between a pier and a column, with its top at the soffit. If its depth is not measured, set the underside to a stated assumption (for example the window head), write ASSUMED in Comments, and ask the site.
   - These levels live in the existing model only. Do not change the ARCH model's levels (its FFL, clear height and others) when the existing levels change, unless the user asks.
   - The existing shell (walls, columns) runs from SSL to the existing ceiling. When either level changes, rebuild the shell and re-check every service above the new ceiling against it.
