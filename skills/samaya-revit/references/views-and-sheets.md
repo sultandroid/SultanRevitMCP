@@ -162,6 +162,10 @@ In every section, free-standing units (island displays, counters, display units)
 
 An isolated view (unit sheets, exploded views) only hid what existed when it was isolated. Every element made later, such as a rebuilt shutter, a new ceiling or a new LED strip, appears in all of them. After any model change, rerun the clean-up: in each isolated view, hide everything visible except the view's own unit, and hide the links category. Then render every sheet that has a 3D view and check it. When a unit is merged into another, its old sheet shows the merged unit. Ask the user whether to retire it. On Madina 1 the user kept 127 Niche Frame and 130 Carpet Hanger after the Mihrab merge.
 
+When a run is equalised (Madina 1: base cabinets 3950 both sides), equalise the units above it too, so matching units on both sides are the same size: the west upper row was rebuilt as the east row shifted 40 mm, and W-L2 and E-L2 became 983 each. Rebuild everything that follows the units' positions (arches, lanterns centred on the bays, strip cladding cut to the arches, corner panels, top supports), then the unit, arrangement and storage sheets.
+
+A new sheet's title block takes the family defaults (Designer, Checker, Approver). Set Designed By, Checked By and Approved By on its title block from the stakeholder list every time.
+
 A regenerated sheet is a new sheet: it loses its "Sheet Group", so the drawing index shows a blank group. After any sheet rebuild, set the groups again and check the cover. When checking 3D views, check both the view itself and its place on the sheet: on Madina 1 the cover's overall 3D ran into the title block's revision panel, and a key plan kept its viewport title.
 
 ## Section lines stay clean
