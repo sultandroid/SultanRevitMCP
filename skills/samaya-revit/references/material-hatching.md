@@ -4,6 +4,7 @@ Every material shows its own hatch where it is cut in a section or detail, so th
 
 ## Rules
 
+- **Yes, every cut view uses the material hatch system** (ISO 128: hatching shows cut areas, thin lines, neighbouring parts distinguished). It applies to all sections, plan cuts and details of shopfit workshop drawings, not only joinery sheets. Before issuing, check that each joinery material has its cut pattern and that the joinery families are Casework.
 - Set the hatch on the **material** (its cut pattern), never as drawn filled regions. It then stays correct on every section and rebuild.
 - Hatch shows on cut faces only. Elevations and plans show no material hatch, apart from a surface pattern where the material really has one, such as tile joints.
 - Only categories that Revit cuts show it. **Joinery must be Casework, not Furniture**, or sections show empty outlines.

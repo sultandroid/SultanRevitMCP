@@ -2186,12 +2186,14 @@ namespace RevitMcp
             var across = view.ViewDirection.CrossProduct(along).Normalize();
             var offset = FromMm(Num(p, "offset_mm") ?? 0);
             var tick = FromMm(Num(p, "tick_mm") ?? 20);
+            // witness: references stay at the measured points and only the dimension line is offset, so Revit draws extension legs.
+            var witness = p["witness"]?.GetValue<bool>() == true;
             return InTransaction(doc, "Create dimension", () =>
             {
                 var references = new ReferenceArray();
                 foreach (var point in points)
                 {
-                    var at = point + across * offset;
+                    var at = witness ? point : point + across * offset;
                     var curve = doc.Create.NewDetailCurve(view, Line.CreateBound(at - across * tick / 2, at + across * tick / 2));
                     references.Append(curve.GeometryCurve.Reference);
                 }
