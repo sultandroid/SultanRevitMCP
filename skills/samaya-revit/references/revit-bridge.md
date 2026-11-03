@@ -41,6 +41,7 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - Every new add-in build brings back Revit's "Security - Unsigned Add-In" prompt, which only the user can clear. Batch changes into as few builds as possible.
 - `set_element_overrides` takes `halftone`, `line_pattern` (a line pattern name, for projection and cut lines), `line_weight`, `hide_patterns` (hides surface and cut fill) and `surface_transparency` (0 to 100). Use 100 for an outline only in shaded views.
 - **Direct shapes do not draw material cut hatches in sections.** Anything that must hatch, existing structure included, is made into a family with `make_unit_family` (Generic Model is cuttable), then its phase is set again.
+- `replace_text` replaces text in every text note, or in one view with `view_id`: `pairs` [{find, replace}] applied in order, with `dry_run` to list the notes it would change. Use it after renumbering sheets, longest numbers first.
 - `hide_elements` hides elements in one view (`unhide: true` shows them again). It is per element, so new elements are not covered.
 - Link chains block opening: ARCH links MECH and EXT, and ELEC links ARCH. A model cannot be opened while any open model links it, and the last open model cannot be closed through the bridge. When a chain blocks the swap, save and restart Revit on the model needed.
 - `install.ps1` needs `-Dotnet "$env:LOCALAPPDATA\RevitMcp\dotnet-sdk\dotnet.exe"`. There is no `dotnet` on the PATH.

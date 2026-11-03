@@ -42,22 +42,41 @@ Use the ISO 5455 series only: 1:1, 1:2, 1:5, 1:10, 1:20, 1:50, 1:100. Never impe
 
 Text and tags come out the same size on paper at any scale, so check them after a scale change. Show the scale bar or scale in every view title. Write "NTS" only for diagrams.
 
-## Sheet numbers
+## Sheet numbers (ISO 19650)
 
-Pattern: `<Discipline>-<Series><Number>`. Use a Sheet List schedule to manage them.
+Every sheet number is an ISO 19650-2 container name: `Project-Originator-Volume-Level-Type-Role-Number`, for example `MD1-SF-ZZ-GF-DR-A-2101`.
 
-| Series | Content |
+| Field | Value |
 |---|---|
-| A-000 | Cover, drawing index, legends, general notes |
-| A-100 | Existing, demolition and new plans |
-| A-200 | RCP and ceiling details |
-| A-300 | Elevations |
-| A-400 | Sections |
-| A-500 | Details |
-| A-600 | Schedules: finishes, doors, marks |
-| A-700 | Unit shop drawings |
+| Project | the project code, such as MD1 |
+| Originator | SF (Samaya Factory) |
+| Volume | ZZ (the whole shop) |
+| Level | GF, or the floor |
+| Type | DR (every Revit sheet is a drawing) |
+| Role | A general and fabrication, E electrical, M mechanical (HVAC), P plumbing, S structural, Z general multi-discipline |
+| Number | 4 digits; the series makes the groups |
 
-M- for mechanical, E- for electrical, P- for plumbing, with the same pattern. Ask whether the client or project requires its own numbering.
+Series, in the order of the set. Sorting by number gives this order, because DR-A sorts before DR-E and DR-M:
+
+| Series | Group | Content |
+|---|---|---|
+| A-0001 | 0 General | Cover and drawing index, general notes |
+| A-1001 to 1099 | 1 Arch GA | Plans: floor plan, RCP |
+| A-1101 to 1199 | 1 Arch GA | General sections |
+| A-1201 to 1299 | 1 Arch GA | Sections through units |
+| A-1301 to 1399 | 1 Arch GA | General details |
+| A-1901 to 1999 | 1 Arch GA | Schedules |
+| A-2000 to 2999 | 2 Fab: (item) | Fabrication, one block of 100 per item family. Each block opens with the item's general arrangement (x00), then each unit, its exploded view, parts and details (x01 onwards). Madina 1: 2000 base cabinets, 2100 arch units, 2200 low bays, 2300 rear centre and Mihrab, 2400 free-standing units. |
+| E-1001 to 1099 | 3 Electrical | Layouts: lighting, power, data, fire alarm, PA, CCTV |
+| E-1101 to 1199 | 3 Electrical | Circuits and conduits |
+| E-1201 to 1299 | 3 Electrical | Distribution boards |
+| E-1901 to 1999 | 3 Electrical | Schedules |
+| M-1001 onwards | 4 Mechanical | HVAC layouts, then details and schedules, the same way |
+
+- Each sheet carries a "Sheet Group" parameter with its group. The drawing index lists GROUP, DRAWING NO., TITLE and REV, sorted by number, one line per sheet: about 48, 60, 72 and 12 mm wide, with short group names.
+- Cross-references in notes use the full number. Table columns use the short code (A-2104, E-1201).
+- Keep the map from any old number to the ISO number in one module, and have every script use it. On Madina 1 this is `sheetno.mjs`, with `sn()` for the full number and `ss()` for the short code. Renumbering then means editing the map, setting "Sheet Number" again, and running `replace_text` for any note that quotes an old number.
+- Ask whether the client or project requires its own numbering before using this.
 
 ## Sheet arrangement
 

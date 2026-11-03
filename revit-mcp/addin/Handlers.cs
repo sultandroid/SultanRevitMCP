@@ -117,6 +117,7 @@ namespace RevitMcp
             ["set_viewport_no_title"] = SetViewportNoTitle,
             ["isolate_in_view"] = IsolateInView,
             ["hide_elements"] = HideElementsInView,
+            ["replace_text"] = ReplaceText,
             ["create_keynote"] = CreateKeynote,
             ["set_family_category"] = SetFamilyCategory,
             ["set_revision_numbering"] = SetRevisionNumbering,
@@ -2466,6 +2467,31 @@ namespace RevitMcp
                 if (others.Count > 0) view.HideElements(others);
                 return new JsonObject { ["hidden"] = others.Count };
             });
+        }
+
+        /// <summary>Replaces text in every text note (optionally one view's only): pairs [{find, replace}], applied in order. Returns the views changed.</summary>
+        private static JsonNode ReplaceText(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var viewId = OptId(p, "view_id");
+            var pairs = (p["pairs"] as JsonArray ?? throw new ArgumentException("pairs is required.")).Select(n => (ReqStr(n.AsObject(), "find"), Str(n.AsObject(), "replace") ?? "")).ToList();
+            var dryRun = p["dry_run"]?.GetValue<bool>() ?? false;
+            var notes = (viewId != null ? new FilteredElementCollector(doc, viewId) : new FilteredElementCollector(doc)).OfClass(typeof(TextNote)).Cast<TextNote>().ToList();
+            var changed = new JsonArray();
+            void Run()
+            {
+                foreach (var t in notes)
+                {
+                    var text = t.Text; var next = text;
+                    foreach (var (find, replace) in pairs) next = next.Replace(find, replace);
+                    if (next == text) continue;
+                    if (!dryRun) t.Text = next;
+                    var owner = doc.GetElement(t.OwnerViewId) as View;
+                    changed.Add(new JsonObject { ["id"] = t.Id.Value, ["view"] = owner?.Name, ["sheet_number"] = (owner as ViewSheet)?.SheetNumber });
+                }
+            }
+            if (dryRun) { Run(); return new JsonObject { ["changed"] = changed, ["dry_run"] = true }; }
+            return InTransaction(doc, "Replace text", () => { Run(); return new JsonObject { ["changed"] = changed }; });
         }
 
         /// <summary>Hides the given elements in a view, or shows them again with unhide: true. Elements that cannot be hidden are skipped.</summary>
