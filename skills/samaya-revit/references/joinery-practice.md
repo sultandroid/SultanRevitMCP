@@ -53,6 +53,7 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 - Every unit sheet carries a hardware table: per unit and for the full quantity (hinges, plates, plastic dowels, screws, handles, shelf pins). Hardware items get their own materials so they count by number, never by area.
 - Repeated units of one type are the same size, in whole centimetres; fillers at the run ends take up the as-built difference.
 - Each wall run gets an arrangement elevation: all its units in a row, others indicative, with each unit width and the total length available dimensioned.
+- The arrangement sheet: views scaled to fill the sheet; the units in question in full black, every other element halftone by element override; a width and quantity table (qty = available length / 1000 rounded up, width = length / qty); a storage table for the shop operator (net inside W x D x H, litres each and total, shelf area); and the marble top quantities (length, depth, thickness, pieces, area, front edge), since this is where the run lengths are.
 
 ## Shelf lighting
 
