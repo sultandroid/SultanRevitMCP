@@ -60,7 +60,8 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 
 - Any unit that carries goods (carpet hangers, rails, hooks) gets a study before fabrication: clear heights and drops dimensioned, a load check with stated assumptions (items x weight x 1.5 for customers pulling), rail deflection, and how the load reaches structure.
 - Fixings must land on structure or on battens, never on screws in board alone. Check the bracket positions against the batten and stud positions in the model. When they miss, use a steel back plate with anchors through the cladding into the wall or column.
-- Ask the operator for item count, sizes, type, the heaviest weight, who handles the goods, and the space needed below.
+- Ask the operator for item count, sizes, type, the heaviest weight, who handles the goods, and the space needed below. Until they answer, suggest typical goods and say so on the sheet (here prayer carpets 700 x 1100, about 1.5 kg, hung full length, not folded).
+- Goods and any other out-of-scope items (carpets, products, loose furniture) are separate elements named `IND ...`, halftone in every view, never inside our unit families or quantities.
 
 ## Shelf lighting
 
