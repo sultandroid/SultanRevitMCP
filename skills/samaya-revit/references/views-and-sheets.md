@@ -166,6 +166,13 @@ When a run is equalised (Madina 1: base cabinets 3950 both sides), equalise the 
 
 A new sheet's title block takes the family defaults (Designer, Checker, Approver). Set Designed By, Checked By and Approved By on its title block from the stakeholder list every time.
 
+## Coordination sheets
+
+Every shop with services above a ceiling gets coordination sheets, role Z, group "5 Coordination" (after M):
+- Z-1001 Coordinated Ceiling Plan: the RCP with ceilings, lights, devices, grilles and access doors together, shaded so each discipline reads in its colour (an exception to black and white: coordination is read by colour), with what was checked listed.
+- Z-1002 Ceiling Void Plan: cut above the ceiling (+3.65 on Madina 1), services in colour, ceilings halftone, beams and the tray step dashed, routes noted. Hide generic models when the existing slab is one.
+- Z-1101 Coordination Sections at 1:10, cropped to the zones that matter (grilles, AC unit, each beam crossing), with vertical clearance dimensions and a clearance table: each item's gap to the ceiling below and the beam or slab above, read from the model. Flag gaps under about 80 mm, where hangers and insulation will not fit.
+
 A regenerated sheet is a new sheet: it loses its "Sheet Group", so the drawing index shows a blank group. After any sheet rebuild, set the groups again and check the cover. When checking 3D views, check both the view itself and its place on the sheet: on Madina 1 the cover's overall 3D ran into the title block's revision panel, and a key plan kept its viewport title.
 
 ## Section lines stay clean
