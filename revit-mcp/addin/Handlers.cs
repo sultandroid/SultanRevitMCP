@@ -28,6 +28,7 @@ namespace RevitMcp
             ["get_project_info"] = GetProjectInfo,
             ["set_view_display"] = SetViewDisplay,
             ["create_3d_view"] = Create3DView,
+            ["create_revision_cloud"] = CreateRevisionCloud,
             ["list_documents"] = ListDocuments,
             ["open_document"] = OpenDocument,
             ["activate_document"] = ActivateDocument,
@@ -2367,7 +2368,25 @@ namespace RevitMcp
             }
         }
 
-        /// <summary>Hides everything in a view except the given elements, permanently, so the view shows one unit alone.</summary>
+        /// <summary>Draws a revision cloud on a view or sheet around a closed outline of points, tied to a revision.</summary>
+        private static JsonNode CreateRevisionCloud(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var revision = ReqId(p, "revision_id");
+            var points = (p["points"] as JsonArray ?? throw new ArgumentException("points is required.")).Select(ToPoint).ToList();
+            if (points.Count < 3) throw new ArgumentException("points needs at least 3 points.");
+            var curves = new List<Curve>();
+            for (var k = 0; k < points.Count; k++) curves.Add(Line.CreateBound(points[k], points[(k + 1) % points.Count]));
+            return InTransaction(doc, "Revision cloud", () =>
+            {
+                var cloud = RevisionCloud.Create(doc, view, revision, curves);
+                var comments = Str(p, "comments");
+                if (comments != null) cloud.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS)?.Set(comments);
+                return new JsonObject { ["id"] = cloud.Id.Value };
+            });
+        }
+
         /// <summary>Creates a 3D view looking from eye to target, cut by an optional section box. Replaces a view of the same name.</summary>
         private static JsonNode Create3DView(UIApplication app, JsonObject p)
         {
@@ -2403,6 +2422,7 @@ namespace RevitMcp
             });
         }
 
+        /// <summary>Hides everything in a view except the given elements, permanently, so the view shows one unit alone.</summary>
         private static JsonNode IsolateInView(UIApplication app, JsonObject p)
         {
             var doc = Doc(app);

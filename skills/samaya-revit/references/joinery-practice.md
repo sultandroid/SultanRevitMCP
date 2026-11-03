@@ -44,6 +44,12 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 - Perforated metal sheets are flat with no bends, and have a solid 50 mm border with no holes all round. Centre the hole grid in the sheet.
 - Every counter manages its wires in a **double back**: a removable inner back with a cable void, about 80 mm, running from the floor to the top. No cable tray. Grommets in the top sit directly over the void, sized to fit it, usually 60 mm. Shelves stop at the inner back. The bottom panel runs the full depth, with only one wire hole, about 50 mm, at the void. Coordinate with the power and data drawings.
 
+## Finishes and fixings
+
+- Paint colours are given as RAL codes. When the client has not given one, write "RAL approved colour" and never suggest a code. Keep material names short enough for the keynote and quantity tables (about 30 characters); put "to match ..." in the sheet notes.
+- Hinges, and any screw into MDF or board, go into plastic dowels (Fischer-type inserts): 5 x 12 mm for mounting plates, 8 mm press-in for hinge cups. Every unit with doors gets a hinge detail. Hinge make and type: approved, unless given.
+- Base cabinet standard here: carcass EGGER white 18 mm, back EGGER white 8 mm, shelf 18 mm; fronts, front strips and doors FR MDF painted to match the strip cladding; skirting softwood, 50 mm high, painted black.
+
 ## Shelf lighting
 
 - Open shelf units with adjustable shelves are lit from the sides: a 12 x 8 mm LED channel routed in each side panel's inner face, vertical, from the base to the underside of the top shelf, at least 50 mm behind the front edge. It sits forward of the shelves, so every shelf is lit at any height.
