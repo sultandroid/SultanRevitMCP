@@ -117,6 +117,7 @@ namespace RevitMcp
             ["set_viewport_no_title"] = SetViewportNoTitle,
             ["isolate_in_view"] = IsolateInView,
             ["hide_elements"] = HideElementsInView,
+            ["isolate_by_mark"] = IsolateByMark,
             ["replace_text"] = ReplaceText,
             ["create_keynote"] = CreateKeynote,
             ["set_family_category"] = SetFamilyCategory,
@@ -2521,6 +2522,31 @@ namespace RevitMcp
             {
                 if (ids.Count > 0) { if (unhide) view.UnhideElements(ids); else view.HideElements(ids); }
                 return new JsonObject { [unhide ? "shown" : "hidden"] = ids.Count };
+            });
+        }
+
+        /// <summary>Isolates elements in a view by Mark with a rule-based view filter: everything whose Mark is none of the given marks
+        /// is hidden, including elements added later, so isolated unit views stay clean after model changes.</summary>
+        private static JsonNode IsolateByMark(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var marks = (p["marks"] as JsonArray ?? throw new ArgumentException("marks is required.")).Select(n => n.GetValue<string>()).ToList();
+            if (marks.Count == 0) throw new ArgumentException("marks is empty.");
+            var markId = new ElementId(BuiltInParameter.ALL_MODEL_MARK);
+            var cats = ParameterFilterUtilities.GetAllFilterableCategories()
+                .Where(c => ParameterFilterUtilities.GetFilterableParametersInCommon(doc, new List<ElementId> { c }).Contains(markId)).ToList();
+            var name = ReqStr(p, "filter_name");
+            return InTransaction(doc, "Isolate by Mark", () =>
+            {
+                var rules = marks.Select(m => (FilterRule)ParameterFilterRuleFactory.CreateNotEqualsRule(markId, m)).ToList();
+                var filter = new ElementParameterFilter(rules);
+                var pfe = new FilteredElementCollector(doc).OfClass(typeof(ParameterFilterElement)).Cast<ParameterFilterElement>().FirstOrDefault(f => f.Name == name);
+                if (pfe == null) pfe = ParameterFilterElement.Create(doc, name, cats, filter);
+                else { pfe.SetCategories(cats); pfe.SetElementFilter(filter); }
+                if (!view.GetFilters().Contains(pfe.Id)) view.AddFilter(pfe.Id);
+                view.SetFilterVisibility(pfe.Id, false);
+                return new JsonObject { ["filter_id"] = pfe.Id.Value, ["categories"] = cats.Count, ["marks"] = marks.Count };
             });
         }
 
