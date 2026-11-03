@@ -1902,10 +1902,14 @@ namespace RevitMcp
             var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
             var names = (p["categories"] as JsonArray ?? throw new ArgumentException("categories is required.")).Select(n => n.GetValue<string>()).ToList();
             var halftone = p["halftone"]?.GetValue<bool>() ?? false;
+            // Optional discipline colour: lines and a solid surface and cut fill in that colour (coordination views).
+            Color color = p["color"] is JsonObject ? ColorOf(p, "color") : null;
+            var transparency = (int?)Num(p, "transparency");
             return InTransaction(doc, "Set view overrides", () =>
             {
                 var skipped = new JsonArray();
                 var changed = 0;
+                var solid = color == null ? null : new FilteredElementCollector(doc).OfClass(typeof(FillPatternElement)).Cast<FillPatternElement>().First(f => f.GetFillPattern().IsSolidFill);
                 foreach (var name in names)
                 {
                     var id = ResolveCategory(doc, name).Id;
@@ -1916,6 +1920,16 @@ namespace RevitMcp
                     }
                     var settings = new OverrideGraphicSettings();
                     settings.SetHalftone(halftone);
+                    if (color != null)
+                    {
+                        settings.SetProjectionLineColor(color);
+                        settings.SetCutLineColor(color);
+                        settings.SetSurfaceForegroundPatternId(solid.Id);
+                        settings.SetSurfaceForegroundPatternColor(color);
+                        settings.SetCutForegroundPatternId(solid.Id);
+                        settings.SetCutForegroundPatternColor(color);
+                    }
+                    if (transparency.HasValue) settings.SetSurfaceTransparency(transparency.Value);
                     view.SetCategoryOverrides(id, settings);
                     changed++;
                 }

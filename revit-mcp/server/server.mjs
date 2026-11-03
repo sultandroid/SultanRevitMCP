@@ -152,7 +152,7 @@ const tools = [
   ["remove_z_band", "Shorten a direct shape or a family's solids by removing the band between two project heights; everything above drops. A very high z1_mm trims the top.", { element_id: id, z0_mm: z.number(), z1_mm: z.number(), save_dir: z.string().optional() }, { readOnlyHint: false, destructiveHint: true, idempotentHint: false }],
   ["set_element_overrides", "Set halftone on specific elements in a view, such as one linked model.", { view_id: id, element_ids: ids, halftone: z.boolean().optional() }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["view_category_counts", "Count a view's elements per category and list long diagonal lines. Changes nothing.", { view_id: id }, read],
-  ["set_view_overrides", "Set halftone overrides for categories in a view.", { view_id: id, categories: z.array(z.string()), halftone: z.boolean().optional() }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
+  ["set_view_overrides", "Set category overrides in a view: halftone, or a discipline colour (lines plus solid surface and cut fill) with optional surface transparency 0 to 100.", { view_id: id, categories: z.array(z.string()), halftone: z.boolean().optional(), color: rgb.optional(), transparency: z.number().optional() }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["inspect_family", "List the geometry and nested families inside an instance's family. Changes nothing.", {
     element_id: id,
   }, read],
