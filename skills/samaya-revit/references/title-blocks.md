@@ -47,3 +47,13 @@ The CONSULTANT panel has no label. Add the name as a text note on each sheet, at
 - **Reloading is safe.** `build_title_block` over an existing family updates sheets already using it, and the type id stays the same.
 - **Schedule title.** The schedule shows "Revision Schedule 2" above its columns. Clear it by hand in the family: schedule Appearance, untick Show Title.
 - **Sheets open in Revit cannot be deleted.** `delete_elements` fails on the active view.
+
+## Template files in this repo
+
+`template/Samaya Factory.rte` and `template/Title Blocks/Samaya Factory A0..A3.rfa` (with the logo) are built by `tools/samaya_template.mjs` and copied here after each rebuild. Rebuilt and checked on 3 Nov 2026: A1 renders clean.
+
+Known fault on A3, still open:
+- The REVISIONS heading sits on the revision schedule's header row.
+- The website line touches the bottom border.
+
+The schedule text does not scale with the sheet. Fix it in the builder's A2 and A3 specs before using those sizes on an issued sheet.
