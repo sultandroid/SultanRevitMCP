@@ -156,6 +156,10 @@ Check the key plan on every sheet before sending it, by looking at it in the ren
 - Every view has a title, scale and template.
 - Every sheet has its key plan.
 - **No overlaps or overflow, ever.** No text, title, tag, dimension or view may overlap anything or leave its panel or the sheet. Check every sheet at full size before reporting it.
+- **Keep a margin:** nothing (views, titles, bubbles, dimensions) within 15 mm of the drawing border or the title block.
+- **Chains:** drop segments under about 60 mm from a chain, since the number will not fit; give those sizes in a table or a larger detail.
+- **Re-isolate after model changes.** An isolated view hides only what existed when it was isolated, so any new or rebuilt element appears in every unit and 3D view. After changing the model, rebuild or re-isolate every sheet that could show it, and re-render before reporting.
+- **Grids** show on plans, sections and arrangement elevations, never in an isolated unit view.
 - Revision and sign-off are filled.
 
 ## Sources
