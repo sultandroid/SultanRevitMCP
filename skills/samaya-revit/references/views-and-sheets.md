@@ -96,25 +96,26 @@ Every fit-out set includes joinery shop drawings in the A-700 series:
 
 Use this on every fabrication sheet, every time. Do not start from an older sheet. An old sheet in the model is replaced, not patched.
 
+The user's arrangement (set by hand on Madina 1 sheet 120, 3 Nov 2026):
+
 ```
-+------------------------------+------------+-----------+-------+
-| 1 FRONT ELEVATION            | 2 SIDE     | keynotes  | title |
-|                              | beside the | material  | block |
-|                              | front, same| table     |       |
-|                              | levels     |           |-------|
-+------------------------------+------------+-----------+ KEY   |
-| 3 PLAN (TOP VIEW)            | sections, rear elev.,  | PLAN  |
-| directly under the front,    | details, in the empty  |-------|
-| same left and right edges    | area                   |       |
-+------------------------------+------------------------+       |
-| details and general notes                             |       |
-+-------------------------------------------------------+-------+
++---------+-----------+-----------+-----------+------------+-------+
+| 1 FRONT | 2 SIDE    | SECTION A | SECTION B | title,     | title |
+|         | + figure  |           |           | keynotes,  | block |
+| heads aligned on one line, spread evenly    | quantities,|       |
+| from the left margin to the text column     | notes      |-------|
++---------+-----------+-----------+-----------+ (x 815)    | KEY   |
+| TOP VIEW| DETAIL    | DETAIL    |           +------------+ PLAN  |
+| under   | under     | under     |           | 3D VIEW,   |-------|
+| front   | side      | section A |           | fitted to  |       |
++---------+-----------+-----------+-----------+ the space  |       |
+                                              +------------+-------+
 ```
 
-1. Front, plan and side are the fixed main views, all at the same scale. Place them first.
-2. The front's left and right edges line up with the plan's. The front's floor and top line up with the side's.
-3. Everything else goes in the empty area only: rear elevation, sections, details, keynotes, material table, notes.
-3b. The first sheet of each unit also carries an isolated 3D view, so the technician understands the unit at a glance. Scale it to fill the free area left on the sheet, never a fixed small scale. Bridge viewports have no readable outline, so size it from the unit's box (default isometric: width (dx + dy) / 1.414, height 0.816 dz + 0.408 (dx + dy)) and read the free area off the render. Each unit also gets exploded views on their own exploded view sheet only, never on any other sheet. Isolation only hides what exists when it runs, so place exploded copies first, then isolate every 3D view again. They are taken from the real model parts in shaded, coloured 3D views, two angles side by side (front and rear) on a grid, not drawn by hand, with the assembly order listed.
+1. Top row: Front, Side (with the Saudi figure), Section A, Section B, all at the same scale. Their heads sit on one line and their levels line up. They are spread evenly from the left margin (x 45) to the text column at x 815 on A1. Use each view's crop width, which already holds its dimensions and the figure; adding margins on top counts that space twice.
+2. Row two puts each plan or detail under the view it belongs to: Top View under Front, on the same left and right edges (ISO first angle, plan below the front). The first detail goes under Side and the second under Section A.
+3. Text column at x 815: title and quantity, keynotes, material quantities (QTY column at x 975), notes. If the four top-row views do not fit across, fall back to Front and Side in the top row, with the sections beside them or in row two.
+3b. The first sheet of each unit also carries an isolated 3D view, so the technician understands the unit at a glance. Scale it to fill the free area under the text column (x 755 to the title block, bottom margin up to the end of the notes), never a fixed small scale. Copy it from the isometric "3D all" view, never from a close-up 3D view. Bridge viewports have no readable outline, so size it from the unit's box (default isometric: width (dx + dy) / 1.414, height 0.816 dz + 0.408 (dx + dy)) and read the free area off the render. Each unit also gets exploded views on their own exploded view sheet only, never on any other sheet. Isolation only hides what exists when it runs, so place exploded copies first, then isolate every 3D view again. They are taken from the real model parts in shaded, coloured 3D views, two angles side by side (front and rear) on a grid, not drawn by hand, with the assembly order listed.
 4. The key plan goes in the title block's KEY PLAN panel on every sheet, unit in red, no title.
 5. Isolate the unit, with dimensions, keynotes, skirting, door swings, and wire routes where they apply. The Saudi figure goes on the side view only.
 6. Before sending, render the sheet and check each item above, and that no text overlaps or runs out of its area.
