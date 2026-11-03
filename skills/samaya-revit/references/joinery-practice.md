@@ -49,6 +49,10 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 - Paint colours are given as RAL codes. When the client has not given one, write "RAL approved colour" and never suggest a code. Keep material names short enough for the keynote and quantity tables (about 30 characters); put "to match ..." in the sheet notes.
 - Hinges, and any screw into MDF or board, go into plastic dowels (Fischer-type inserts): 5 x 12 mm for mounting plates, 8 mm press-in for hinge cups. Every unit with doors gets a hinge detail. Hinge make and type: approved, unless given.
 - Base cabinet standard here: carcass EGGER white 18 mm, back EGGER white 8 mm, shelf 18 mm; fronts, front strips and doors FR MDF painted to match the strip cladding; skirting softwood, 50 mm high, painted black.
+- Skirting is part of the cabinet it sits under, not a separate run: it shows on the unit sheet and in its quantities. `edit_family_solids` adds it, and other box parts, to an existing family without redrawing profiled parts such as flutes.
+- Every unit sheet carries a hardware table: per unit and for the full quantity (hinges, plates, plastic dowels, screws, handles, shelf pins). Hardware items get their own materials so they count by number, never by area.
+- Repeated units of one type are the same size, in whole centimetres; fillers at the run ends take up the as-built difference.
+- Each wall run gets an arrangement elevation: all its units in a row, others indicative, with each unit width and the total length available dimensioned.
 
 ## Shelf lighting
 

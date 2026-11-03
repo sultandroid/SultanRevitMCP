@@ -29,6 +29,7 @@ namespace RevitMcp
             ["set_view_display"] = SetViewDisplay,
             ["create_3d_view"] = Create3DView,
             ["create_revision_cloud"] = CreateRevisionCloud,
+            ["edit_family_solids"] = EditFamilySolids,
             ["list_documents"] = ListDocuments,
             ["open_document"] = OpenDocument,
             ["activate_document"] = ActivateDocument,
@@ -2813,6 +2814,52 @@ namespace RevitMcp
                 familyDoc.Close(false);
             }
             return new JsonObject { ["changed"] = changed, ["material"] = name };
+        }
+
+        /// <summary>Edits a loaded family's solids: deletes forms by id and adds box solids (family coordinates, mm) with a material, then reloads it.</summary>
+        private static JsonNode EditFamilySolids(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var target = RequireElement(doc, ReqId(p, "element_id")) as FamilyInstance
+                         ?? throw new ArgumentException("element_id is not a family instance.");
+            var remove = (p["delete_form_ids"] as JsonArray)?.Select(n => new ElementId(n.GetValue<long>())).ToList() ?? new List<ElementId>();
+            var boxes = p["add"] as JsonArray ?? new JsonArray();
+            var familyDoc = doc.EditFamily(target.Symbol.Family);
+            var added = new JsonArray();
+            try
+            {
+                using (var transaction = new Transaction(familyDoc, "MCP: Edit family solids"))
+                {
+                    transaction.Start();
+                    if (remove.Count > 0) familyDoc.Delete(remove);
+                    foreach (var node in boxes)
+                    {
+                        var o = node.AsObject();
+                        var min = ReqPoint(o, "min");
+                        var max = ReqPoint(o, "max");
+                        var name = ReqStr(o, "material");
+                        var material = new FilteredElementCollector(familyDoc).OfClass(typeof(Material)).Cast<Material>().FirstOrDefault(m => m.Name == name)
+                                       ?? (Material)familyDoc.GetElement(Material.Create(familyDoc, name));
+                        if (o["color"] != null) material.Color = ColorOf(o, "color");
+                        var loop = new CurveArray();
+                        var c = new[] { new XYZ(min.X, min.Y, min.Z), new XYZ(max.X, min.Y, min.Z), new XYZ(max.X, max.Y, min.Z), new XYZ(min.X, max.Y, min.Z) };
+                        for (var k = 0; k < 4; k++) loop.Append(Line.CreateBound(c[k], c[(k + 1) % 4]));
+                        var profile = new CurveArrArray();
+                        profile.Append(loop);
+                        var plane = SketchPlane.Create(familyDoc, Plane.CreateByNormalAndOrigin(XYZ.BasisZ, new XYZ(0, 0, min.Z)));
+                        var extrusion = familyDoc.FamilyCreate.NewExtrusion(true, profile, plane, max.Z - min.Z);
+                        extrusion.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.Set(material.Id);
+                        added.Add(extrusion.Id.Value);
+                    }
+                    transaction.Commit();
+                }
+                familyDoc.LoadFamily(doc, new OverwriteFamily());
+            }
+            finally
+            {
+                familyDoc.Close(false);
+            }
+            return new JsonObject { ["deleted"] = remove.Count, ["added"] = added };
         }
 
         private static void CollectSolids(GeometryElement geometry, List<Solid> solids)
