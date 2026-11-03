@@ -56,6 +56,12 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 - Every wooden unit type gets an arrangement sheet (here 114 base cabinets, 115 arch units, 116 low bays, 117 rear centre units) so fabrication can check sizes before cutting: per side, chains for grid to grid, each unit and gap, the type end to end, and wall to wall with the space either side; a size table of every unit by mark, read from the model.
 - The arrangement sheet: views scaled to fill the sheet; the units in question in full black, every other element halftone by element override; a width and quantity table (qty = available length / 1000 rounded up, width = length / qty); a storage table for the shop operator (net inside W x D x H, litres each and total, shelf area); and the marble top quantities (length, depth, thickness, pieces, area, front edge), since this is where the run lengths are.
 
+## Hanging and loaded display
+
+- Any unit that carries goods (carpet hangers, rails, hooks) gets a study before fabrication: clear heights and drops dimensioned, a load check with stated assumptions (items x weight x 1.5 for customers pulling), rail deflection, and how the load reaches structure.
+- Fixings must land on structure or on battens, never on screws in board alone. Check the bracket positions against the batten and stud positions in the model. When they miss, use a steel back plate with anchors through the cladding into the wall or column.
+- Ask the operator for item count, sizes, type, the heaviest weight, who handles the goods, and the space needed below.
+
 ## Shelf lighting
 
 - Open shelf units with adjustable shelves are lit from the sides: a 12 x 8 mm LED channel routed in each side panel's inner face, vertical, from the base to the underside of the top shelf, at least 50 mm behind the front edge. It sits forward of the shelves, so every shelf is lit at any height.
