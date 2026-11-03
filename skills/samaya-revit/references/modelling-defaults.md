@@ -27,7 +27,7 @@ Model counters, islands and displays as furniture families from the design file'
 
 ## Grids
 
-**Every project has grids.** Take them from the source drawing where it has any. Otherwise set them on the inside faces of the existing walls (not on joinery faces), and always add centre grids both ways. Keep grid bubbles clear of section heads; put them on the other end if they clash. Number one direction (1, 2, 3) from right to left as seen from the entrance, and letter the other (A, B, C) from the front, and keep the same grids in every discipline file. Show them on all plans and sections, and dimension key items from them.
+**Every project has grids.** Take them from the source drawing where it has any. Otherwise set them on the inside faces of the existing walls (not on joinery faces), and always add centre grids both ways. Keep grid bubbles clear of section heads; put them on the other end if they clash. Always dimension grid to grid on every plan and elevation that shows grids. Number one direction (1, 2, 3) from right to left as seen from the entrance, and letter the other (A, B, C) from the front, and keep the same grids in every discipline file. Show them on all plans and sections, and dimension key items from them.
 
 ## Modelling
 
