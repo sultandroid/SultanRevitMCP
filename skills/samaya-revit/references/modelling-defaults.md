@@ -73,6 +73,7 @@ Model counters, islands and displays as furniture families from the design file'
 - An architectural drawing shows only what touches the ceiling. Before modelling a service, also read the discipline's own submittal, for example `Submittal's\Mep\<Rev>\Mech`, even if it is an older revision.
 - Identify equipment from the plan and the discipline drawing, not from a legend alone. On Madina 1 the architectural legend called a symbol "exhaust fan", and the mechanical layout shows the same symbol as the concealed AC unit.
 - List what was left out when reporting a service as modelled.
+- **The mechanical engineer's layout governs HVAC:** which grilles supply and which return, grille and duct sizes, airflow, the FCU, the access door and the routes. Architectural RCP arrows only show intent. On Madina 1 the model first followed the arch RCP (supply west and east); the engineer's SD layout has supply rear and east, return west and front, 60 in grilles, a 16 x 14 in main reducing to 12 x 10 in, 12 in flex, and the access door beside the FCU, and the user said to follow it. Adapt it only where the as-built site forces it (a grille face limited by the step height, a plenum under an existing beam), and state each adaptation on the sheets.
 - Grille type comes from the latest drawing's airflow arrows: arrows leaving the slot are supply, and arrows pointing at it are return. Zoom in and read them. Where revisions disagree, the latest wins, and say so.
 
 ## Services above the ceiling
