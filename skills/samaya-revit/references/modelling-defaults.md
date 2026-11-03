@@ -38,6 +38,7 @@ Model counters, islands and displays as furniture families from the design file'
   - `Existing Ceiling +x.xxx`: the existing ceiling or soffit, from the site. Madina 1: +3.720.
   - These levels live in the existing model only. Do not change the ARCH model's levels (its FFL, clear height and others) when the existing levels change, unless the user asks.
   - The existing shell (walls, columns) runs from SSL to the existing ceiling. When either level changes, rebuild the shell and re-check every service above the new ceiling against it.
+- A site survey overrides the as-built CAD. Check the survey sheet is for this shop (its title and note) before using it, and read every number from enlarged crops. Model what it shows: soffit heights, door and window heads with the lintels above them, and pier and column sizes. Compare each dimension with the model in a table. Then check every new element against ARCH and MECH for clashes, such as shutter boxes under a door head.
   - Name levels by what they are. Never leave `Level 1` or `Level 2`. Levels closer than about 300 mm get a duplicated level type with the head at one end only, so the tags don't overlap.
 - Every shop has a level at the underside of the main ceiling, named `Clear Height +x.xx`. This is the shop's clear height.
 - Use reference planes for other setting-out heights such as an arch springing, not extra levels.
