@@ -67,6 +67,7 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 
 - Open shelf units with adjustable shelves are lit from the sides: a 12 x 8 mm LED channel routed in each side panel's inner face, vertical, from the base to the underside of the top shelf, at least 50 mm behind the front edge. It sits forward of the shelves, so every shelf is lit at any height.
 - A unit with side strips has no strips on its shelves. Do not double the lighting.
+- Whenever a unit gains, loses or changes LED, update the electrical sheets in the same session. Measure the LED length in every placed unit from its family solids (the longest side of each LED solid), and compare it with the lighting schedule, the driver count and the circuit load. Then refresh the DB totals and the device model in the ELEC file. On Madina 1 the rebuilt niche units and the Mihrab unit added 9.4 m that no schedule carried.
 
 ## Dimension style
 
