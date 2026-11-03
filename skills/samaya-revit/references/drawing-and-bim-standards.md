@@ -48,6 +48,13 @@ Use IEC 60617 symbols, never invented marks: luminaire as a circle with a cross,
 
 Circuit layouts are the exception to black only: colour lines by phase using IEC 60445 conductor colours, L1 brown, L2 black, L3 grey, neutral blue, earth green and yellow. Line type shows the system. On a single-phase supply all circuits are the line colour, brown. Label each circuit with its number, phase where there is more than one, and system, and show the key in the legend. No ISO standard assigns colours by circuit type.
 
+## Supply checks without site data
+
+When the fault level or feeder length is not known, do not hold the issue. Put limits on the DB schedule instead, and mark them to be checked on site:
+
+- Main breaker breaking capacity: state the rating, for example a 10 kA MCB to IEC 60898-1, and the step up if the site is higher, for example an MCCB at 25 kA.
+- Feeder: state the maximum length for the chosen size. Use the cable's mV/A/m times the breaker rating, against a drop budget for the feeder of about 2% so the final circuits stay within IEC 60364-5-52 (3% lighting, 5% other). Give the next size up and its limit.
+
 ## ISO 19650 on projects
 
 - **Common data environment:** information moves through work in progress, shared, published and archived.
