@@ -36,6 +36,7 @@ Model counters, islands and displays as furniture families from the design file'
   - `FFL +0.000`: the datum, top of the shop's floor finish. All joinery sits on it.
   - `SSL -0.xxx Existing Slab`: top of the existing slab on grade, one floor build-up (screed and finish) below FFL. The slab element sits on SSL. Ask the site for it; until then ask for it in red as an input. Madina 1: SSL -0.100.
   - `Existing Ceiling +x.xxx`: the existing ceiling or soffit, from the site. Madina 1: +3.720.
+  - These levels live in the existing model only. Do not change the ARCH model's levels (its FFL, clear height and others) when the existing levels change, unless the user asks.
   - The existing shell (walls, columns) runs from SSL to the existing ceiling. When either level changes, rebuild the shell and re-check every service above the new ceiling against it.
   - Name levels by what they are. Never leave `Level 1` or `Level 2`. Levels closer than about 300 mm get a duplicated level type with the head at one end only, so the tags don't overlap.
 - Every shop has a level at the underside of the main ceiling, named `Clear Height +x.xx`. This is the shop's clear height.
