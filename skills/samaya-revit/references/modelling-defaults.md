@@ -76,6 +76,8 @@ Model counters, islands and displays as furniture families from the design file'
 
 - Before routing, find the height available: ceiling top to slab soffit, less any beams. Report the clearance for each item. Search level markers in the drawings, such as `SL` and `CL`, and confirm they are placed on this shop's sheets.
 - On small shops, flexible hoses from a discharge box can replace rigid duct, with the mechanical engineer's approval.
+- **Flexible duct is 1.5 m long at most** (Samaya Factory standard). It matches CMC 603.4.1 and common specifications. SBC 501, based on the IMC, does not limit flexible air duct length but caps flexible air connectors at 4.3 m and bars them from passing through walls, floors and ceilings. Use flex only as the final connection to a grille or plenum, never in place of a rigid elbow or to cross a beam. Longer runs are rigid duct. Measure every flex run along its centreline and report it.
+- Route services clear of existing beams. Cross a downstand beam only where the ceiling below leaves room under it, using a flat rigid duct, and keep everything under the slab soffit.
 
 ## AC condensate
 
