@@ -1038,7 +1038,9 @@ namespace RevitMcp
             return InTransaction(doc, "Rotate view crop", () =>
             {
                 view.CropBoxActive = true;
-                var crop = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Viewers).WhereElementIsNotElementType()
+                // The crop boundary is a dependent Viewers element of the view; duplicated plans do not share the view's name, so look there first.
+                var crop = view.GetDependentElements(new ElementCategoryFilter(BuiltInCategory.OST_Viewers)).Select(doc.GetElement).FirstOrDefault(e => e != null && e.Id != view.Id)
+                           ?? new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Viewers).WhereElementIsNotElementType()
                                .FirstOrDefault(e => e.Name == view.Name && e.Id != view.Id)
                            ?? throw new InvalidOperationException("Crop region element not found for this view.");
                 var box = view.CropBox;

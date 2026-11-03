@@ -138,6 +138,9 @@ The user's arrangement (set by hand on Madina 1 sheet 120, 3 Nov 2026):
 4. The key plan goes in the title block's KEY PLAN panel on every sheet, unit in red, no title.
 5. Isolate the unit, with dimensions, keynotes, skirting, door swings, and wire routes where they apply. The Saudi figure goes on the side view only.
 6. Before sending, render the sheet and check each item above, and that no text overlaps or runs out of its area.
+7. Side units (on a side wall, facing +x or -x) are drawn in their own frame: Front is the face the customer sees, not the model's south. On Madina 1 the generator takes `face: "+x"` and turns sections, dimensions, keynotes and detail lines into the unit's frame. The plan crop cannot be rotated on duplicated plan views (`rotate_view_crop` fails with "Crop region element not found"), so the Top View of a side unit stays north-up. Say so on the sheet check.
+8. One sheet per family of identical units, with QTY. Equalise runs so the units are the same size: when two facing runs differ (Madina 1 base cabinets, west 3910 and east 3950 clear), take the difference out of the corner filler, so both runs hold the same cabinets (4 x 987.5). Update the marble top, end panel and the general arrangement tables after the change. Where one unit in a family is wider (Madina 1 low bays W-L2, E-L2), note it under QTY or give it its own sheet.
+9. A part of a merged unit (Madina 1: niche frame, niche cabinet, column cladding, carpet hanger inside the Mihrab) gets a section-boxed 3D view around that part, not a copy of the unit's 3D, which shows the whole Mihrab or other units. Free-standing units get an isolated 3D placed in the sheet's free corner when the text column is full.
 
 ## Schedules
 
