@@ -44,6 +44,7 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - `replace_text` replaces text in every text note, or in one view with `view_id`: `pairs` [{find, replace}] applied in order, with `dry_run` to list the notes it would change. Use it after renumbering sheets, longest numbers first.
 - `hide_elements` hides elements in one view (`unhide: true` shows them again). It is per element, so new elements are not covered.
 - Link chains block opening: ARCH links MECH and EXT, and ELEC links ARCH. A model cannot be opened while any open model links it, and the last open model cannot be closed through the bridge. When a chain blocks the swap, save and restart Revit on the model needed.
+- **Project Browser organization is read-only in the Revit API.** `BrowserOrganization` only exposes getters, such as GetCurrentBrowserOrganizationForSheets, GetFolderItems and SortingParameterId. There is no create, set-folders or set-current, so the bridge cannot group sheets into browser folders. The user sets it once per model: Sheets (all) > Browser Organization > New > Folders by "Sheet Group", sorted by Sheet Number. Grouping still holds through the ISO number order and the drawing index.
 - `install.ps1` needs `-Dotnet "$env:LOCALAPPDATA\RevitMcp\dotnet-sdk\dotnet.exe"`. There is no `dotnet` on the PATH.
 - Detail lines are the way to draw indicative items in a section view: create_swatch only works in drafting views and sheets. Grey shade is close horizontal lines until a filled region tool exists.
 
