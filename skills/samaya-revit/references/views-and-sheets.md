@@ -133,7 +133,11 @@ Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped 
 
 ## Free-standing units in sections
 
-In every section, free-standing units (island displays, counters, display units) are shown as an indicative outline: halftone, Dash lines at weight 1, no fill patterns and 100% surface transparency, so the wall units behind read clearly. The exception is the unit's own detail sheet (on Madina 1, J131 is the counter D-01 and J132 is the island D-02). Apply it per element in each section with `set_element_overrides`, and re-apply it to every new section.
+In every section, free-standing units (island displays, counters, display units) are hidden and shown only by their outer outline: one grey dashed rectangle per unit, the extent of its main parts, with no internal lines. Outlets mounted on the unit are hidden with it. Use `hide_elements` for the unit, then draw detail lines in the "Indicative Outline" style (weight 1, grey, Dash). The exceptions are the unit's own detail sheet and its working views (on Madina 1, J131 and WK-Pegboard Bend are the counter D-01, and J132 is the island D-02). The script `isl_outline.mjs` logs the lines it creates, so a rerun replaces them. Rerun it whenever a section is added or a unit moves.
+
+## Isolated views go stale
+
+An isolated view (unit sheets, exploded views) only hid what existed when it was isolated. Every element made later, such as a rebuilt shutter, a new ceiling or a new LED strip, appears in all of them. After any model change, rerun the clean-up: in each isolated view, hide everything visible except the view's own unit, and hide the links category. Then render every sheet that has a 3D view and check it. Retire sheets for units that were merged into another unit (on Madina 1, 127 Niche Frame and 130 Carpet Hanger after the Mihrab merge) instead of letting them show the merged unit.
 
 ## Section lines stay clean
 

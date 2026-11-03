@@ -116,6 +116,7 @@ namespace RevitMcp
             ["remove_z_band"] = RemoveZBand,
             ["set_viewport_no_title"] = SetViewportNoTitle,
             ["isolate_in_view"] = IsolateInView,
+            ["hide_elements"] = HideElementsInView,
             ["create_keynote"] = CreateKeynote,
             ["set_family_category"] = SetFamilyCategory,
             ["set_revision_numbering"] = SetRevisionNumbering,
@@ -2464,6 +2465,20 @@ namespace RevitMcp
                     .Select(e => e.Id).ToList();
                 if (others.Count > 0) view.HideElements(others);
                 return new JsonObject { ["hidden"] = others.Count };
+            });
+        }
+
+        /// <summary>Hides the given elements in a view, or shows them again with unhide: true. Elements that cannot be hidden are skipped.</summary>
+        private static JsonNode HideElementsInView(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var unhide = p["unhide"]?.GetValue<bool>() ?? false;
+            var ids = ReqIds(p, "element_ids").Where(id => doc.GetElement(id) is Element e && (unhide || e.CanBeHidden(view))).ToList();
+            return InTransaction(doc, unhide ? "Unhide elements" : "Hide elements", () =>
+            {
+                if (ids.Count > 0) { if (unhide) view.UnhideElements(ids); else view.HideElements(ids); }
+                return new JsonObject { [unhide ? "shown" : "hidden"] = ids.Count };
             });
         }
 
