@@ -44,6 +44,11 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 - Perforated metal sheets are flat with no bends, and have a solid 50 mm border with no holes all round. Centre the hole grid in the sheet.
 - Every counter manages its wires in a **double back**: a removable inner back with a cable void, about 80 mm, running from the floor to the top. No cable tray. Grommets in the top sit directly over the void, sized to fit it, usually 60 mm. Shelves stop at the inner back. The bottom panel runs the full depth, with only one wire hole, about 50 mm, at the void. Coordinate with the power and data drawings.
 
+## Shelf lighting
+
+- Open shelf units with adjustable shelves are lit from the sides: a 12 x 8 mm LED channel routed in each side panel's inner face, vertical, from the base to the underside of the top shelf, at least 50 mm behind the front edge. It sits forward of the shelves, so every shelf is lit at any height.
+- A unit with side strips has no strips on its shelves. Do not double the lighting.
+
 ## Dimension style
 
 On A1 shop drawings: Arial 5 mm black text, Diagonal 3mm ticks at weight 3, lines at weight 1, text offset 1.5 mm, witness gap 2 mm, witness extension 3 mm, dimension line extension 2 mm, opaque text background. Stack strings 12 mm apart on paper. Keynote numbers 6 mm bold, keynote legend and sheet notes 5 mm, headings 5.5 mm bold. Don't dimension parts under about 25 mm in a chain, because the text won't fit: give them in a note or a larger detail. These values are practice-based judgement; 3.5 and 5 mm are ISO 3098 nominal sizes.
