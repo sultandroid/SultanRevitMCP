@@ -16,6 +16,8 @@ This is a working summary, not the text of the standards. Editions change, so ch
 | Title block | ISO 7200 |
 | Scales | ISO 5455 |
 | Lettering | ISO 3098 |
+| Leader and reference lines | ISO 128-2 (ISO 128-22 was withdrawn into it; confirm the current edition, 2020 or 2022) |
+| Part references (keynote numbers) | ISO 6433 *check edition* |
 | Electrical symbols | IEC 60617 |
 | Safety signs | ISO 7010 |
 | Information management | ISO 19650 parts 1 to 6 |
@@ -38,6 +40,8 @@ This is a working summary, not the text of the standards. Editions change, so ch
 - **Sections:** a cutting plane with its reference at each end, and a matching section title on the view.
 - **Same scale, projected views:** front, plan and side line up. See the layout guide in `views-and-sheets.md`.
 - **Lettering:** one upright sans serif font, with no overlap on lines or other text. Minimum printed height is 2.5 mm; our sheet standard uses 5 mm.
+- **Leader lines** (ISO 128-2): continuous thin lines, drawn at an angle to the hatching and outlines they touch, never parallel to them. They end in a dot inside a surface, an arrowhead on an outline, and with no end on a dimension line. They do not cross each other.
+- **Part references** (ISO 6433): numbers arranged in aligned rows or columns outside the view, in a consistent sequence, all the same size, with a matching key or parts list. Our house practice adds horizontal leaders in two columns, numbered in reading order: see `views-and-sheets.md`.
 - **Dimensions** in mm without the unit, with one consistent style and terminator. Do not repeat a dimension without reason.
 
 ## Electrical symbols
