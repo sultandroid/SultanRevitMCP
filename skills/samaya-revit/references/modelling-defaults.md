@@ -32,6 +32,7 @@ Model counters, islands and displays as furniture families from the design file'
 ## Modelling
 
 - Build fabricated units as families, one per unit, with a Mark and a Comments note. Export the marks and unit parts to CSV.
+- **Base cabinets are 700 to the top of the worktop:** 50 skirting + 630 cabinet + 20 marble, with the marble straight on the 18 mm carcass top, no substrate (Madina 1, confirmed by the user). The cabinet sheet states the overall 700 next to the cabinet size. When the total is given, check the model's whole stack, not just the top level: Madina 1 already reached 700, but through a 600 carcass and a 30 mm substrate that the detail sheet said was not there.
 - The existing model carries the existing levels, all on phase Existing with the shell:
   - `FFL +0.000`: the datum, top of the shop's floor finish. All joinery sits on it.
   - `SSL -0.xxx Existing Slab`: top of the existing slab on grade, one floor build-up (screed and finish) below FFL. The slab element sits on SSL. Ask the site for it; until then ask for it in red as an input. Madina 1: SSL -0.100.
