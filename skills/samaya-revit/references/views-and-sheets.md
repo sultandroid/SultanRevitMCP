@@ -162,6 +162,8 @@ In every section, free-standing units (island displays, counters, display units)
 
 An isolated view (unit sheets, exploded views) only hid what existed when it was isolated. Every element made later, such as a rebuilt shutter, a new ceiling or a new LED strip, appears in all of them. After any model change, rerun the clean-up: in each isolated view, hide everything visible except the view's own unit, and hide the links category. Then render every sheet that has a 3D view and check it. When a unit is merged into another, its old sheet shows the merged unit. Ask the user whether to retire it. On Madina 1 the user kept 127 Niche Frame and 130 Carpet Hanger after the Mihrab merge.
 
+A regenerated sheet is a new sheet: it loses its "Sheet Group", so the drawing index shows a blank group. After any sheet rebuild, set the groups again and check the cover. When checking 3D views, check both the view itself and its place on the sheet: on Madina 1 the cover's overall 3D ran into the title block's revision panel, and a key plan kept its viewport title.
+
 ## Section lines stay clean
 
 General plans show only the building sections. Every fabrication, detail or working section has "Hide at scales coarser than" set to 1:2 when it is created (the master plan here runs at 1:9, so 1:20 is not enough), so its line never appears on a general plan. Section lines should be evenly placed, must not cross text, and their heads sit outside the plan.
