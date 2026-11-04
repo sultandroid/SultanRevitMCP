@@ -203,6 +203,8 @@ A study that changes a design element gets two sheets in the item's fabrication 
 
 Every sheet, of any kind, is laid out on one grid: A1 drawing area x 20 to 1012, 6 columns of 165 mm, lines at 20, 186, 351, 516, 682, 847, 1012, centres at 103, 268, 434, 599, 764, 929. Views centre on a column or a column line. Views in a row share a level, so the same height reads across them. Notes and tables start on a column line. Never place by eye.
 
+**Sheets from someone else's DWG (supplier workshop drawings) are re-laid on the grid too** (user, Aseer, 4 Nov 2026: "arranged by views in grids layout"). Never place the supplier's whole sheet as one viewport. Import the DWG into a 1:1 plan view cropped to its drawing area, then split it into its separate views and give each one a framed, lettered panel on the 6-column grid. A panel takes as many columns as its view needs. Rows keep the supplier's reading order, spare columns go to the widest panels, and spare height is shared by the rows. Name each panel from the supplier's own caption. If there is none, name it from its labels. Supplier labels are often MULTILEADERs (text in DXF group 304), not TEXT or MTEXT, so read all three. Tool: Aseer `22_Revit_Files\Rvt\Showcase Template\scripts\gbh_grid.ps1` with `work\tools\cluster_views.py`.
+
 ## Key plan must be correct
 
 Check the key plan on every sheet before sending it, by looking at it in the render:
