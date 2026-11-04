@@ -73,6 +73,7 @@ Model counters, islands and displays as furniture families from the design file'
   - **Clear height always means the LOWER ceiling level, measured from FFL** (user, Makkah, 4 Nov 2026). When a beam limits the ceiling, set the upper ceiling (raised field) a stated gap under the beam (Makkah: 70 mm), keep the design step between the two levels (Makkah: 250 mm), and the clear height follows (Makkah: +3.00 lower, +3.25 field under a beam at +3.32). Coffers above the field on the beam line are made shallower; the grid stays.
   - **Supply grilles go side mounted in the step** between the two ceiling levels when the user asks (Makkah: linear 800 x 200 in a 250 mm step), with the plenum behind the step above the lower ceiling. Route the supply duct above the lower ceiling, not over a raised field.
 - Use reference planes for other setting-out heights such as an arch springing, not extra levels.
+- **Every model element has a remark** in its Comments parameter (user, 4 Nov 2026). No element is left blank. Write it as `<what it is> | <source> | <status>`, for example `Gypsum ceiling CL-01 | Rev-05 RCP-101 | ASSUMED height, confirm on site`. Status is `CONFIRMED` (from a survey or an approved drawing) or `ASSUMED` with what to check. Before issuing, list the elements with empty Comments and fill them.
 - Note assumptions in the element's Comments: anything not stated on the source drawing.
 - Take HVAC and other services from the latest revision of the source drawing, and record the source file in Comments.
 
