@@ -27,7 +27,7 @@ Compile check while Revit is open: build with `-p:OutDir="$TEMP/revitmcp_check/"
 | Symptom | Cause and action |
 |---|---|
 | Bridge stalls after renaming a level or plan view | Only when a plan view has the same name as its level: Revit asks whether to rename the other one too. Check with `list_views` first. A level with no same-named view renames cleanly (Jalal wal Jamal, Nov 2026). Otherwise rename the view first to something else, or ask the user to answer the dialog. |
-| Family conversions vanish | Revit reverted 14 `make_unit_family` conversions with no journaled Undo, cause unknown. Check families are present after each batch. |
+| Family conversions vanish | Revit reverted 14 `make_unit_family` conversions with no journaled Undo, cause unknown. Check families are present after each batch. On Makkah a rebuild by name ran right after `edit_family_solids` on the same family: the edit stayed, but the new family and instance vanished, and the old instance was back. Split such jobs into two steps (edit, then check, then rebuild), check the instance id after every rebuild, and rerun only the missing step. |
 | "Curve length is too small" | Geometry under Revit's short curve tolerance, about 0.8 mm. |
 | "Sketch plane creation is not allowed in this family" | Old add-in build in the `lines` branch of `build_title_block`. Source is fixed, reinstall. |
 | A linked model loads but draws nothing, in every view | The link was made with a forward-slash path (`C:/...`). Revit loads the file but cannot tie the link to it: the journal says "Where is the document?" and `inspect_link` shows `link_doc` null. Delete the link and link again with a backslash path. The add-in now turns paths to backslashes itself (Makkah, 4 Nov 2026). Hand-made links are fine. |
