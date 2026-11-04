@@ -113,6 +113,7 @@ namespace RevitMcp
             ["create_text_notes"] = CreateTextNotes,
             ["place_image"] = PlaceImage,
             ["set_family_text_size"] = SetFamilyTextSize,
+            ["save_cloud_copy"] = SaveCloudCopy,
             ["list_text_notes"] = ListTextNotes,
             ["set_text_note"] = SetTextNote,
             ["add_titleblock_revision_schedule"] = AddTitleblockRevisionSchedule,
@@ -3568,6 +3569,11 @@ namespace RevitMcp
             {
                 foreach (Document d in app.Application.Documents)
                     if (!d.IsLinked && (string.Equals(d.Title, _target, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(d.PathName, _target, StringComparison.OrdinalIgnoreCase))) return d;
+                // A linked model can be named too, for reading (levels, element extents): Revit makes linked documents
+                // read-only, so a write to one fails on its own.
+                foreach (Document d in app.Application.Documents)
+                    if (d.IsLinked && (string.Equals(d.Title, _target, StringComparison.OrdinalIgnoreCase)
                         || string.Equals(d.PathName, _target, StringComparison.OrdinalIgnoreCase))) return d;
                 throw new InvalidOperationException($"Document '{_target}' is not open in this Revit.");
             }

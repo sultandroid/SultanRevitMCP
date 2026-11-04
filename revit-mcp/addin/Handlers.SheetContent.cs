@@ -59,6 +59,36 @@ namespace RevitMcp
         }
 
         /// <summary>
+        /// save_cloud_copy: open a cloud (ACC / Autodesk Docs) model detached from its central, save it as a plain local
+        /// file and close it. Gives a local host something to link, since Revit links cloud models only into cloud hosts.
+        /// The central on ACC is not changed. Params: region? (default US), project_guid, model_guid, save_path.
+        /// </summary>
+        private static JsonNode SaveCloudCopy(UIApplication app, JsonObject p)
+        {
+            var region = Str(p, "region") ?? "US";
+            var cloud = ModelPathUtils.ConvertCloudGUIDsToCloudPath(region, Guid.Parse(ReqStr(p, "project_guid")), Guid.Parse(ReqStr(p, "model_guid")));
+            var savePath = Path.GetFullPath(ReqStr(p, "save_path"));
+            if (File.Exists(savePath)) throw new ArgumentException($"{savePath} already exists; choose a new name.");
+            // Revit will not detach a cloud model on open ("Detach option is not valid for cloud model"), so open it as is
+            // (that only refreshes Revit's own local cache; nothing is synchronised back), then save a copy as a new
+            // standalone central on disk and close without synchronising.
+            var opts = new OpenOptions();
+            opts.SetOpenWorksetsConfiguration(new WorksetConfiguration(WorksetConfigurationOption.OpenAllWorksets));
+            var started = DateTime.Now;
+            var d = app.Application.OpenDocumentFile(cloud, opts);
+            try
+            {
+                var title = d.Title;
+                var sa = new SaveAsOptions { OverwriteExistingFile = false };
+                if (d.IsWorkshared) sa.SetWorksharingOptions(new WorksharingSaveAsOptions { SaveAsCentral = true });
+                d.SaveAs(savePath, sa);
+                return new JsonObject { ["title"] = title, ["saved"] = savePath, ["seconds"] = Math.Round((DateTime.Now - started).TotalSeconds),
+                                        ["mb"] = Math.Round(new FileInfo(savePath).Length / 1048576.0) };
+            }
+            finally { d.Close(false); }
+        }
+
+        /// <summary>
         /// set_family_text_size: give text notes or labels in an instance's family a text type of their own at a new size,
         /// and reload the family. Use it when a title block label overflows its cell. Params: element_id (an instance),
         /// match (part of the note or label's text, as list_family_text shows it), size_mm, save_path?.
