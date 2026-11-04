@@ -78,6 +78,33 @@ namespace RevitMcp
             };
         }
 
+        /// <summary>
+        /// Takes the shared coordinates of a linked model into the host (Manage > Coordinates > Acquire).
+        /// The host's own geometry does not move; only its survey point and shared coordinate system change.
+        /// </summary>
+        private static JsonNode AcquireCoordinates(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var inst = RequireElement(doc, ReqId(p, "link_instance_id")) as RevitLinkInstance
+                ?? throw new ArgumentException("link_instance_id is not a linked model instance.");
+            if (inst.GetLinkDocument() == null) throw new InvalidOperationException("The link is not loaded. Reload it first.");
+            return InTransaction(doc, "Acquire coordinates", () =>
+            {
+                doc.AcquireCoordinates(inst.Id);
+                var loc = doc.ActiveProjectLocation;
+                var pos = loc.GetProjectPosition(XYZ.Zero);
+                return new JsonObject
+                {
+                    ["from_link"] = inst.Name,
+                    ["project_location"] = loc.Name,
+                    ["origin_east_mm"] = ToMm(pos.EastWest),
+                    ["origin_north_mm"] = ToMm(pos.NorthSouth),
+                    ["origin_elevation_mm"] = ToMm(pos.Elevation),
+                    ["angle_to_true_north_deg"] = pos.Angle * 180 / Math.PI,
+                };
+            });
+        }
+
         /// <summary>Reloads linked models from disk after they were edited in another Revit: all, or those whose file name contains "name".</summary>
         private static JsonNode ReloadLink(UIApplication app, JsonObject p)
         {

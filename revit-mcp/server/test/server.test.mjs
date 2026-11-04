@@ -55,8 +55,11 @@ after(async () => {
 
 test("lists every tool with read-only hints set correctly", async () => {
   const { tools } = await client.listTools();
-  assert.equal(tools.length, 65);
+  // No fixed count: it went stale every time a tool was added. Check names are unique instead.
   const byName = Object.fromEntries(tools.map((t) => [t.name, t]));
+  assert.equal(Object.keys(byName).length, tools.length);
+  assert.equal(byName.inspect_link.annotations.readOnlyHint, true);
+  assert.ok(byName.link_revit_model && byName.acquire_coordinates);
   assert.equal(byName.query_elements.annotations.readOnlyHint, true);
   assert.equal(byName.delete_elements.annotations.destructiveHint, true);
 });

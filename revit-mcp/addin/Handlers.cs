@@ -133,6 +133,7 @@ namespace RevitMcp
             ["list_phases"] = ListPhases,
             ["inspect_link"] = InspectLink,
             ["reload_link"] = ReloadLink,
+            ["acquire_coordinates"] = AcquireCoordinates,
             // Device symbols (Handlers.Symbols.cs)
             ["duplicate_type"] = DuplicateType,
             ["create_annotation_symbol"] = CreateAnnotationSymbol,
@@ -1598,11 +1599,19 @@ namespace RevitMcp
             // cannot bind the instance to it ("Where is the document?"), so the link draws nothing.
             var path = Path.GetFullPath(ReqStr(p, "path"));
             if (!File.Exists(path)) throw new ArgumentException($"Model not found: '{path}'.");
+            // "origin" (default): internal origin to internal origin. "shared": by shared coordinates,
+            // which needs the two models to share coordinates already.
+            var placement = (Str(p, "placement") ?? "origin").ToLowerInvariant() switch
+            {
+                "origin" => ImportPlacement.Origin,
+                "shared" => ImportPlacement.Shared,
+                var other => throw new ArgumentException($"placement must be 'origin' or 'shared', not '{other}'."),
+            };
             return InTransaction(doc, "Link model", () =>
             {
                 var type = RevitLinkType.Create(doc, ModelPathUtils.ConvertUserVisiblePathToModelPath(path), new RevitLinkOptions(false));
-                var instance = RevitLinkInstance.Create(doc, type.ElementId, ImportPlacement.Origin);
-                return new JsonObject { ["type_id"] = type.ElementId.Value, ["id"] = instance.Id.Value };
+                var instance = RevitLinkInstance.Create(doc, type.ElementId, placement);
+                return new JsonObject { ["type_id"] = type.ElementId.Value, ["id"] = instance.Id.Value, ["placement"] = placement.ToString() };
             });
         }
 
