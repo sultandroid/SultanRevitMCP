@@ -12,11 +12,26 @@ Samaya Factory's Revit system for every factory project. It holds the bridge tha
 ## Set up on a computer
 
 ```
-git clone https://github.com/sultandroid/samaya-revit-standards.git C:\Users\<you>\samaya-revit-standards
+git clone https://github.com/sultandroid/SultanRevitMCP.git C:\Users\<you>\samaya-revit-standards
 cmd /c mklink /J "%USERPROFILE%\.claude\skills\samaya-revit" "%USERPROFILE%\samaya-revit-standards\skills\samaya-revit"
 ```
 
+The repository was renamed from `samaya-revit-standards`; the local folder keeps the old name so existing links and paths still work. Old clones keep working through GitHub's redirect, but you can point them at the new name with `git remote set-url origin https://github.com/sultandroid/SultanRevitMCP.git`.
+
 The link makes Claude read the skill straight from this repository, so `git pull` is all that is needed to update it.
+
+Then register the MCP server with Claude Desktop (Settings > Developer > Edit Config) and restart it fully; see [`revit-mcp/README.md`](revit-mcp/README.md) for the loader install and the config:
+
+```json
+{
+  "mcpServers": {
+    "revit": {
+      "command": "node",
+      "args": ["C:\\Users\\<you>\\samaya-revit-standards\\revit-mcp\\server\\server.mjs"]
+    }
+  }
+}
+```
 
 ## Keeping it in sync
 
