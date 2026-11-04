@@ -170,3 +170,10 @@ Each Revit still runs its commands one at a time.
 - **The Home screen runs no commands.** A Revit with no model open takes the socket call but never runs it ("did not pick up the command within 30 seconds"), with no dialog to clear. Open any model first.
 - **A cloud model cannot be linked through the bridge yet:** `link_revit_model` takes disk paths only. A `CLD:\` path from a journal fails. Link ACC models by hand (Insert > Link Revit > Autodesk Docs) until a cloud option is added.
 - The loader still loads only the old version folder (see above). Copying the new DLL and PDB into that folder and calling `reload_handlers` worked three times in a row today.
+
+## Aseer Type 4 lessons (4 Nov 2026)
+
+- **Pass `document` on every call when another session shares the Revit.** The active model flipped to another session's file twice in one hour. The MCP tools do not take it yet, so script through the socket with `"document": "<title>"` (export_view_image works this way too and returns the PNG as base64).
+- **Glass hides what is behind it in hidden line.** A front view of a showcase must be a section that cuts just inside the front glass, not an elevation. Cut past any thin inner rings (the Aseer recess ring is 15 to 27 mm in), or the ring's front wall shows as a solid black band across the view.
+- **Reading a DWG without opening AutoCAD:** run `accoreconsole.exe /i <copy.dwg> /s <script.scr> /readonly`. AutoCAD's secure load refuses LISP files from the temp folder; do not change SECURELOAD, put the LISP inline in the .scr instead. There is no ActiveX in accoreconsole (`vlax-ename->vla-object` returns nil): read DXF codes with `entget` and block contents with `tblsearch` and `entnext`.
+- **Design-team layouts exported from Revit keep the Revit coordinates and family origins:** case positions can be taken from the block insertion points, corrected by each block's own extents (the Aseer 1400 x 800 case origin is 108 mm off centre).
