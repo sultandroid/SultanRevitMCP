@@ -130,6 +130,8 @@ namespace RevitMcp
             ["create_drafting_view"] = CreateDraftingView,
             ["create_swatch"] = CreateSwatch,
             ["set_phase_filter"] = SetPhaseFilter,
+            ["list_phases"] = ListPhases,
+            ["inspect_link"] = InspectLink,
             // Device symbols (Handlers.Symbols.cs)
             ["duplicate_type"] = DuplicateType,
             ["create_annotation_symbol"] = CreateAnnotationSymbol,
@@ -1577,7 +1579,9 @@ namespace RevitMcp
         private static JsonNode LinkRevitModel(UIApplication app, JsonObject p)
         {
             var doc = Doc(app);
-            var path = ReqStr(p, "path");
+            // Normalise to a Windows path: a link stored with forward slashes loads the file, but Revit
+            // cannot bind the instance to it ("Where is the document?"), so the link draws nothing.
+            var path = Path.GetFullPath(ReqStr(p, "path"));
             if (!File.Exists(path)) throw new ArgumentException($"Model not found: '{path}'.");
             return InTransaction(doc, "Link model", () =>
             {

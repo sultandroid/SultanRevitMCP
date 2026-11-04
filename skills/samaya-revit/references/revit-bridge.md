@@ -30,6 +30,7 @@ Compile check while Revit is open: build with `-p:OutDir="$TEMP/revitmcp_check/"
 | Family conversions vanish | Revit reverted 14 `make_unit_family` conversions with no journaled Undo, cause unknown. Check families are present after each batch. |
 | "Curve length is too small" | Geometry under Revit's short curve tolerance, about 0.8 mm. |
 | "Sketch plane creation is not allowed in this family" | Old add-in build in the `lines` branch of `build_title_block`. Source is fixed, reinstall. |
+| A linked model loads but draws nothing, in every view | The link was made with a forward-slash path (`C:/...`). Revit loads the file but cannot tie the link to it: the journal says "Where is the document?" and `inspect_link` shows `link_doc` null. Delete the link and link again with a backslash path. The add-in now turns paths to backslashes itself (Makkah, 4 Nov 2026). Hand-made links are fine. |
 | "One or more of the elementIds cannot be deleted" | Often the active view. Have the user switch view, or update in place. |
 
 ## Scripting
@@ -46,6 +47,7 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - **Direct shapes do not draw material cut hatches in sections.** Anything that must hatch, existing structure included, is made into a family with `make_unit_family` (Generic Model is cuttable), then its phase is set again.
 - To rearrange a sheet the generator cannot rebuild (for example a unit merged into another), move its viewports and notes with `move_elements` (dx, dy in sheet mm, read positions off the render). Find a note's id with `replace_text` in `dry_run` mode, with the replacement set to "" so the note is listed. For a 3D view of part of a merged unit, use `create_3d_view` with a section box around that part.
 - `replace_text` replaces text in every text note, or in one view with `view_id`: `pairs` [{find, replace}] applied in order, with `dry_run` to list the notes it would change. Use it after renumbering sheets, longest numbers first.
+- `inspect_link` lists each link: load status, whether the link is tied to its document, element count and the phase map. `list_phases` lists the phases. Run `inspect_link` after every `link_revit_model`.
 - `hide_elements` hides elements in one view (`unhide: true` shows them again). It is per element, so new elements are not covered.
 - Link chains block opening: ARCH links MECH and EXT, and ELEC links ARCH. A model cannot be opened while any open model links it, and the last open model cannot be closed through the bridge. When a chain blocks the swap, save and restart Revit on the model needed.
 - **Project Browser organization is read-only in the Revit API.** `BrowserOrganization` only exposes getters, such as GetCurrentBrowserOrganizationForSheets, GetFolderItems and SortingParameterId. There is no create, set-folders or set-current, so the bridge cannot group sheets into browser folders. The user sets it once per model: Sheets (all) > Browser Organization > New > Folders by "Sheet Group", sorted by Sheet Number. Grouping still holds through the ISO number order and the drawing index.
