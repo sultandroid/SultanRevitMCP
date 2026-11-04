@@ -23,6 +23,7 @@ Every material shows its own hatch where it is cut in a section or detail, so th
 | Softwood (plinth, skirting, frames) | Crosshatch | 45° | 2.5 mm |
 | Plywood, including bending plywood | Horizontal lines, as laminations | 0° | 1 mm |
 | Marble and stone | Diagonal lines, wide | 45° | 4 mm |
+| Solid surface (Corian and similar) | As stone: diagonal lines, wide | 45° | 4 mm |
 | Metal (pegboard, gold tube, supports) | Solid black | | |
 | Veneer, HPL, PVC and ABS edge | Solid black thin line | | |
 | Existing concrete (material "Existing Concrete") | Crosshatch, wide; halftone as existing work | 45° | 4 mm |
