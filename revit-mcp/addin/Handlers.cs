@@ -1657,8 +1657,23 @@ namespace RevitMcp
             var doc = Doc(app);
             // Normalise to a Windows path: a link stored with forward slashes loads the file, but Revit
             // cannot bind the instance to it ("Where is the document?"), so the link draws nothing.
-            var path = Path.GetFullPath(ReqStr(p, "path"));
-            if (!File.Exists(path)) throw new ArgumentException($"Model not found: '{path}'.");
+            // A cloud model (Autodesk Docs / ACC) is given by region + project and model GUIDs (as a Revit journal or
+            // the "CLD:\US{project}...{model}name.rvt" path shows them); otherwise path is a file on disk.
+            ModelPath modelPath;
+            var source = "";
+            if (Str(p, "model_guid") is string mg)
+            {
+                var region = Str(p, "region") ?? "US";
+                modelPath = ModelPathUtils.ConvertCloudGUIDsToCloudPath(region, Guid.Parse(ReqStr(p, "project_guid")), Guid.Parse(mg));
+                source = $"cloud {region} {mg}";
+            }
+            else
+            {
+                var path = Path.GetFullPath(ReqStr(p, "path"));
+                if (!File.Exists(path)) throw new ArgumentException($"Model not found: '{path}'.");
+                modelPath = ModelPathUtils.ConvertUserVisiblePathToModelPath(path);
+                source = path;
+            }
             // "origin" (default): internal origin to internal origin. "shared": by shared coordinates,
             // which needs the two models to share coordinates already.
             var placement = (Str(p, "placement") ?? "origin").ToLowerInvariant() switch
@@ -1669,9 +1684,9 @@ namespace RevitMcp
             };
             return InTransaction(doc, "Link model", () =>
             {
-                var type = RevitLinkType.Create(doc, ModelPathUtils.ConvertUserVisiblePathToModelPath(path), new RevitLinkOptions(false));
+                var type = RevitLinkType.Create(doc, modelPath, new RevitLinkOptions(false));
                 var instance = RevitLinkInstance.Create(doc, type.ElementId, placement);
-                return new JsonObject { ["type_id"] = type.ElementId.Value, ["id"] = instance.Id.Value, ["placement"] = placement.ToString() };
+                return new JsonObject { ["type_id"] = type.ElementId.Value, ["id"] = instance.Id.Value, ["placement"] = placement.ToString(), ["source"] = source };
             });
         }
 
