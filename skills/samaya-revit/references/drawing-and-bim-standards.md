@@ -2,6 +2,13 @@
 
 Samaya Factory work follows the ISO drawing and information standards below. Where a project's employer or consultant sets different requirements, theirs win: ask.
 
+**The tools apply these from one file:** `standards/sultan-standards.json`, through `tools/standards.mjs`. It holds the ISO map, line widths and styles, text types, dimension style, scales, sheet grid and numbering, discipline colours for coordination, MECH system colours, IEC 60445 circuit colours, phases, 3D view settings and joinery defaults.
+- `ensureStyles(call)` puts every text type and line style in a model.
+- `colourByDiscipline(call, viewId)` colours a coordination view, and `colourKey()` gives the line for the sheet.
+- `isoScale()` picks a scale; `sheetNumber()` builds an ISO 19650 sheet number.
+
+When a standard changes, change the JSON and this page together, and no tool keeps its own copy of a value.
+
 This is a working summary, not the text of the standards. Editions change, so check the current edition before quoting a clause number on a submission. Items marked *check* have not been confirmed against the standard.
 
 ## Standards map

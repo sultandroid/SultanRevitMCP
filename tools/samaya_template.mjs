@@ -4,6 +4,7 @@
 // Output: OUT_DIR/Samaya Factory.rte and OUT_DIR/Title Blocks/Samaya Factory A0..A3.rfa. Then copy them into this repo's template/ folder.
 import { writeFileSync, mkdirSync, copyFileSync } from "node:fs";
 import { call } from "./rvt.mjs";
+import { S, ensureStyles } from "./standards.mjs";
 
 const ROOT = "C:/Users/user/OneDrive - SAMAYA INVESTMENT/Samaya/";
 const OUT_DIR = ROOT + "Technical Office/Revit Template/";
@@ -96,15 +97,13 @@ const dims = (await call("list_element_types", { category: "OST_Dimensions" }).c
 const dimId = dims.find((t) => /Linear|Diagonal/i.test(t.name))?.id ?? 261;
 let arrow = null; for (let id = 200; id <= 400 && !arrow; id++) { const e = await call("get_element", { element_id: id }).catch(() => null); if (e && e.name === "Arrow Filled 30 Degree" && e.category == null) arrow = id; }
 const setd = (n, v) => call("set_parameter", { element_id: dimId, parameter_name: n, value: v }).catch((e) => console.log("dim", n, e.message.slice(0, 60)));
-if (arrow) { await setd("Tick Mark", arrow); await call("set_parameter", { element_id: arrow, parameter_name: "Tick Size", value: "3.5 mm" }).catch(() => {}); }
-for (const [n, v] of [["Text Size", "5 mm"], ["Text Font", "Arial"], ["Color", 255 * 65536], ["Line Weight", 1], ["Tick Mark Line Weight", 1], ["Text Offset", "1.5 mm"], ["Witness Line Gap to Element", "3 mm"], ["Witness Line Extension", "3 mm"], ["Dimension Line Extension", "0 mm"], ["Text Background", 0]]) await setd(n, v);
+// Dimension style from standards/sultan-standards.json (ISO 129-1). Revit colours are BGR integers: blue is 255 * 65536.
+const D = S.dimensions, bgr = ([r, g, b]) => b * 65536 + g * 256 + r;
+if (arrow) { await setd("Tick Mark", arrow); await call("set_parameter", { element_id: arrow, parameter_name: "Tick Size", value: `${D.arrow_mm} mm` }).catch(() => {}); }
+for (const [n, v] of [["Text Size", `${D.text_mm} mm`], ["Text Font", D.font], ["Color", bgr(D.color)], ["Line Weight", 1], ["Tick Mark Line Weight", 1], ["Text Offset", "1.5 mm"], ["Witness Line Gap to Element", `${D.witness_gap_mm} mm`], ["Witness Line Extension", `${D.witness_extension_mm} mm`], ["Dimension Line Extension", "0 mm"], ["Text Background", 0]]) await setd(n, v);
 
-// 5. Text types (sheet sizes) and line styles (ISO 128 meaning; thick to thin at least 2:1).
-for (const [n, s, c, b] of [["Sheet Note 5", 5, BLACK, false], ["Sheet Heading 5.5 Bold", 5.5, BLACK, true], ["Keynote 6 Bold", 6, BLACK, true], ["Input Required 5 Red", 5, { r: 230, g: 0, b: 0 }, true], ["Highlight 5.5 Bold Green", 5.5, { r: 0, g: 140, b: 60 }, true]])
-  await call("ensure_text_type", { name: n, size_mm: s, color: c, bold: b });
-for (const [n, w, c, p] of [["Detail Cut", 5, BLACK], ["Detail Medium", 3, BLACK], ["Detail Thin", 1, BLACK], ["Detail Hidden", 1, BLACK, "Dash"], ["Detail Centre", 1, BLACK, "Dash dot"],
-  ["Indicative Outline", 1, { r: 128, g: 128, b: 128 }, "Dash"], ["Key Plan Red", 5, { r: 230, g: 0, b: 0 }], ["Highlight Green", 6, { r: 0, g: 140, b: 60 }], ["Figure Grey", 1, { r: 120, g: 120, b: 120 }], ["Dim Reference Hidden", 1, { r: 254, g: 254, b: 254 }]])
-  await call("ensure_line_style", { name: n, weight: w, color: c, ...(p ? { pattern: p } : {}) }).catch(async () => call("ensure_line_style", { name: n, weight: w, color: c }));
+// 5. Text types and line styles: every one in the standards file (ISO 128 meaning; thick to thin at least 2:1).
+await ensureStyles(call);
 
 // 6. Revisions: two-digit numbers per project; the template's default Revision 1 becomes 00, so a project's first issue is 01.
 await call("set_revision_numbering", { start: 0, min_digits: 2, name: "Samaya Rev" }).catch((e) => console.log("rev numbering", e.message.slice(0, 60)));

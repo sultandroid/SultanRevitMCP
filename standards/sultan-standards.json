@@ -1,0 +1,73 @@
+{
+  "_about": "SultanRevitMCP standards, one source for every tool. The prose and reasons live in skills/samaya-revit/references; this file is what the tools apply. Change a value here and every tool follows. A project's employer or consultant requirements win over these: put them in the project config, not here.",
+  "iso": {
+    "lines": "ISO 128-2", "views_sections": "ISO 128-3", "projection": "ISO 5456 (first angle)", "dimensioning": "ISO 129-1",
+    "sheet_layout": "ISO 5457", "title_block": "ISO 7200", "scales": "ISO 5455", "lettering": "ISO 3098",
+    "part_references": "ISO 6433", "information_management": "ISO 19650-1..6", "exchange": "ISO 16739-1 (IFC)",
+    "level_of_information_need": "ISO 7817", "classification": "ISO 12006-2", "cad_layers": "ISO 13567",
+    "electrical_symbols": "IEC 60617", "conductor_colours": "IEC 60445", "safety_signs": "ISO 7010"
+  },
+  "lines": {
+    "widths_mm": [0.13, 0.18, 0.25, 0.35, 0.5, 0.7, 1.0, 1.4, 2.0],
+    "thick_to_thin_min": 2,
+    "styles": [
+      { "name": "Detail Cut", "weight": 5, "color": [0, 0, 0], "use": "cut outlines, visible edges" },
+      { "name": "Detail Medium", "weight": 3, "color": [0, 0, 0] },
+      { "name": "Detail Thin", "weight": 1, "color": [0, 0, 0], "use": "dimension lines, leaders, hatching" },
+      { "name": "Detail Hidden", "weight": 1, "color": [0, 0, 0], "pattern": "Dash", "use": "hidden edges, door swings, concealed services" },
+      { "name": "Detail Centre", "weight": 1, "color": [0, 0, 0], "pattern": "Dash dot", "use": "centre lines, grids" },
+      { "name": "Detail Hatch", "weight": 1, "color": [128, 128, 128] },
+      { "name": "Indicative Outline", "weight": 1, "color": [128, 128, 128], "pattern": "Dash", "use": "free-standing units in sections, by others" },
+      { "name": "Key Plan Red", "weight": 5, "color": [230, 0, 0] },
+      { "name": "Highlight Green", "weight": 6, "color": [0, 140, 60], "use": "the chosen option in a design study" },
+      { "name": "Figure Grey", "weight": 1, "color": [120, 120, 120] },
+      { "name": "Dim Reference Hidden", "weight": 1, "color": [254, 254, 254] }
+    ]
+  },
+  "text": {
+    "font": "Arial",
+    "min_printed_mm": 2.5,
+    "types": [
+      { "name": "Sheet Note 5", "size_mm": 5, "color": [0, 0, 0] },
+      { "name": "Sheet Heading 5.5 Bold", "size_mm": 5.5, "color": [0, 0, 0], "bold": true },
+      { "name": "Keynote 6 Bold", "size_mm": 6, "color": [0, 0, 0], "bold": true },
+      { "name": "Input Required 5 Red", "size_mm": 5, "color": [230, 0, 0], "bold": true },
+      { "name": "Highlight 5.5 Bold Green", "size_mm": 5.5, "color": [0, 140, 60], "bold": true }
+    ],
+    "arabic_font": "Cairo (Tahoma when Cairo is not installed)"
+  },
+  "dimensions": {
+    "standard": "ISO 129-1", "font": "Arial", "text_mm": 5, "color": [0, 0, 255], "arrow": "Arrow Filled 30 Degree", "arrow_mm": 3.5,
+    "witness_gap_mm": 3, "witness_extension_mm": 3, "string_spacing_mm": 12, "min_segment_mm": 60
+  },
+  "scales": {
+    "iso_5455": [1, 2, 5, 10, 20, 50, 100, 200],
+    "by_content": { "key_plan": 100, "store_plan": 50, "store_section": 50, "wall_elevation": 20, "unit_section": 10, "construction_detail": 5, "fixing_detail": 2 },
+    "house_rule": "One view per sheet sized to fill it; whole-number scales outside the ISO series are allowed for that (user's rule)."
+  },
+  "sheets": {
+    "default_size": "A1",
+    "A1": { "drawing_area": [10, 1022, 10, 831], "clear_mm": 15, "grid_columns": [20, 186, 351, 516, 682, 847, 1012], "grid_centres": [103, 268, 434, 599, 764, 929], "notes_column_x": 815, "key_plan_at": [1102, 430] },
+    "black_on_white": true,
+    "shaded_exceptions": ["fabrication 3D views", "exploded views", "coordination views"],
+    "number_pattern": "{project}-SF-ZZ-{level}-DR-{role}-{number:4}",
+    "roles": { "A": "general and fabrication", "E": "electrical", "M": "mechanical (HVAC)", "P": "plumbing", "S": "structural", "Z": "coordination" },
+    "series": { "A-0001": "0 General", "A-1001": "1 Arch GA plans", "A-1101": "1 Arch GA sections", "A-1201": "1 Arch GA unit sections", "A-1301": "1 Arch GA details", "A-1901": "1 Arch GA schedules", "A-2000": "2 Fab: one block of 100 per item (x00 arrangement, x01+ units)", "E-1001": "3 Electrical layouts", "E-1101": "3 Electrical circuits", "E-1201": "3 Electrical boards", "M-1001": "4 Mechanical", "Z-1001": "5 Coordination" },
+    "sign_off": { "checked_by": "Mohamed Sultan", "approved_by": "ask per project", "designed_by": "ask per project" }
+  },
+  "coordination": {
+    "_note": "Colour by discipline in coordination views only (set_view_overrides color: lines plus solid surface and cut fill). Models keep their own materials. Put a one-line colour key on each coordination sheet.",
+    "disciplines": {
+      "mechanical": { "color": [30, 110, 230], "categories": ["OST_MechanicalEquipment", "OST_DuctCurves", "OST_FlexDuctCurves", "OST_DuctTerminal", "OST_DuctFitting", "OST_DuctAccessory", "OST_PipeCurves", "OST_PipeFitting", "OST_FlexPipeCurves"] },
+      "electrical": { "color": [245, 140, 0], "categories": ["OST_LightingFixtures", "OST_LightingDevices", "OST_ElectricalFixtures", "OST_ElectricalEquipment", "OST_FireAlarmDevices", "OST_SecurityDevices", "OST_CommunicationDevices", "OST_DataDevices", "OST_Conduit", "OST_ConduitFitting", "OST_CableTray", "OST_CableTrayFitting"] },
+      "plumbing": { "color": [0, 160, 160], "categories": ["OST_PlumbingFixtures", "OST_Sprinklers"] },
+      "existing": { "color": [150, 150, 150], "halftone": true, "categories": ["OST_RvtLinks"] }
+    },
+    "clearance_flag_mm": 80
+  },
+  "mech_system_colours": { "_note": "In MECH family materials, for shaded and 3D views; sheets stay black and white.", "supply_air": [40, 110, 220], "return_air": [40, 160, 80], "equipment": [230, 160, 30], "refrigerant": [184, 115, 51], "condensate": [130, 60, 170] },
+  "circuit_colours_iec_60445": { "L1": [140, 80, 30], "L2": [0, 0, 0], "L3": [128, 128, 128], "N": [0, 90, 200], "PE": "green-yellow" },
+  "phases": { "names": ["Existing", "New Construction"], "existing_graphics": "halftone", "rule": "Every element and view has a phase; existing is always halftone through the phase graphics." },
+  "views_3d": { "_see": "skills/samaya-revit/references/3d-views.md, tools/view3d.mjs", "style": "ShadingWithEdges", "detail_level": "Fine", "margin_mm": 30, "hide": ["OST_RvtLinks", "OST_SectionBox", "OST_Levels", "OST_Grids", "OST_CLines"] },
+  "joinery": { "_see": "skills/samaya-revit/references/joinery-practice.md", "round_to_mm": 10, "marble_mm": 20, "counter_total_mm": 700, "skirting_mm": 50, "carcass_mm": 18 }
+}
