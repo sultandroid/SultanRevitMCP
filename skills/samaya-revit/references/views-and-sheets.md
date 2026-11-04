@@ -78,6 +78,16 @@ Series, in the order of the set. Sorting by number gives this order, because DR-
 - Keep the map from any old number to the ISO number in one module, and have every script use it. On Madina 1 this is `sheetno.mjs`, with `sn()` for the full number and `ss()` for the short code. Renumbering then means editing the map, setting "Sheet Number" again, and running `replace_text` for any note that quotes an old number.
 - Ask whether the client or project requires its own numbering before using this.
 
+## Sheet groups (every project)
+
+**Every Samaya Factory model organises its sheets in groups, on every project.** The user set this as a general rule (Makkah, 4 Nov 2026).
+
+- Groups, in set order: `0 General`, `1 Arch GA`, `2 Fab: <item>` (one per item family, e.g. `2 Fab: Arch Units`), `3 Electrical`, `4 Mechanical`, `4 Plumbing`, `5 Coordination`, `6 Structural`. The group follows the ISO number: role letter and number series (table above).
+- Every sheet script sets "Sheet Group" when it makes the sheet. Rebuilt sheets lose it, so set it again.
+- After any sheet work run `node tools/sheet_groups.mjs "<model>"`: it adds the parameter if missing, sets every group from the number (keeps an existing `2 Fab: <item>`), lists the sheets, and checks the Project Browser. Use `--dry` to only report.
+- The Project Browser grouping cannot be made through the API (BrowserOrganization is read-only; `sheet_browser_info` only reads it). The user sets it once per model: Sheets (all) > Browser Organization > New "Samaya Sheet Groups" > Folders: Sheet Group > Sort: Sheet Number ascending. Set it once in `template/Samaya Factory.rte` and the template .rvt so every new project starts grouped.
+- Never leave a sheet with no group or a non-ISO number; the tool flags both.
+
 ## Sheet arrangement
 
 **One view per sheet, sized to fill the sheet.** The user set this over any scale in the tables above, and whole-number scales outside the ISO series are fine for it. On a small shop on A1, plans are about 1:9, sections 1:8 and tall details 1:5. Render each sheet: tags, level heads and view titles must stay clear of the title strip and the sheet edge.

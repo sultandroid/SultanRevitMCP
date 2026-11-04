@@ -130,6 +130,8 @@ Each Revit still runs its commands one at a time.
 - `create_detail_lines` draws a true arc when a line has a `mid` point (start, mid, end). Use it for arch set-outs instead of short segments.
 - `load_family` takes `overwrite: true` to load an edited .rfa over the loaded one; placed instances stay put.
 - `api_members` (type) lists a Revit API type's members, to check what the API allows before writing a command.
+- `sheet_browser_info` reports the Project Browser sheet grouping (organisation name, folder parameters). See "Sheet groups" in views-and-sheets.md.
+- **Pin the port when a model is open in one Revit and linked in another.** The client routes by title and can pick the Revit where the model is only a link (Makkah: ELEC in the second Revit links ARCH, and calls for ARCH went there). Set REVIT_MCP_PORT.
 - `create_project` works now: it closes the hidden in-memory copy before opening the saved file. Use it with the metric MEP templates (`Mechanical-Default_Metric.rte`, `Electrical-Default_Metric.rte`).
 - `create_floor_plan` takes `ceiling: true` for a reflected ceiling plan.
 - `set_view_overrides` takes `categories` (an array), not `category`. A wrong key fails silently inside a `.catch`.

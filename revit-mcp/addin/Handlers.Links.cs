@@ -152,6 +152,28 @@ namespace RevitMcp
             });
         }
 
+        /// <summary>
+        /// Reports how the Project Browser groups sheets (read-only in the API): the current organisation's name and,
+        /// for one sheet, the folder levels it falls in (parameter name and folder name).
+        /// </summary>
+        private static JsonNode SheetBrowserInfo(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var org = BrowserOrganization.GetCurrentBrowserOrganizationForSheets(doc);
+            var sheet = new FilteredElementCollector(doc).OfClass(typeof(ViewSheet)).Cast<ViewSheet>().FirstOrDefault(s => !s.IsPlaceholder);
+            var folders = new JsonArray();
+            if (org != null && sheet != null)
+                foreach (var f in org.GetFolderItems(sheet.Id))
+                    folders.Add(new JsonObject { ["parameter"] = (doc.GetElement(f.ElementId) as ParameterElement)?.Name ?? ((BuiltInParameter)f.ElementId.Value).ToString(), ["folder"] = f.Name });
+            return new JsonObject
+            {
+                ["organisation"] = org?.Name,
+                ["sample_sheet"] = sheet?.SheetNumber,
+                ["folders"] = folders,
+                ["groups_by_sheet_group"] = folders.Any(f => f["parameter"]?.GetValue<string>() == "Sheet Group"),
+            };
+        }
+
         /// <summary>Lists public members of a Revit API type (diagnostic), e.g. "Autodesk.Revit.DB.RevitLinkGraphicsSettings".</summary>
         private static JsonNode ApiMembers(UIApplication app, JsonObject p)
         {
