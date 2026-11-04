@@ -26,7 +26,7 @@ Compile check while Revit is open: build with `-p:OutDir="$TEMP/revitmcp_check/"
 
 | Symptom | Cause and action |
 |---|---|
-| Bridge stalls after renaming a level or plan view | Renaming a level, or a plan view named like its level, opens a modal dialog. Do not rename them: use `create_level`, or set Title on Sheet. |
+| Bridge stalls after renaming a level or plan view | Only when a plan view has the same name as its level: Revit asks whether to rename the other one too. Check with `list_views` first. A level with no same-named view renames cleanly (Jalal wal Jamal, Nov 2026). Otherwise rename the view first to something else, or ask the user to answer the dialog. |
 | Family conversions vanish | Revit reverted 14 `make_unit_family` conversions with no journaled Undo, cause unknown. Check families are present after each batch. |
 | "Curve length is too small" | Geometry under Revit's short curve tolerance, about 0.8 mm. |
 | "Sketch plane creation is not allowed in this family" | Old add-in build in the `lines` branch of `build_title_block`. Source is fixed, reinstall. |
