@@ -8,9 +8,30 @@ MCP client  --stdio-->  server/server.mjs  --127.0.0.1:48884-->  RevitMcp add-in
 
 The add-in runs inside Revit, because the Revit API is only callable from Revit's own process and main thread. The Node server translates MCP tool calls into commands for it.
 
-## Install
+## Team quick start (SultanRevitMCP)
 
-Requires Revit 2026, Node 20+ and the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0). Close Revit, then run:
+Requires Revit 2026, Node 20+ and the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
+
+1. **Clone** the repository.
+2. **Install the loader, once.** Close Revit and run `powershell -ExecutionPolicy Bypass -File install-sultan.ps1 -Loader -Dotnet dotnet`.
+3. **Optional, to stop the "Always Load" prompt.** Run `sign-loader.ps1 -Setup` once, then `sign-loader.ps1`. You run these yourself: they trust a certificate for your Windows user.
+4. **Start Revit.** Choose **Always Load** once if asked.
+5. **After each `git pull`**, with Revit open, run `install-sultan.ps1 -Dotnet dotnet`. The new commands load into the running Revit through `reload_handlers`; no restart. Check the loaded version with the `handlers_info` command.
+6. **Several projects at once:** open one Revit per model. Each takes its own port (48884, 48885, ...) and records it in `%LOCALAPPDATA%\SultanRevitMCP\instances\`.
+   - Scripts: `import { call, useDocument } from "./client/rvt.mjs"; useDocument("MyModel");`
+   - MCP server: set `REVIT_MCP_PORT` to that Revit's port.
+7. **Register the MCP server** with your client, as below.
+
+Layout:
+- `loader/`: the small add-in Revit loads at start.
+- `handlers/`: the commands, hot-reloadable. Their sources are in `addin/Handlers*.cs`.
+- `client/rvt.mjs`: the Node client.
+- `server/`: the MCP server.
+- `addin/RevitMcp.csproj` and `install.ps1`: the legacy single-DLL build.
+
+## Legacy install (single DLL, restart for every change)
+
+Close Revit, then run:
 
 ```bash
 powershell -ExecutionPolicy Bypass -File install.ps1
@@ -60,7 +81,7 @@ Set `REVIT_MCP_PORT` (default `48884`) for both Revit and the server to change t
 
 ## Troubleshooting
 
-The add-in logs to `%LOCALAPPDATA%\RevitMcp\bridge.log`.
+The loader logs to `%LOCALAPPDATA%\SultanRevitMCP\bridge.log` (the legacy add-in to `%LOCALAPPDATA%\RevitMcp\bridge.log`).
 
 ## Tests
 
