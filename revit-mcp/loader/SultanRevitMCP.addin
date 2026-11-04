@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>SultanRevitMCP</Name>
+    <Assembly>SultanRevitMCP\SultanRevitMCP.Loader.dll</Assembly>
+    <AddInId>B3E1C7A4-5D2F-4A8E-9C61-2F7D0E4B8A35</AddInId>
+    <FullClassName>SultanRevitMCP.App</FullClassName>
+    <VendorId>SAMAYA</VendorId>
+    <VendorDescription>Samaya Factory, SultanRevitMCP bridge</VendorDescription>
+  </AddIn>
+</RevitAddIns>

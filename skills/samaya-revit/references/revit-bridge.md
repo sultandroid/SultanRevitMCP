@@ -77,3 +77,21 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 
 - **Rebuild a placed unit family in place by its own name.** `make_unit_family` with the existing family name loads over it (OverwriteFamily): every placed instance keeps its position, mark and tags and takes the new shape, as long as the parts' lowest corner sits at the same spot of the unit. Delete the one extra instance it places. Build from `Metric Furniture.rft` and set the category after with `set_family_category`: `Metric Casework.rft` carries a 3D view whose camera inflates every instance's bounding box, and the camera cannot be deleted through the bridge.
 - **A duplicate of "3D all" keeps its section box.** Units placed outside the shop (exploded copies) vanish in it, and `place_view_on_sheet` then fails with "Object reference not set" because the view is empty. Make those views with `create_3d_view` aimed at the copy, and hide `OST_RvtLinks` in every 3D view on a sheet, since isolation does not hide links (lights from the linked model show otherwise).
+
+## SultanRevitMCP: loader and hot reload (built 4 Nov 2026, not yet installed)
+
+The add-in is split in two:
+- `revit-mcp/loader/` → `SultanRevitMCP.Loader.dll`: socket server on 48884, command queue, handlers host. Revit loads it at start. It changes rarely, and a change needs one restart.
+- `revit-mcp/handlers/` → `SultanRevitMCP.Handlers.dll`: every command. It compiles the same `addin/Handlers*.cs` sources, plus `Entry.cs`.
+
+**New or changed commands:** run `revit-mcp/install-sultan.ps1` with Revit open. It builds the handlers into `%LOCALAPPDATA%\SultanRevitMCP\handlers\<yyyyMMdd-HHmmss>\` and sends `reload_handlers`.
+- The loader reads the DLL from bytes into a collectible load context: nothing is locked, the old build is unloaded, and Revit stays open.
+- Revit never loads the handlers DLL itself, so there is no "Always Load" prompt for command changes.
+- `handlers_info` reports the loaded version.
+- To roll back, delete the newest version folder and call `reload_handlers`.
+
+**One-time switch:** with Revit closed, run `install-sultan.ps1 -Loader`. It retires `RevitMcp.addin` to `.bak`.
+
+**Signing:** the user runs `sign-loader.ps1 -Setup` once, then `sign-loader.ps1` after each loader install. It is the user's action because it changes which certificates Windows trusts.
+
+**Still needs a restart:** changes to the loader, a Revit update, or an add-in crash.
