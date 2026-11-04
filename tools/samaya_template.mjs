@@ -127,8 +127,6 @@ const rd = (await call("create_drafting_view", { name: "00 Samaya Factory - Read
 await call("create_text_note", { view_id: rd, location: P(0, 0), text: "SAMAYA FACTORY REVIT TEMPLATE - READ ME", text_type_id: head });
 await call("create_text_note", { view_id: rd, location: P(0, -12), text_type_id: note, text: [
   "WRITING",
-  "- Write every note in easy English (about a 5th-grade reader). Short sentences.",
-  "  Sound like a site engineer. Use a short word where it works.",
   "- Questions for the client, mall or site go in RED (Input Required 5 Red), bottom right.",
   "",
   "SHEETS (read views-and-sheets.md before any sheet)",
