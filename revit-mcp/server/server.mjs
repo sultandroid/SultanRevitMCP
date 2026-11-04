@@ -185,8 +185,9 @@ const tools = [
     path: z.string().describe("Full path for the new .rvt file"),
     template_path: z.string().optional().describe("Full path to an .rte template; defaults to Revit's default project template"),
   }, additive],
-  ["set_parameter", "Set a parameter value. A number on a length, area or similar parameter is in the parameter's display units; a string like '3000 mm' states its own.", {
-    element_id: id,
+  ["set_parameter", "Set a parameter value. A number on a length, area or similar parameter is in the parameter's display units; a string like '3000 mm' states its own. An ElementId parameter (Phase Created, Level) takes the target's id. Pass element_ids instead of element_id to set the same value on many elements in one undo step; elements that refuse it are skipped and listed.", {
+    element_id: id.optional(),
+    element_ids: z.array(id).min(1).optional().describe("Many elements at once, instead of element_id"),
     parameter_name: z.string(),
     value: z.union([z.string(), z.number(), z.boolean()]),
     on_type: z.boolean().optional().describe("Set on the element's type instead. This changes EVERY instance of the type."),

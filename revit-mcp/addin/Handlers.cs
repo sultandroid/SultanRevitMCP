@@ -594,6 +594,7 @@ namespace RevitMcp
         private static JsonNode SetParameter(UIApplication app, JsonObject p)
         {
             var doc = Doc(app);
+            if (p["element_ids"] is JsonArray many) return SetParameterMany(doc, p, many);
             var element = RequireElement(doc, ReqId(p, "element_id"));
             var name = ReqStr(p, "parameter_name");
 
@@ -615,6 +616,38 @@ namespace RevitMcp
                     ["parameter"] = name,
                     ["value"] = DisplayValue(doc, parameter),
                 };
+            });
+        }
+
+        /// <summary>
+        /// The same instance parameter on many elements, in one undo step. Elements that lack the parameter,
+        /// have it read-only, or reject the value are skipped and listed, so one bad element does not undo the rest.
+        /// </summary>
+        private static JsonNode SetParameterMany(Document doc, JsonObject p, JsonArray ids)
+        {
+            var name = ReqStr(p, "parameter_name");
+            if (Bool(p, "on_type")) throw new ArgumentException("on_type is not supported with element_ids.");
+            var value = p["value"] ?? throw new ArgumentException("value is required.");
+            return InTransaction(doc, $"Set {name} on {ids.Count} elements", () =>
+            {
+                int done = 0;
+                var skipped = new JsonArray();
+                foreach (var node in ids)
+                {
+                    var id = new ElementId(node.GetValue<long>());
+                    var element = doc.GetElement(id);
+                    var parameter = element?.LookupParameter(name);
+                    string why = element == null ? "no such element"
+                        : parameter == null ? "no such parameter"
+                        : parameter.IsReadOnly ? "read-only" : null;
+                    if (why == null)
+                    {
+                        try { ApplyValue(parameter, value); done++; }
+                        catch (Exception ex) { why = ex.Message; }
+                    }
+                    if (why != null) skipped.Add(new JsonObject { ["element_id"] = id.Value, ["reason"] = why });
+                }
+                return new JsonObject { ["parameter"] = name, ["set"] = done, ["skipped"] = skipped };
             });
         }
 
