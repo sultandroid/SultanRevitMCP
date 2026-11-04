@@ -232,3 +232,11 @@ Check the key plan on every sheet before sending it, by looking at it in the ren
 - [Learn Architecture: drawing scales](https://learnarchitecture.net/articles/39289-architectural-drawing-scales.html)
 
 The numbering, templates, spacing and placement here are Samaya defaults built from this guidance, not rules from those sources. Change them if the user sets a different standard.
+
+## Where sheets live (the user's rule, 4 Nov 2026)
+
+**Each discipline's sheets live in its own model.** The federated model holds only coordination.
+- **A sheets in ARCH, M in MECH, E in ELEC.** Tags, schedules and panel schedules then work on native elements; through a link some do not work at all (panel schedules) and others only partly. Each discipline issues and revises its own drawings (ISO 19650): a change in ELEC revises only E sheets. A broken or wrongly loaded link cannot spoil other disciplines' sheets. Each discipline can be open in its own Revit and session.
+- **Z sheets (coordination) in the model that links the others**, usually ARCH: the coordinated RCP, ceiling void, coordination sections, the clash list and its BCF.
+- **One look everywhere:** every model has the same title block and the same styles (`tools/standards.mjs`), and one numbering for the whole project (A, M, E, Z).
+- **One issue set:** the drawing index and the issued PDF set are compiled by script from all models.
