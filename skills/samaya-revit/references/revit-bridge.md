@@ -177,3 +177,12 @@ Each Revit still runs its commands one at a time.
 - **Glass hides what is behind it in hidden line.** A front view of a showcase must be a section that cuts just inside the front glass, not an elevation. Cut past any thin inner rings (the Aseer recess ring is 15 to 27 mm in), or the ring's front wall shows as a solid black band across the view.
 - **Reading a DWG without opening AutoCAD:** run `accoreconsole.exe /i <copy.dwg> /s <script.scr> /readonly`. AutoCAD's secure load refuses LISP files from the temp folder; do not change SECURELOAD, put the LISP inline in the .scr instead. There is no ActiveX in accoreconsole (`vlax-ename->vla-object` returns nil): read DXF codes with `entget` and block contents with `tblsearch` and `entnext`.
 - **Design-team layouts exported from Revit keep the Revit coordinates and family origins:** case positions can be taken from the block insertion points, corrected by each block's own extents (the Aseer 1400 x 800 case origin is 108 mm off centre).
+
+## Sheet copying lessons (Aseer Type 4 lighting sheets, 4 Nov 2026)
+
+New commands: `create_text_notes` (many notes in one step, each with type, wrap `width_mm`, align), `place_image` (2D view or sheet; `height_mm` stretches to an exact box, `foreground` draws it over model surfaces), `set_family_text_size` (gives one family text or label its own smaller type: fixes a title block label that runs out of its cell).
+- **Revit does not cut casework in plan.** It draws the whole family from above, so a glass hood top hides everything inside the case, whatever the view range. In a showcase plan, hide the case and draw its outline and glass line with detail lines; objects and luminaires then show.
+- **Raster images default to the Background draw layer** and hide behind model surfaces in hidden line. `Draw Layer` 0 is Foreground, 1 is Background (the reverse of what it looks like). Use `place_image` with `foreground: true`.
+- **rotate_view_crop on Revit 2026 plans:** the crop region is an uncategorised Element named like the view, not a Viewers element; the command now finds it. Rotating keeps the crop's on-screen size, so crop to the final on-sheet shape first.
+- **Reading CAD sheets:** AutoCAD MTEXT over 250 characters keeps its first parts in DXF group 3; join them with group 1, or the start of long notes is lost.
+- **PowerShell scripts:** variable names ignore case (`$R` overwrites `$r`, `$T` overwrites `$t`), and `$pid` is reserved. Use distinct names for vectors and scalars.

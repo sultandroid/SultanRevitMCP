@@ -110,6 +110,9 @@ namespace RevitMcp
             ["replace_family_image"] = ReplaceFamilyImage,
             ["list_family_parameters"] = ListFamilyParameters,
             ["bind_shared_parameters"] = BindSharedParameters,
+            ["create_text_notes"] = CreateTextNotes,
+            ["place_image"] = PlaceImage,
+            ["set_family_text_size"] = SetFamilyTextSize,
             ["list_text_notes"] = ListTextNotes,
             ["set_text_note"] = SetTextNote,
             ["add_titleblock_revision_schedule"] = AddTitleblockRevisionSchedule,
@@ -1108,11 +1111,15 @@ namespace RevitMcp
             return InTransaction(doc, "Rotate view crop", () =>
             {
                 view.CropBoxActive = true;
+                doc.Regenerate();   // a freshly duplicated or cropped plan has no crop region element until regenerated
                 // The crop boundary is a dependent Viewers element of the view; duplicated plans do not share the view's name, so look there first.
                 var crop = view.GetDependentElements(new ElementCategoryFilter(BuiltInCategory.OST_Viewers)).Select(doc.GetElement).FirstOrDefault(e => e != null && e.Id != view.Id)
                            ?? new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Viewers).WhereElementIsNotElementType()
                                .FirstOrDefault(e => e.Name == view.Name && e.Id != view.Id)
-                           ?? throw new InvalidOperationException("Crop region element not found for this view.");
+                           ?? view.GetDependentElements(null).Select(doc.GetElement).FirstOrDefault(e => e != null && e.Id != view.Id && e.Category != null && (e.Category.Id.Value == (long)BuiltInCategory.OST_Viewers || e.Category.Id.Value == (long)BuiltInCategory.OST_CropBoundary))
+                           // Revit 2026 plans: the crop region is an uncategorised Element named like the view (not the SketchPlane).
+                           ?? view.GetDependentElements(null).Select(doc.GetElement).FirstOrDefault(e => e != null && e.Id != view.Id && e.Category == null && e.GetType() == typeof(Element) && e.Name == view.Name)
+                           ?? throw new InvalidOperationException("Crop region element not found for this view. Dependents: " + string.Join(", ", view.GetDependentElements(null).Select(doc.GetElement).Where(e => e != null).Select(e => (e.Category?.Name ?? e.GetType().Name) + ":" + e.Name).Take(15)));
                 var box = view.CropBox;
                 var centre = box.Transform.OfPoint((box.Min + box.Max) / 2);
                 ElementTransformUtils.RotateElement(doc, crop.Id, Line.CreateBound(centre, centre + XYZ.BasisZ), angle);
