@@ -129,6 +129,8 @@ Each Revit still runs its commands one at a time.
 ## Makkah lessons (4 Nov 2026)
 
 - `reload_link` (optional `name`) reloads linked models from disk after they were edited in another Revit. Run it in the host, then `inspect_link`, before any coordination check.
+- **Reading a linked model leaves its link unloaded.** To read the existing shell (EXT), close the host, open EXT, read it, reopen the host, then close EXT. The host then shows the EXT link unloaded (the existing slab and walls vanish from renders) until `reload_link` runs. Always reload after this swap.
+- **Fit joinery to the existing structure from EXT, not from the designer's file.** On Makkah, the designer's niche pegboards and the gate lunette sat 30 to 400 mm inside the existing rear column. Read the column from EXT and wrap it: a front board just in front of the face, sides tight to it, and the wall boards trimmed to meet the sides.
 - **Linked models draw their own levels in host sections, so every level shows two or three times.** The API cannot hide a category inside one link. Fix: set "Building Story" = No on the host's own levels, then `hide_linked_levels` (view_ids) adds a filter "Building Story = Yes" hidden to each view; host filters also act on linked elements. Run it on every new section or elevation.
 - `create_detail_lines` draws a true arc when a line has a `mid` point (start, mid, end). Use it for arch set-outs instead of short segments.
 - `load_family` takes `overwrite: true` to load an edited .rfa over the loaded one; placed instances stay put.
