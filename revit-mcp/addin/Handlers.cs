@@ -140,7 +140,16 @@ namespace RevitMcp
 
         public static bool Has(string command) => Table.ContainsKey(command);
 
-        public static JsonNode Run(UIApplication app, string command, JsonObject p) => Table[command](app, p);
+        // The document a command works on when its params name one ("document": title or full path), so sessions sharing one
+        // Revit never have to switch the active model. Commands that need the UI (active view, selection) still use the active one.
+        [ThreadStatic] private static string _target;
+
+        public static JsonNode Run(UIApplication app, string command, JsonObject p)
+        {
+            _target = Str(p, "document");
+            try { return Table[command](app, p); }
+            finally { _target = null; }
+        }
 
         /// <summary>Sets a view's visual style, such as HLR for black line drawings.</summary>
         private static JsonNode SetViewDisplay(UIApplication app, JsonObject p)
@@ -3456,6 +3465,13 @@ namespace RevitMcp
 
         private static Document Doc(UIApplication app)
         {
+            if (!string.IsNullOrEmpty(_target))
+            {
+                foreach (Document d in app.Application.Documents)
+                    if (!d.IsLinked && (string.Equals(d.Title, _target, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(d.PathName, _target, StringComparison.OrdinalIgnoreCase))) return d;
+                throw new InvalidOperationException($"Document '{_target}' is not open in this Revit.");
+            }
             return app.ActiveUIDocument?.Document
                    ?? throw new InvalidOperationException("No document is open in Revit.");
         }
