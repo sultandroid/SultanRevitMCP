@@ -132,6 +132,7 @@ namespace RevitMcp
             ["set_phase_filter"] = SetPhaseFilter,
             ["list_phases"] = ListPhases,
             ["inspect_link"] = InspectLink,
+            ["reload_link"] = ReloadLink,
             // Device symbols (Handlers.Symbols.cs)
             ["duplicate_type"] = DuplicateType,
             ["create_annotation_symbol"] = CreateAnnotationSymbol,

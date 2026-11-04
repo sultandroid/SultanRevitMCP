@@ -125,6 +125,7 @@ Each Revit still runs its commands one at a time.
 
 ## Makkah lessons (4 Nov 2026)
 
+- `reload_link` (optional `name`) reloads linked models from disk after they were edited in another Revit. Run it in the host, then `inspect_link`, before any coordination check.
 - `create_project` works now: it closes the hidden in-memory copy before opening the saved file. Use it with the metric MEP templates (`Mechanical-Default_Metric.rte`, `Electrical-Default_Metric.rte`).
 - `create_floor_plan` takes `ceiling: true` for a reflected ceiling plan.
 - `set_view_overrides` takes `categories` (an array), not `category`. A wrong key fails silently inside a `.catch`.

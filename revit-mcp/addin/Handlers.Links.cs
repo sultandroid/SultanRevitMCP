@@ -77,5 +77,20 @@ namespace RevitMcp
                 ["links"] = links,
             };
         }
+
+        /// <summary>Reloads linked models from disk after they were edited in another Revit: all, or those whose file name contains "name".</summary>
+        private static JsonNode ReloadLink(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var filter = Str(p, "name");
+            var done = new JsonArray();
+            foreach (var type in new FilteredElementCollector(doc).OfClass(typeof(RevitLinkType)).Cast<RevitLinkType>())
+            {
+                if (filter != null && type.Name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0) continue;
+                var result = type.Reload();
+                done.Add(new JsonObject { ["link"] = type.Name, ["result"] = result.LoadResult.ToString() });
+            }
+            return new JsonObject { ["reloaded"] = done };
+        }
     }
 }
