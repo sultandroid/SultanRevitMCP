@@ -9,7 +9,7 @@ Ask for anything not already given. Do not guess and do not leave Revit placehol
 | Client name | Project Information: Client Name |
 | Project name | Project Information: Project Name |
 | Project number | Project Information: Project Number |
-| Project location or branch | Project Information: Address, if used |
+| Project location or branch | Project Information: Project Address, shown on the title block under the project name. Knowledge Economic City shops (Madina 1, Madina 2, Makkah, Qahwatina): "Knowledge Economic City (KEC), Madinah". KEC is also the landlord. |
 | Consultant | CONSULTANT panel |
 | Issue date | Project Information: Project Issue Date |
 | Designer on this project | Designed By |

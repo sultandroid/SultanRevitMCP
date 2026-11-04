@@ -67,3 +67,4 @@ The user's rule (4 Nov 2026): every sheet shows, in small text:
 They are printed in the title block's NOTES panel, so they are on every sheet with no extra work. The text is `sheet_notes` in `standards/sultan-standards.json`: 2.2 mm on A0 to A2, shrinking to fit on A3.
 - Edit the wording there, then rebuild the title blocks with `tools/samaya_template.mjs`, and load them into each project.
 - Project-specific notes stay in the sheet's own notes column.
+- **The bridge cannot add a label to a family.** The Revit API has no way to create a label, and `build_title_block` only moves labels the source family already has. A new field, such as Project Address under the project name (x 1027, y 252, 2.5 mm), is added once by hand in the Family Editor. Then the bridge fills the value in Project Information and reloads the family into each project (4 Nov 2026).

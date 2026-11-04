@@ -31,6 +31,8 @@
 - Clouds of earlier revisions stay or hide according to Show in the revision settings. Agree this per project, and keep the history in the schedule either way.
 - The REV field and schedule are empty until a revision is on the sheet. This is normal.
 - A new project already holds a default Revision 1, which takes the first number. To issue as Rev 03, use `set_revision_numbering` with start 2, then check the REV field on a rendered sheet.
+- In a model saved as a copy (an option file), `create_revision` can come out as "1" instead of the next number. Run `set_revision_numbering` with start 2 and min 2 digits, then read each revision's number back (Madina 1 Keel Option 2, 4 Nov 2026).
+- The title block DATE reads Project Information "Project Issue Date", not the sheet's Sheet Issue Date. Update it with each issue.
 - If the client or project sets ISO 19650 codes, such as S2 with P01, or C01 for construction, use those. They vary between organisations, so take them from the project's requirements.
 
 ## Sources
