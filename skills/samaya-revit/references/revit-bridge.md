@@ -94,6 +94,7 @@ The add-in is split in two:
 - Revit never loads the handlers DLL itself, so there is no "Always Load" prompt for command changes.
 - `handlers_info` reports the loaded version.
 - To roll back, delete the newest version folder and call `reload_handlers`.
+- **Check the version after every install.** If `handlers_info` still names an older folder and a new command says "Unknown command", the running Revit is not picking up new folders (seen 4 Nov 2026: it stayed on 20261104-075232 through several installs, sandboxed or not). Work-around: copy the new `SultanRevitMCP.Handlers.dll` and `.pdb` into the folder it names (keep a backup of the old DLL), then call `reload_handlers`. The loader reads the DLL as bytes, so the copy is not locked. The cause is not found yet.
 
 **One-time switch:** with Revit closed, run `install-sultan.ps1 -Loader`. It retires `RevitMcp.addin` to `.bak`.
 
@@ -155,3 +156,10 @@ Each Revit still runs its commands one at a time.
 - `install-sultan.ps1` built a new handlers version and loaded it into the same running Revit (same pid), with every command working after the reload.
 - The old `RevitMcp.addin` is retired to `.bak`; do not run the old `install.ps1`, which would bring it back.
 - From now on, add or change commands with `install-sultan.ps1` and never restart Revit for it.
+
+## Text commands (4 Nov 2026)
+
+- `list_text_notes` (optional `view_id`, optional `contains` list) returns each note's id, full text, view and sheet. `get_element` does not return note text.
+- `set_text_note` (element_id, text) replaces a note's whole text. Use `\r` for line breaks, as the notes on our sheets do.
+- `add_family_text` puts fixed text into a loaded family and reloads it (see `title-blocks.md`).
+- After a level change, notes, level ticks and dimension reference lines in sections stay at the old height. List them with `list_text_notes` and `query_elements` (OST_Lines in the view), then move them with `move_elements` dz_mm. Dimensions tied to the lines follow.
