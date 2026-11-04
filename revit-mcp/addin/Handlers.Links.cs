@@ -174,6 +174,83 @@ namespace RevitMcp
             };
         }
 
+        /// <summary>
+        /// Refits direct shapes in place: every vertex moves along one axis (x, y or z) by a piecewise-linear map,
+        /// from[i] -> to[i] (ascending); outside the range the end shift applies. Each face is triangulated, its
+        /// vertices mapped, and the shape rebuilt as tessellated geometry with the same materials. Element id, name
+        /// and parameters stay. Use it to stretch a run of joinery to new bay sizes (e.g. arches 926/806 -> 880).
+        /// </summary>
+        private static JsonNode RemapShapes(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var ids = ReqIds(p, "element_ids");
+            var axis = (Str(p, "axis") ?? "y").ToLowerInvariant();
+            var from = (p["from"] as JsonArray ?? throw new ArgumentException("from is required.")).Select(n => FromMm(n.GetValue<double>())).ToArray();
+            var to = (p["to"] as JsonArray ?? throw new ArgumentException("to is required.")).Select(n => FromMm(n.GetValue<double>())).ToArray();
+            if (from.Length != to.Length || from.Length < 2) throw new ArgumentException("from and to need the same length (2 or more).");
+            double Map(double v)
+            {
+                if (v <= from[0]) return v + (to[0] - from[0]);
+                for (var i = 1; i < from.Length; i++)
+                    if (v <= from[i]) return to[i - 1] + (v - from[i - 1]) * (to[i] - to[i - 1]) / (from[i] - from[i - 1]);
+                return v + (to[^1] - from[^1]);
+            }
+            XYZ M(XYZ q) => axis == "x" ? new XYZ(Map(q.X), q.Y, q.Z) : axis == "z" ? new XYZ(q.X, q.Y, Map(q.Z)) : new XYZ(q.X, Map(q.Y), q.Z);
+            var sourceTitle = Str(p, "source_document");
+            var sourceDoc = sourceTitle == null ? null : app.Application.Documents.Cast<Document>().FirstOrDefault(d => d.Title.Equals(sourceTitle, StringComparison.OrdinalIgnoreCase))
+                            ?? throw new ArgumentException($"source_document '{sourceTitle}' is not open.");
+            var options = new Options { DetailLevel = ViewDetailLevel.Fine };
+            return InTransaction(doc, "Remap shapes", () =>
+            {
+                var done = new JsonArray();
+                foreach (var id in ids)
+                {
+                    var ds = doc.GetElement(id) as DirectShape;
+                    if (ds == null) { done.Add(id.Value + ": not a direct shape"); continue; }
+                    // Geometry from the same element id in another open document (an untouched backup), or from itself.
+                    var srcEl = sourceDoc?.GetElement(id) ?? ds;
+                    var solids = SolidsOf(srcEl.get_Geometry(options)).ToList();
+                    var builder = new TessellatedShapeBuilder { Target = TessellatedShapeBuilderTarget.AnyGeometry, Fallback = TessellatedShapeBuilderFallback.Mesh };
+                    var faces = 0;
+                    foreach (var solid in solids)
+                    {
+                        builder.OpenConnectedFaceSet(true);
+                        foreach (Face face in solid.Faces)
+                        {
+                            // A flat face is rebuilt whole (outer loop and holes), so no triangle edges show in views.
+                            if (face is PlanarFace)
+                            {
+                                var loops = new List<IList<XYZ>>();
+                                foreach (EdgeArray loop in face.EdgeLoops)
+                                {
+                                    var pts = new List<XYZ>();
+                                    foreach (Edge edge in loop)
+                                    {
+                                        var seg = edge.AsCurveFollowingFace(face).Tessellate();
+                                        for (var i = 0; i < seg.Count - 1; i++) pts.Add(M(seg[i]));
+                                    }
+                                    if (pts.Count >= 3) loops.Add(pts);
+                                }
+                                if (loops.Count > 0) { builder.AddFace(new TessellatedFace(loops, face.MaterialElementId)); faces++; continue; }
+                            }
+                            var mesh = face.Triangulate();
+                            for (var t = 0; t < mesh.NumTriangles; t++)
+                            {
+                                var tri = mesh.get_Triangle(t);
+                                builder.AddFace(new TessellatedFace(new List<XYZ> { M(tri.get_Vertex(0)), M(tri.get_Vertex(1)), M(tri.get_Vertex(2)) }, face.MaterialElementId));
+                                faces++;
+                            }
+                        }
+                        builder.CloseConnectedFaceSet();
+                    }
+                    builder.Build();
+                    ds.SetShape(builder.GetBuildResult().GetGeometricalObjects());
+                    done.Add($"{id.Value}: {faces} faces");
+                }
+                return new JsonObject { ["remapped"] = done };
+            });
+        }
+
         /// <summary>Lists public members of a Revit API type (diagnostic), e.g. "Autodesk.Revit.DB.RevitLinkGraphicsSettings".</summary>
         private static JsonNode ApiMembers(UIApplication app, JsonObject p)
         {

@@ -136,6 +136,7 @@ namespace RevitMcp
             ["api_members"] = ApiMembers,
             ["hide_linked_levels"] = HideLinkedLevels,
             ["sheet_browser_info"] = SheetBrowserInfo,
+            ["remap_shapes"] = RemapShapes,
             ["acquire_coordinates"] = AcquireCoordinates,
             // Device symbols (Handlers.Symbols.cs)
             ["duplicate_type"] = DuplicateType,
