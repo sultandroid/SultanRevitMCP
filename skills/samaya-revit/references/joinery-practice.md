@@ -53,6 +53,29 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 
 ## Pegboard and cable management
 
+### Factory pegboard system (the Madina 1 standard)
+
+Every open shelf unit with a pegboard back is built this way unless the user says otherwise. Model it with `tools/pegboard_system.mjs` (geometry only: it returns the parts as `create_direct_shape` solids for any unit size, then `make_unit_family`). First used on Madina 1 (typical arch, `projects/madina1/scripts/m_keel.mjs`, sheets A-2102 to A-2104), then Makkah (units OS-A/B/C).
+
+| Layer, from the back of the unit | Thickness | Notes |
+|---|---|---|
+| Rear steel plate | 2 | 2 halves, 5 mm gap at the centre |
+| Space | 30 | wiring |
+| Front steel plate | 2 | 2 halves, on the back of the wood board |
+| FR MDF | 18 | pegboard core |
+| EGGER face | 8 | approved decor; board total 60 from the back |
+
+- The wood pegboard (FR MDF + EGGER, 26) is **one piece**, drilled together with the plates: Ø21 holes at 50 mm pitch, grid centred across the board (columns ±25, ±75, ...), at least 45 mm solid border.
+- 2 mm steel angles fixed to the sides carry the plates. No softwood stops.
+- Removable lower panel under the pegboard, same 26 build-up, about 140 high, 3 rows of vent holes: access to the wiring.
+- Shelves sit on hole rows, at fixed positions (350 apart on Madina 1 and Makkah). Each shelf is double EGGER 18 (36) with a PVC 2 mm front edge and the LED in a 12 x 10 groove 15 mm behind the front.
+- Pegs are hardwood: Ø25 under the shelf, 360 long, top seated 9 mm into the shelf; Ø20 shank through the board to the rear plate. 4 per shelf, on hole columns (two near the centre, two near the sides).
+- Lit shelves take power through the pegs: the split plates are the two low-voltage poles, with brass strips on the live pegs and in the shelf grooves. Needs an electrical engineer's review and a tested sample.
+- Assembly order (as on the Madina 1 exploded view): frame and steel angles, rear plates, driver and wiring, front plates on the wood board, wood pegboard and lower panel, pegs, shelves.
+- The fabrication sheet shows a plan detail at the side (side, angle, plates, space, board) and the exploded view.
+
+### Metal pegboard and general rules
+
 - Metal pegboard: 25 mm hole pitch is the common metric standard, 25.4 mm imperial. Holes are 4 to 6 mm. Confirm the accessories first, because hooks must match hole size, pitch and panel thickness.
 - Perforated metal sheets are flat with no bends, and have a solid 50 mm border with no holes all round. Centre the hole grid in the sheet.
 - Every counter manages its wires in a **double back**: a removable inner back with a cable void, about 80 mm, running from the floor to the top. No cable tray. Grommets in the top sit directly over the void, sized to fit it, usually 60 mm. Shelves stop at the inner back. The bottom panel runs the full depth, with only one wire hole, about 50 mm, at the void. Coordinate with the power and data drawings.
@@ -97,7 +120,7 @@ Set the type with `set_parameter`. Tick Mark takes an element id: scan low ids w
 - Show an indicative logo in halftone on units that carry branding, sized and marked to confirm.
 - L-shaped marble, such as an arch head: join the two legs on a 45 degree mitre, with a small chamfer at the outer corner and on the free ends. Do not round this corner.
 - **Light strips always sit in a recessed cove, never on the surface, even in marble.** In marble, cut the slot through the stone into the backing. Model and detail the recess. Default: 8 mm wide, 2 mm thick 24V COB strip in a 12 x 10 mm aluminium channel with diffuser. Common strips are 8, 10 and 12 mm wide; a 10 mm strip needs about a 15 mm channel. Confirm against the supplier's datasheet.
-- **Back panels fit from the front, after the unit is installed.** A wood pegboard is 18 mm FR MDF plus 8 mm EGGER face, 26 mm, drilled together with standard holes, 5 mm at 25 mm pitch with a solid 50 mm border. It rests on 18 mm stops fixed inside the sides, with 18 mm free behind it and 2 mm clearance each side. Plan installation order when detailing.
+- **Back panels fit from the front, after the unit is installed.** A wood pegboard follows the factory pegboard system above (Madina 1 standard): 26 board (18 FR MDF + 8 EGGER) on split steel plates, Ø21 holes at 50 pitch, steel angles at the sides, 2 mm clearance each side. Do not use the older 18 mm stop and 5 mm / 25 mm hole build-up (superseded by the user, 4 Nov 2026). Plan installation order when detailing.
 - Lit shelves have fixed positions. Coordinate LED, wire and supports: pegs stop behind the LED channel, and the wire comes through one set hole behind the shelf and runs hidden inside the double layer.
 - Pegboard shelf pegs are hardwood. A lit shelf takes power through the pegs: wood board in one piece, only the metal plates behind it split into two low-voltage halves, access through a removable lower panel, brass strips on the live pegs and in the shelf grooves. It needs an electrical engineer's review and a tested sample.
 - Parts for a workshop get their own cut sheet and 1:1 DXF: one file per plate, with size, quantity, material and hole schedule. Split parts to fit the workshop's sheet and the install order.
