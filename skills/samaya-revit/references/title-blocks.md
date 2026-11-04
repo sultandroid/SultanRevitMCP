@@ -76,3 +76,9 @@ They are printed in the title block's NOTES panel, so they are on every sheet wi
 - **Swap a logo without rebuilding**: `list_family_images`, then `replace_family_image` (match on the type or file name). Pad the new file first, on opaque white, to the old image's width/height ratio, so the box stays the same; the command keeps centre and width.
 - `set_family_text` changes a heading in place. Check the render after: a longer word can run past its cell line ("Submission Date:" did; it became "Subm. Date:").
 - Do not pass `save_path` to a family command if the family should keep its name: the family takes the new file's name when it reloads.
+
+## Per-sheet key plans and fills (Aseer, 4 Nov 2026)
+
+- **A title block's own image draws over everything on the sheet,** viewports and sheet images included. A fixed key plan image in the family therefore hides any per-sheet key plan. Blank the family image (`replace_family_image` with a transparent PNG) and give every sheet its own key plan: an image or view in a drafting view, placed in the KEY PLAN panel (`Showcase Template\scripts\add_key_plan.ps1`).
+- **Filled regions cannot be made on a sheet through the API** ("can't be created in this document or view"). Put table fills and header bands in a 1:1 drafting view drawn at sheet coordinates and place it on the sheet; sheet text draws over viewports.
+- **AutoCAD dimension objects are not text or lines:** a read of a CAD sheet's texts and lines misses them. Rebuild them as Revit dimensions.
