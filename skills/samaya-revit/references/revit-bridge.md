@@ -163,3 +163,10 @@ Each Revit still runs its commands one at a time.
 - `set_text_note` (element_id, text) replaces a note's whole text. Use `\r` for line breaks, as the notes on our sheets do.
 - `add_family_text` puts fixed text into a loaded family and reloads it (see `title-blocks.md`).
 - After a level change, notes, level ticks and dimension reference lines in sections stay at the old height. List them with `list_text_notes` and `query_elements` (OST_Lines in the view), then move them with `move_elements` dz_mm. Dimensions tied to the lines follow.
+
+## Title block commands (4 Nov 2026)
+
+`list_family_images`, `replace_family_image`, `list_family_parameters` and `bind_shared_parameters` are in `addin/Handlers.FamilyImages.cs`. See "Labels that show blank" in `title-blocks.md`.
+- **The Home screen runs no commands.** A Revit with no model open takes the socket call but never runs it ("did not pick up the command within 30 seconds"), with no dialog to clear. Open any model first.
+- **A cloud model cannot be linked through the bridge yet:** `link_revit_model` takes disk paths only. A `CLD:\` path from a journal fails. Link ACC models by hand (Insert > Link Revit > Autodesk Docs) until a cloud option is added.
+- The loader still loads only the old version folder (see above). Copying the new DLL and PDB into that folder and calling `reload_handlers` worked three times in a row today.

@@ -68,3 +68,11 @@ They are printed in the title block's NOTES panel, so they are on every sheet wi
 - Edit the wording there, then rebuild the title blocks with `tools/samaya_template.mjs`, and load them into each project.
 - Project-specific notes stay in the sheet's own notes column.
 - **The bridge cannot add a label to a family.** The Revit API has no way to create a label, and `build_title_block` only moves labels the source family already has. For a value that is the same on every sheet, use `add_family_text` (element_id of a title block instance, text, at in family mm, like_text to copy a text type, replace_text to rerun safely, save_path to write the .rfa). The Knowledge Economic City address went in this way under the project name at x 1027, y 252, in the samaya-factory.com text type (4 Nov 2026). A per-project value still needs a label added by hand in the Family Editor.
+
+## Labels that show blank, and swapping logos (Aseer, 4 Nov 2026)
+
+- **A label tied to a shared parameter shows blank** until the project has that parameter bound. A title block keeps such parameters as `SharedParameterElement`s, not family parameters, and loading the family brings them in **unbound**. `list_family_parameters` lists them with GUIDs under `label_shared_parameters`; `bind_shared_parameters` binds them (to OST_Sheets by default) under the same GUIDs. A name can be odd: the Aseer "Samaya Checked By" one is named `Samaya Checked By:` with a colon.
+- **Built-in labels need only Project Information**: Project Name and Project Number fill from it, nothing to bind.
+- **Swap a logo without rebuilding**: `list_family_images`, then `replace_family_image` (match on the type or file name). Pad the new file first, on opaque white, to the old image's width/height ratio, so the box stays the same; the command keeps centre and width.
+- `set_family_text` changes a heading in place. Check the render after: a longer word can run past its cell line ("Submission Date:" did; it became "Subm. Date:").
+- Do not pass `save_path` to a family command if the family should keep its name: the family takes the new file's name when it reloads.
