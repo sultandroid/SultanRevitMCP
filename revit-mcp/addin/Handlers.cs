@@ -575,6 +575,9 @@ namespace RevitMcp
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             var doc = app.Application.NewProjectDocument(template);
             doc.SaveAs(path);
+            // Close the hidden in-memory copy first: opening a path that is already open in the session
+            // can stall on a dialog.
+            doc.Close(false);
             var opened = app.OpenAndActivateDocument(path);
             return new JsonObject
             {
@@ -803,10 +806,12 @@ namespace RevitMcp
             var doc = Doc(app);
             var level = RequireLevel(doc, ReqId(p, "level_id"));
             var name = Str(p, "name");
+            // ceiling: true makes a reflected ceiling plan instead.
+            var family = p["ceiling"]?.GetValue<bool>() == true ? ViewFamily.CeilingPlan : ViewFamily.FloorPlan;
             var viewType = new FilteredElementCollector(doc).OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>()
-                               .FirstOrDefault(t => t.ViewFamily == ViewFamily.FloorPlan)
-                           ?? throw new InvalidOperationException("This model has no floor plan view type.");
-            return InTransaction(doc, "Create floor plan", () =>
+                               .FirstOrDefault(t => t.ViewFamily == family)
+                           ?? throw new InvalidOperationException($"This model has no {family} view type.");
+            return InTransaction(doc, "Create plan view", () =>
             {
                 var view = ViewPlan.Create(doc, viewType.Id, level.Id);
                 if (name != null) view.Name = name;

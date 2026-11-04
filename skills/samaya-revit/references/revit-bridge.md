@@ -122,3 +122,16 @@ Stale registry files of closed Revits are removed.
 - For the MCP server, set `REVIT_MCP_PORT` to that Revit's port. Read it from the registry file or `handlers_info`.
 
 Each Revit still runs its commands one at a time.
+
+## Makkah lessons (4 Nov 2026)
+
+- `create_project` works now: it closes the hidden in-memory copy before opening the saved file. Use it with the metric MEP templates (`Mechanical-Default_Metric.rte`, `Electrical-Default_Metric.rte`).
+- `create_floor_plan` takes `ceiling: true` for a reflected ceiling plan.
+- `set_view_overrides` takes `categories` (an array), not `category`. A wrong key fails silently inside a `.catch`.
+- Views made in an MEP model get the template's view template, which locks View Scale and Detail Level. Set "View Template" to `-1` first.
+- A fresh RCP made in ARCH after the MEP links were added showed none of the host ceilings (cause not found). `duplicate_view` of a working RCP was fine: build coordination views as duplicates.
+- There is no way to list revisions. Each script run that calls `create_revision` adds another one (Makkah got four). Keep the revision id in a file per model and reuse it.
+- A new model has no "Sheet Group" parameter: add it with `ensure_project_parameters` (category OST_Sheets) before making sheets.
+- In `add_titleblock_revision_schedule` the field "Description" was not found; check the field names before placing, as the schedule cannot be removed through the bridge.
+- Write scripts with paths and line breaks through a file editor, not bash heredocs: backslashes and 
+ were lost several times.

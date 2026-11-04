@@ -82,7 +82,7 @@ Series, in the order of the set. Sorting by number gives this order, because DR-
 
 **One view per sheet, sized to fill the sheet.** The user set this over any scale in the tables above, and whole-number scales outside the ISO series are fine for it. On a small shop on A1, plans are about 1:9, sections 1:8 and tall details 1:5. Render each sheet: tags, level heads and view titles must stay clear of the title strip and the sheet edge.
 
-For the A1 title block, the drawing area is x 10 to 1022, y 10 to 831, in sheet mm. Keep 15 mm clear inside it.
+The sheet numbers here (drawing area x 10 to 1022, y 10 to 831, text column at x 815, KEY PLAN panel at 1102, 430) are for the 1189 x 841 sheet, which is the family "Samaya Factory A0". The family "Samaya Factory A1" in the template is a true A1 (841 x 594): a plan placed with these numbers runs off it (Makkah, 4 Nov 2026). Use the A0 family with these numbers. Keep 15 mm clear inside the drawing area.
 
 1. Plan the sheet before placing anything. Largest and most important view first.
 2. Place the plan at left or centre. Stack supporting sections and details to the right, nearest the plan they explain.
