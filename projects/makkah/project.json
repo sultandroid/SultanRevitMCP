@@ -1,0 +1,38 @@
+{
+  "_about": "Project data for SultanRevitMCP tools (BEP, sheets, BCF). Project data comes from the user; never guess it.",
+  "code": "MAK",
+  "number": "HT-KEC-MAK01",
+  "name_ar": "تنفيذ متجر مدينة المعرفة 3 (ستايل مكي)",
+  "name_en": "Knowledge Economic City Store 3 (Makkah style)",
+  "client": "شركة هدايا طيبة",
+  "client_en": null,
+  "consultant": "Samaya Invest",
+  "designer": "Insignia Design Group",
+  "contractor": "Samaya Factory",
+  "location": "Knowledge Economic City",
+  "status_notes": "Project name and number provisional until confirmed by the user (4 Nov 2026).",
+  "people": {
+    "information_manager": "Mohamed Sultan",
+    "checker": "Mohamed Sultan",
+    "approver": "Anas Matter",
+    "production_manager": "Raouf Aldeeb"
+  },
+  "client_requirements": "None received. If the client issues an EIR or BIM standard, it overrides this BEP.",
+  "models": [
+    { "file": "Makkah_EXT.rvt", "discipline": "Existing shell (as-built survey)", "role": "A", "links": [] },
+    { "file": "Makkah_ARCH_01.rvt", "discipline": "Architecture and joinery", "role": "A", "links": ["Makkah_EXT.rvt"] },
+    { "file": "Makkah_MECH.rvt", "discipline": "Mechanical (HVAC)", "role": "M", "links": ["Makkah_EXT.rvt", "Makkah_ARCH_01.rvt"] },
+    { "file": "Makkah_ELEC.rvt", "discipline": "Electrical", "role": "E", "links": ["Makkah_ARCH_01.rvt"] }
+  ],
+  "survey": "Site survey sketch, 4 Nov 2026 (Makkah/Design Files/Site Survey). Assumed items are marked ASSUMED in the model comments.",
+  "design_source": "Insignia Rev-03 (Makkah/Design Files/Rev-03)",
+  "deliverables": [
+    { "series": "A-0001", "title": "Cover and drawing index" },
+    { "series": "A-1001..", "title": "General arrangement plans and RCP" },
+    { "series": "A-1101..", "title": "General sections and elevations" },
+    { "series": "A-2000..", "title": "Fabrication drawings by item (units, details, exploded views)" },
+    { "series": "M-1001..", "title": "Mechanical layouts and details" },
+    { "series": "E-1001..", "title": "Electrical layouts, circuits, boards" },
+    { "series": "Z-1001..", "title": "Coordination plans and sections, clash report (BCF)" }
+  ]
+}

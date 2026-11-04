@@ -40,3 +40,13 @@ Editions are as given in that list. Confirm the current edition before quoting o
 ## Rule
 
 When a client sets an EIR, BEP or standard, it overrides ours. Put it in the project config, not in `sultan-standards.json`.
+
+## Tools that close two gaps (4 Nov 2026)
+
+- **BEP:** `node tools/bep.mjs projects/<project>/project.json <out.html>` builds the factory BIM Execution Plan (ISO 19650-2) from the project data and `sultan-standards.json`. Print it to PDF with Edge headless.
+  - Sections: project, roles, standards with how we apply them, models and federation, naming, level of information need (ISO 7817) per item, CDE states, coordination, checks before issue, MIDP series, software and security.
+  - First one: `Makkah/Docs/BEP/Makkah BEP (draft).pdf`.
+  - Every new project gets a `projects/<project>/project.json` and a BEP before modelling.
+- **BCF:** `node tools/bcf.mjs issues.json out.bcfzip` writes coordination issues as BCF 2.1: title, type, status, priority, labels, assignee, the elements by IfcGUID, a camera, and an optional snapshot.
+  - Read IfcGUIDs from each element's `IfcGUID` parameter.
+  - Every clash or clearance under the flag (80 mm) found in coordination goes into it, beside the Z-series sheets.
