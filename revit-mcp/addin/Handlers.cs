@@ -3032,6 +3032,15 @@ namespace RevitMcp
                 {
                     transaction.Start();
                     if (remove.Count > 0) familyDoc.Delete(remove);
+                    // move: [{ "ids": [form ids], "dx_mm": 0, "dy_mm": 0, "dz_mm": 145 }] - shifts forms inside the family.
+                    if (p["move"] is JsonArray moves)
+                        foreach (var node in moves)
+                        {
+                            var o = node.AsObject();
+                            var ids = (o["ids"] as JsonArray ?? new JsonArray()).Select(n => new ElementId(n.GetValue<long>())).ToList();
+                            var delta = new XYZ(FromMm(Num(o, "dx_mm") ?? 0), FromMm(Num(o, "dy_mm") ?? 0), FromMm(Num(o, "dz_mm") ?? 0));
+                            if (ids.Count > 0) ElementTransformUtils.MoveElements(familyDoc, ids, delta);
+                        }
                     foreach (var node in boxes)
                     {
                         var o = node.AsObject();
