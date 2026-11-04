@@ -1,6 +1,6 @@
-# Samaya Factory Revit standards
+# SultanRevitMCP
 
-Skills, defaults, title blocks and tools for Revit work at Samaya Factory.
+Samaya Factory's Revit system for every factory project. It holds the bridge that lets Claude drive Revit (`revit-mcp/`), the know-how (`skills/samaya-revit`: joinery and fabrication methods, sheets, 3D views, template, revisions and every lesson learned), the factory template and title blocks, and general tools. Every problem solved on a project becomes a rule or a tool here, so it does not come back. Private; the team pulls it and runs `revit-mcp/install-sultan.ps1`.
 
 | Folder | Contents |
 |---|---|
