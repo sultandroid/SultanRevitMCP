@@ -80,7 +80,7 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - **Rebuild a placed unit family in place by its own name.** `make_unit_family` with the existing family name loads over it (OverwriteFamily): every placed instance keeps its position, mark and tags and takes the new shape, as long as the parts' lowest corner sits at the same spot of the unit. Delete the one extra instance it places. Build from `Metric Furniture.rft` and set the category after with `set_family_category`: `Metric Casework.rft` carries a 3D view whose camera inflates every instance's bounding box, and the camera cannot be deleted through the bridge.
 - **A duplicate of "3D all" keeps its section box.** Units placed outside the shop (exploded copies) vanish in it, and `place_view_on_sheet` then fails with "Object reference not set" because the view is empty. Make those views with `create_3d_view` aimed at the copy, and hide `OST_RvtLinks` in every 3D view on a sheet, since isolation does not hide links (lights from the linked model show otherwise).
 
-## SultanRevitMCP: loader and hot reload (built 4 Nov 2026, not yet installed)
+## SultanRevitMCP: loader and hot reload (installed 4 Nov 2026)
 
 The add-in is split in two:
 - `revit-mcp/loader/` → `SultanRevitMCP.Loader.dll`: socket server on 48884, command queue, handlers host. Revit loads it at start. It changes rarely, and a change needs one restart.
@@ -135,3 +135,9 @@ Each Revit still runs its commands one at a time.
 - In `add_titleblock_revision_schedule` the field "Description" was not found; check the field names before placing, as the schedule cannot be removed through the bridge.
 - Write scripts with paths and line breaks through a file editor, not bash heredocs: backslashes and 
  were lost several times.
+
+**Installed and proven (4 Nov 2026):**
+- Revit started with the new loader and the bridge answered in about a minute, with no "Always Load" prompt.
+- `install-sultan.ps1` built a new handlers version and loaded it into the same running Revit (same pid), with every command working after the reload.
+- The old `RevitMcp.addin` is retired to `.bak`; do not run the old `install.ps1`, which would bring it back.
+- From now on, add or change commands with `install-sultan.ps1` and never restart Revit for it.
