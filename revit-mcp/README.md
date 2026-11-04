@@ -1,4 +1,4 @@
-# Revit MCP
+# SultanRevitMCP (RevitMcp add-in + MCP server)
 
 Lets an MCP client such as Claude read and edit the model open in Autodesk Revit 2026.
 

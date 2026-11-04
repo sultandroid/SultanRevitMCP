@@ -7,7 +7,7 @@ Skills, defaults, title blocks and tools for Revit work at Samaya Factory.
 | `skills/samaya-revit/` | Claude skill: project questions, stakeholders, revisions, title blocks, modelling defaults, bridge lessons |
 | `title-blocks/` | Title block families and logos |
 | `tools/` | Bridge client and build scripts |
-| `revit-mcp/` | RevitMcp add-in and MCP server source |
+| `revit-mcp/` | **SultanRevitMCP**: our Revit add-in and MCP server source (code and files still named RevitMcp until the loader rework) |
 
 ## Set up on a computer
 

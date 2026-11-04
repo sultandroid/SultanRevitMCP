@@ -1,6 +1,6 @@
 ---
 name: samaya-revit
-description: Samaya Factory Revit standards and working method. Use for any Revit modelling, view, sheet, schedule, title block, phase, revision or family work, including through the RevitMcp bridge. Covers the questions to ask before starting a project, stakeholders and sign-off, phases, revisions, view templates, scales, sheet arrangement, title blocks, file organisation and bridge lessons. Trigger on Revit, RVT, RFA, views, sheets, schedules, scale, title block, phase, revision, or a Samaya Factory shopfit project.
+description: Samaya Factory Revit standards and working method. Use for any Revit modelling, view, sheet, schedule, title block, phase, revision or family work, including through the SultanRevitMCP bridge (RevitMcp add-in). Covers the questions to ask before starting a project, stakeholders and sign-off, phases, revisions, view templates, scales, sheet arrangement, title blocks, file organisation and bridge lessons. Trigger on Revit, RVT, RFA, views, sheets, schedules, scale, title block, phase, revision, or a Samaya Factory shopfit project.
 ---
 
 # Samaya Factory Revit standards
@@ -19,7 +19,7 @@ Read these when relevant:
 - [references/joinery-practice.md](references/joinery-practice.md): how joinery is really built: boards, edges, cladding existing structure. Read before detailing any unit or cladding.
 - [references/drawing-and-bim-standards.md](references/drawing-and-bim-standards.md): ISO 128 drawing rules, ISO 19650 information management and IFC. Read before any sheet, issue or export.
 - [references/material-hatching.md](references/material-hatching.md): the hatch for each material in sections and details. Read before making any section, detail or material legend.
-- [references/revit-bridge.md](references/revit-bridge.md): RevitMcp bridge use and known failures.
+- [references/revit-bridge.md](references/revit-bridge.md): SultanRevitMCP bridge use and known failures.
 
 ## Always
 

@@ -1,4 +1,6 @@
-# RevitMcp bridge
+# SultanRevitMCP bridge
+
+SultanRevitMCP is the Samaya Factory name for our own Revit bridge. Its code, DLL, add-in folder and log path still read `RevitMcp`; they are renamed together with the hot-reload loader rework, which needs one Revit restart anyway. Until then, use the `RevitMcp` paths below.
 
 Source is in `revit-mcp/`. Client helper: `tools/rvt.mjs`. Raw socket on 127.0.0.1:48884, JSON `{command, params}` plus a newline.
 
