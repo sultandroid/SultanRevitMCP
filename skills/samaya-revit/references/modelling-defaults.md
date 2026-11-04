@@ -17,6 +17,17 @@ Rfa\Title Blocks\                    title blocks and logos
 - All discipline files use the same coordinates as ARCH.
 - Model the existing condition first, then the new model.
 
+## Shop inside a bigger building
+
+Some shops sit inside a bigger project that has its own Revit model, and open into a neighbour, as the Jalal wal Jamal store does into the Jalal wal Jamal museum at Jabal Omar (user, 4 Nov 2026).
+
+- **Link the host model into EXT. Never copy from it.** Its owner keeps it; a reload brings their changes. Ask which file is current before linking.
+- **Use the host's shared coordinates.** Acquire them from the link, so the shop sits in its true place in the building. All our discipline files take the same coordinates.
+- **The shop shell is still ours,** in EXT, on phase Existing: shared walls, columns and the opening to the neighbour. Model the shared door as a real opening and say in Comments where it leads.
+- **The host shows halftone,** like all existing work. Hide it in fabrication and 3D unit views.
+- **Key plan and site plan (A-0002)** come from the linked floor: the shop filled, the neighbour halftone and named, and an arrow for visitor flow between them.
+- **Log every interface** with the neighbour: the shared door and who supplies it, fire separation, shared HVAC or power, and anything fixed to the shared wall. Raise each one with the host's team before detailing.
+
 ## Materials
 
 Samaya Factory builds in **EGGER laminates and painted FR MDF**, and this replaces veneer and HPL shown on design drawings. Confirm the codes for each project. On Madina 1: EGGER H1113 ST10 Brown Kansas Oak, EGGER U775 ST9 White Grey and F186 ST9 Light Chicago Concrete. EGGER thickness is 18 or 8 mm only. The legend shows the material actually used, not the design file's.
