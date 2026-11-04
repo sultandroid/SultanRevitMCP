@@ -1,0 +1,37 @@
+{
+  "_about": "Project data for SultanRevitMCP tools (BEP, sheets, BCF). Project data comes from the user; never guess it.",
+  "code": "JJ",
+  "number": "037",
+  "name_ar": "متجر الجلال والجمال - جبل عمر",
+  "name_en": "Al Jalal wal Jamal Store - Jabal Omar",
+  "client": "شركة هدايا طيبة",
+  "client_en": null,
+  "consultant": "Samaya Invest",
+  "designer": "Tarek Carson",
+  "contractor": "Samaya Factory",
+  "location": "Jabal Omar, Makkah (ground floor)",
+  "status_notes": "Number 037 is the factory order number, used until the Odoo code is confirmed (user, 4 Nov 2026). Not the museum project BMJ-MAK-10. Same client as the earlier mall stores.",
+  "people": {
+    "information_manager": "Mohamed Sultan",
+    "designer": "Tarek Carson",
+    "checker": "Mohamed Sultan",
+    "approver": "Anas Matter",
+    "production_manager": "Raouf Aldeeb"
+  },
+  "revision": "P01",
+  "client_requirements": "None received. If the client issues an EIR or BIM standard, it overrides this BEP.",
+  "folder": "Bim Unit/Jabal Omar- Retails 01 Hadaya Teiba الجلال و الجمال  (GND FL)/Revit Files/Rvt",
+  "models": [
+    { "file": "Existing/JalalJamal_EXT.rvt", "discipline": "Existing shell, copied from existing wall.rvt", "role": "A", "links": [] },
+    { "file": "Arch/JalalJamal_ARCH_01.rvt", "discipline": "Architecture and joinery", "role": "A", "links": ["JalalJamal_EXT.rvt"] },
+    { "file": "JalalJamal_ELEC.rvt", "discipline": "Electrical", "role": "E", "links": ["JalalJamal_ARCH_01.rvt"] },
+    { "file": "JalalJamal_MECH.rvt", "discipline": "Mechanical (HVAC, fire fighting)", "role": "M", "links": ["JalalJamal_EXT.rvt", "JalalJamal_ARCH_01.rvt"] }
+  ],
+  "sources": {
+    "existing": "As-Built Docs/Jabal Omar Store 1- Makkah/AS-BUILT/as-built un cordinated -7-9-2025.dwg",
+    "architecture": "Design Files/Design Files/Option-02 (stage 2, Oct 2026)",
+    "electrical": "As-Built Docs/Jabal Omar Store 1- Makkah/electrical/Elec (Jul 2025, before Option-02)",
+    "hvac": "As-Built Docs/Jabal Omar Store 1- Makkah/HVac/HVAC/01-CAD/AT-HV-CA-101~104-R1.dwg (Jul 2025)",
+    "fire_fighting": "As-Built Docs/Jabal Omar Store 1- Makkah/Fire fighting/FF/CAD (Jul 2025)"
+  }
+}
