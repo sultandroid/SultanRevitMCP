@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Nodes;
@@ -53,6 +54,62 @@ namespace RevitMcp
                         ? TextNote.Create(doc, view.Id, at, FromMm(w.Value), text, opts)
                         : TextNote.Create(doc, view.Id, at, text, opts);
                     ids.Add(note.Id.Value);
+                }
+                return new JsonObject { ["count"] = ids.Count, ["ids"] = ids };
+            });
+        }
+
+        /// <summary>list_revisions: every revision in sequence order: id, sequence, number, date, description, issued, numbering sequence.</summary>
+        private static JsonNode ListRevisions(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var items = new JsonArray();
+            foreach (var id in Revision.GetAllRevisionIds(doc))
+            {
+                var r = (Revision)doc.GetElement(id);
+                items.Add(new JsonObject
+                {
+                    ["id"] = id.Value, ["sequence"] = r.SequenceNumber, ["number"] = r.RevisionNumber, ["date"] = r.RevisionDate,
+                    ["description"] = r.Description, ["issued"] = r.Issued,
+                    ["numbering_sequence"] = (doc.GetElement(r.RevisionNumberingSequenceId) as RevisionNumberingSequence)?.Name,
+                });
+            }
+            return new JsonObject { ["count"] = items.Count, ["revisions"] = items };
+        }
+
+        /// <summary>
+        /// create_filled_regions: solid-colour filled regions in any 2D view (sections and plans too), from model points
+        /// projected onto the view plane. Params: view_id, regions [{points [{x,y,z}], color {r,g,b}}]. One type per
+        /// colour ("Fill r-g-b"). Use them for finish shading in schematic views; they draw over model geometry behind.
+        /// </summary>
+        private static JsonNode CreateFilledRegions(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var regions = p["regions"] as JsonArray ?? throw new ArgumentException("regions is required.");
+            return InTransaction(doc, "Create filled regions", () =>
+            {
+                var solid = new FilteredElementCollector(doc).OfClass(typeof(FillPatternElement)).Cast<FillPatternElement>().First(f => f.GetFillPattern().IsSolidFill);
+                var baseType = new FilteredElementCollector(doc).OfClass(typeof(FilledRegionType)).Cast<FilledRegionType>().First();
+                var ids = new JsonArray();
+                foreach (var node in regions)
+                {
+                    var o = node.AsObject();
+                    var color = ColorOf(o, "color");
+                    var typeName = $"Fill {color.Red}-{color.Green}-{color.Blue}";
+                    var type = new FilteredElementCollector(doc).OfClass(typeof(FilledRegionType)).Cast<FilledRegionType>().FirstOrDefault(t => t.Name == typeName);
+                    if (type == null)
+                    {
+                        type = (FilledRegionType)baseType.Duplicate(typeName);
+                        type.ForegroundPatternId = solid.Id;
+                        type.ForegroundPatternColor = color;
+                        type.BackgroundPatternId = ElementId.InvalidElementId;
+                        type.LineWeight = 1;
+                    }
+                    var pts = (o["points"] as JsonArray ?? throw new ArgumentException("points is required.")).Select(n => OnViewPlane(view, ToPoint(n))).ToList();
+                    var loop = new CurveLoop();
+                    for (var i = 0; i < pts.Count; i++) loop.Append(Line.CreateBound(pts[i], pts[(i + 1) % pts.Count]));
+                    ids.Add(FilledRegion.Create(doc, type.Id, view.Id, new List<CurveLoop> { loop }).Id.Value);
                 }
                 return new JsonObject { ["count"] = ids.Count, ["ids"] = ids };
             });

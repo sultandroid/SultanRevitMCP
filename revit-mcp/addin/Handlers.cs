@@ -115,6 +115,8 @@ namespace RevitMcp
             ["set_family_text_size"] = SetFamilyTextSize,
             ["save_cloud_copy"] = SaveCloudCopy,
             ["import_cad"] = ImportCad,
+            ["create_filled_regions"] = CreateFilledRegions,
+            ["list_revisions"] = ListRevisions,
             ["list_text_notes"] = ListTextNotes,
             ["set_text_note"] = SetTextNote,
             ["add_titleblock_revision_schedule"] = AddTitleblockRevisionSchedule,

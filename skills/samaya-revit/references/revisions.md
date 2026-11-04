@@ -43,3 +43,8 @@
 - [Novedge: standard revision workflow](https://novedge.com/blogs/design-news/revit-tip-standardize-revit-revision-workflow)
 - [Autodesk Docs: status codes](https://help.autodesk.com/cloudhelp/ENU/Docs-Files/files/file-naming-standard/Status_Codes.html)
 - [Autodesk Docs: revision codes](https://help.autodesk.com/cloudhelp/ENU/Docs-Files/files/file-naming-standard/Revision_Codes.html)
+
+## Default revision in a new project (Aseer, 4 Nov 2026)
+
+- **A project made from the template already holds "Revision 1" (Date 1).** A new revision then numbers second (01, not 00) even on a sequence starting at 0. `list_revisions` now lists every revision (id, sequence, number, date, description, issued, numbering sequence); delete the default one if it is on no sheet, then check the number reads as intended.
+- `set_revision_numbering` applies the new sequence to the revisions that exist when it runs; a revision made after it needs `set_revision_sequence`.
