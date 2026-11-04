@@ -20,6 +20,14 @@ copyFileSync(LOGO, OUT_DIR + "Title Blocks/samaya-factory-logo-black.png");
 // ISO 216 sizes, landscape, with the strip width used on each.
 const SIZES = [["A0", 1189, 841, 160], ["A1", 841, 594, 140], ["A2", 594, 420, 120], ["A3", 420, 297, 100]];
 
+// NOTES panel, on every sheet: the factory's short fabrication notes and the standards applied, from sultan-standards.json.
+// Lines run down from under the panel heading (top) to the KEY PLAN panel (bottom), spaced to fit each sheet size.
+function notesPanel(X, top, bottom, SWID) {
+  const N = S.sheet_notes, lines = [[N.fabrication_heading, true], ...N.fabrication.map((t) => [t, false]), ["", false], [N.standards_heading, true], ...N.standards.map((t) => [t, false])];
+  const step = Math.min(N.size_mm * 1.6, (top - bottom - 4) / (lines.length + 0.5)), size = Math.max(1.8, Math.min(N.size_mm, step / 1.45));
+  return lines.map(([text, bold], i) => text && { text, at: P(X, top - 5 - i * step), size_mm: Math.round(size * 10) / 10, color: BLACK, bold }).filter(Boolean);
+}
+
 // The A1-layout title block (designed on 1192 x 841, strip 160 wide) scaled to one sheet size.
 function spec(name, SW, SH, SWID) {
   const R = SW - 10, L = R - SWID, X = L + 5 * (SWID / 160), M = (L + R) / 2, W = 20, T = SH - 10, B = 10;
@@ -48,6 +56,7 @@ function spec(name, SW, SH, SWID) {
       ...Array.from({ length: COLS }, (_, k) => ({ text: String(k + 1), at: P(W + k * zw + zw / 2 - 2, 7), size_mm: 2.5, color: BLACK })),
       ...Array.from({ length: ROWS_Z }, (_, k) => ({ text: String.fromCharCode(65 + ROWS_Z - 1 - k), at: P(W - 8, B + k * zh + zh / 2 + 2), size_mm: 2.5, color: BLACK })),
       ...Array.from({ length: ROWS_Z }, (_, k) => ({ text: String.fromCharCode(65 + ROWS_Z - 1 - k), at: P(R + 3, B + k * zh + zh / 2 + 2), size_mm: 2.5, color: BLACK })),
+      ...notesPanel(X, y(587), y(475), SWID),
       head("PROJECT", X, y(277)), head("DRAWING TITLE", X, y(237)), head("DRAWING NO.", X, y(182)), head("REV", x(1154), y(182)),
       head("SCALE", X, y(142)), head("DATE", M + 5 * kx, y(142)), head("DRAWN BY", X, y(112)), head("CHECKED BY", M + 5 * kx, y(112)), head("APPROVED BY", X, y(82)), head("PROJECT NO.", M + 5 * kx, y(82)),
       { text: SWID >= 160 ? "This drawing is the property of Samaya Factory. Do not scale. Check all dimensions on site before fabrication." : "Property of Samaya Factory. Do not scale." + NL + "Check all dimensions on site.", at: P(X, y(51)), size_mm: 2, color: BLACK },

@@ -604,5 +604,25 @@
         "how": "apply when a project is there; Saudi projects: ask the client for its BIM requirements"
       }
     ]
+  },
+  "sheet_notes": {
+    "_about": "Printed in small text in the NOTES panel of every title block (all sheets). Fabrication notes are short and general; project specifics go in the sheet notes. Edit here, then rebuild the title blocks (tools/samaya_template.mjs).",
+    "size_mm": 2.2,
+    "fabrication_heading": "FABRICATION NOTES",
+    "fabrication": [
+      "1. All dimensions in mm. Do not scale.",
+      "2. Check all sizes on site before cutting.",
+      "3. Fabricate only from the latest approved revision.",
+      "4. Boards 18 mm unless noted. FR = fire-rated MDF.",
+      "5. Edges banded to match the face unless noted.",
+      "6. Marble 20 mm unless noted, to approved samples.",
+      "7. Finishes and colours to approved samples."
+    ],
+    "standards_heading": "STANDARDS",
+    "standards": [
+      "Drawing: ISO 128, ISO 129-1, ISO 3098, ISO 5455,",
+      "ISO 5456 (first angle), ISO 5457, ISO 7200, ISO 6433.",
+      "Information: ISO 19650. Electrical: IEC 60617."
+    ]
   }
 }

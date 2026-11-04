@@ -57,3 +57,13 @@ Known fault on A3, still open:
 - The website line touches the bottom border.
 
 The schedule text does not scale with the sheet. Fix it in the builder's A2 and A3 specs before using those sizes on an issued sheet.
+
+## NOTES panel: fabrication notes and standards on every sheet
+
+The user's rule (4 Nov 2026): every sheet shows, in small text:
+- the factory's short general fabrication notes;
+- the standards it applies.
+
+They are printed in the title block's NOTES panel, so they are on every sheet with no extra work. The text is `sheet_notes` in `standards/sultan-standards.json`: 2.2 mm on A0 to A2, shrinking to fit on A3.
+- Edit the wording there, then rebuild the title blocks with `tools/samaya_template.mjs`, and load them into each project.
+- Project-specific notes stay in the sheet's own notes column.
