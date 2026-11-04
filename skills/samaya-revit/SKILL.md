@@ -13,6 +13,7 @@ Read these when relevant:
 - [references/phases.md](references/phases.md): phases, filters and graphics. Read before modelling or setting up views.
 - [references/revisions.md](references/revisions.md): revision system.
 - [references/views-and-sheets.md](references/views-and-sheets.md): view names, templates, scales, sheet numbers, sheet arrangement and schedules. Read before making any view or sheet.
+- [references/bim-standards-map.md](references/bim-standards-map.md): the BIM standards that govern our work by tier (ISO 19650, ISO 7817, IFC and buildingSMART, drawing ISOs, regional), what we apply and the gaps. Read when a client sets BIM requirements or a BEP is needed.
 - [references/3d-views.md](references/3d-views.md): 3D, isometric and exploded views on sheets, made with `tools/view3d.mjs`. Read before making any 3D view.
 - [references/title-blocks.md](references/title-blocks.md): the title block and how to rebuild it.
 - [references/modelling-defaults.md](references/modelling-defaults.md): file structure and modelling rules.
