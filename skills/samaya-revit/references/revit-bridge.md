@@ -126,6 +126,10 @@ Each Revit still runs its commands one at a time.
 ## Makkah lessons (4 Nov 2026)
 
 - `reload_link` (optional `name`) reloads linked models from disk after they were edited in another Revit. Run it in the host, then `inspect_link`, before any coordination check.
+- **Linked models draw their own levels in host sections, so every level shows two or three times.** The API cannot hide a category inside one link. Fix: set "Building Story" = No on the host's own levels, then `hide_linked_levels` (view_ids) adds a filter "Building Story = Yes" hidden to each view; host filters also act on linked elements. Run it on every new section or elevation.
+- `create_detail_lines` draws a true arc when a line has a `mid` point (start, mid, end). Use it for arch set-outs instead of short segments.
+- `load_family` takes `overwrite: true` to load an edited .rfa over the loaded one; placed instances stay put.
+- `api_members` (type) lists a Revit API type's members, to check what the API allows before writing a command.
 - `create_project` works now: it closes the hidden in-memory copy before opening the saved file. Use it with the metric MEP templates (`Mechanical-Default_Metric.rte`, `Electrical-Default_Metric.rte`).
 - `create_floor_plan` takes `ceiling: true` for a reflected ceiling plan.
 - `set_view_overrides` takes `categories` (an array), not `category`. A wrong key fails silently inside a `.catch`.

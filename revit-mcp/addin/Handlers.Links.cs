@@ -119,5 +119,47 @@ namespace RevitMcp
             }
             return new JsonObject { ["reloaded"] = done };
         }
+
+        /// <summary>
+        /// Hides the levels that come from linked models in the given views. The host's own levels must have
+        /// "Building Story" = No; links keep the default Yes. A view filter on Levels with Building Story = Yes is
+        /// added hidden to each view (host filters also act on linked elements shown By Host View).
+        /// </summary>
+        private static JsonNode HideLinkedLevels(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var viewIds = ReqIds(p, "view_ids");
+            const string name = "Levels from linked models (Building Story = Yes)";
+            return InTransaction(doc, "Hide linked levels", () =>
+            {
+                var cats = new List<ElementId> { new ElementId(BuiltInCategory.OST_Levels) };
+                var filter = new FilteredElementCollector(doc).OfClass(typeof(ParameterFilterElement)).Cast<ParameterFilterElement>().FirstOrDefault(f => f.Name == name);
+                if (filter == null)
+                {
+                    var rule = ParameterFilterRuleFactory.CreateEqualsRule(new ElementId(BuiltInParameter.LEVEL_IS_BUILDING_STORY), 1);
+                    filter = ParameterFilterElement.Create(doc, name, cats, new ElementParameterFilter(rule));
+                }
+                var done = new JsonArray();
+                foreach (var id in viewIds)
+                {
+                    var view = doc.GetElement(id) as View;
+                    if (view == null || !view.AreGraphicsOverridesAllowed()) { done.Add(id.Value + ": skipped"); continue; }
+                    if (!view.GetFilters().Contains(filter.Id)) view.AddFilter(filter.Id);
+                    view.SetFilterVisibility(filter.Id, false);
+                    done.Add(id.Value + ": hidden");
+                }
+                return new JsonObject { ["filter_id"] = filter.Id.Value, ["views"] = done };
+            });
+        }
+
+        /// <summary>Lists public members of a Revit API type (diagnostic), e.g. "Autodesk.Revit.DB.RevitLinkGraphicsSettings".</summary>
+        private static JsonNode ApiMembers(UIApplication app, JsonObject p)
+        {
+            var t = typeof(Document).Assembly.GetType(ReqStr(p, "type")) ?? throw new ArgumentException("type not found");
+            var a = new JsonArray();
+            foreach (var m in t.GetMembers(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.DeclaredOnly))
+                a.Add(m.MemberType + " " + m);
+            return new JsonObject { ["members"] = a };
+        }
     }
 }

@@ -133,6 +133,8 @@ namespace RevitMcp
             ["list_phases"] = ListPhases,
             ["inspect_link"] = InspectLink,
             ["reload_link"] = ReloadLink,
+            ["api_members"] = ApiMembers,
+            ["hide_linked_levels"] = HideLinkedLevels,
             ["acquire_coordinates"] = AcquireCoordinates,
             // Device symbols (Handlers.Symbols.cs)
             ["duplicate_type"] = DuplicateType,
@@ -971,8 +973,15 @@ namespace RevitMcp
         {
             var doc = Doc(app);
             var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            // Each item is a line {start, end}, or a true arc {start, end, mid} through the three points.
             var lines = (p["lines"] as JsonArray ?? throw new ArgumentException("lines is required."))
-                .Select(n => Line.CreateBound(OnViewPlane(view, ReqPoint(n.AsObject(), "start")), OnViewPlane(view, ReqPoint(n.AsObject(), "end"))))
+                .Select(n =>
+                {
+                    var o = n.AsObject();
+                    var a = OnViewPlane(view, ReqPoint(o, "start"));
+                    var b = OnViewPlane(view, ReqPoint(o, "end"));
+                    return o["mid"] is JsonObject ? (Curve)Arc.Create(a, b, OnViewPlane(view, ReqPoint(o, "mid"))) : Line.CreateBound(a, b);
+                })
                 .ToList();
             if (lines.Count == 0) throw new ArgumentException("lines needs at least 1 line.");
             var styleName = Str(p, "line_style");
@@ -1184,8 +1193,10 @@ namespace RevitMcp
 
             return InTransaction(doc, $"Load family {name}", () =>
             {
-                // A family that is already loaded is kept as it is, so a load can never overwrite project edits.
-                doc.LoadFamily(path, new KeepExistingFamily(), out var family);
+                // A family that is already loaded is kept as it is, so a load can never overwrite project edits,
+                // unless overwrite: true (an edited .rfa replaces the loaded one; placed instances keep their place).
+                IFamilyLoadOptions options = p["overwrite"]?.GetValue<bool>() == true ? new OverwriteFamily() : new KeepExistingFamily();
+                doc.LoadFamily(path, options, out var family);
                 family = family ?? new FilteredElementCollector(doc).OfClass(typeof(Family)).Cast<Family>()
                     .FirstOrDefault(f => f.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     ?? throw new InvalidOperationException($"Revit did not load '{name}'.");
