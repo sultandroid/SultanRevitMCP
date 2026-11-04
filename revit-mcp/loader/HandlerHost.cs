@@ -78,6 +78,8 @@ namespace SultanRevitMCP
 
         private static JsonNode Info() => new JsonObject
         {
+            ["port"] = Registry.Port,
+            ["pid"] = Environment.ProcessId,
             ["source"] = _source,
             ["version"] = _source == "none" ? null : Path.GetFileName(Path.GetDirectoryName(_source)),
             ["loaded_at"] = _loadedAt == default ? null : _loadedAt.ToString("s"),

@@ -97,3 +97,28 @@ The add-in is split in two:
 **Signing:** the user runs `sign-loader.ps1 -Setup` once, then `sign-loader.ps1` after each loader install. It is the user's action because it changes which certificates Windows trusts.
 
 **Still needs a restart:** changes to the loader, a Revit update, or an add-in crash.
+
+## Several Revits at once, one per session (SultanRevitMCP)
+
+The cause: one Revit, one port and one active model. Two sessions on the same Revit switch each other's active model, and commands land on the wrong file.
+
+**One Revit per session or model.** Revit runs several copies on one machine under one licence (about 2 to 4 GB RAM each with a shop model).
+- The loader takes the first free port from 48884 to 48899 (`REVIT_MCP_PORT` pins one).
+- It writes `%LOCALAPPDATA%\SultanRevitMCP\instances\<pid>.json` with its port and open models, kept current on open, create, save-as and close.
+- `handlers_info` reports the port and pid.
+
+**`tools/rvt.mjs` routes each call by model name:**
+1. `REVIT_MCP_PORT`
+2. else the Revit that has `params.document` (or `useDocument(title)`, or `REVIT_DOC`) open
+3. else 48884
+
+Stale registry files of closed Revits are removed.
+
+**`document` parameter on every command:** the command works on that open model (title or full path) without activating it, so no session switches another's active model. Commands that need the UI still act on the active model: active view, selection, `open_view`, view image export of the active view. Pass `view_id` where a command takes one.
+
+**How to work:**
+- Start one Revit per project: `Revit.exe "<model.rvt>"`.
+- In each session's scripts, call `useDocument("<title>")` once, or set `REVIT_DOC`.
+- For the MCP server, set `REVIT_MCP_PORT` to that Revit's port. Read it from the registry file or `handlers_info`.
+
+Each Revit still runs its commands one at a time.
