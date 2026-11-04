@@ -450,7 +450,8 @@
     "marble_mm": 20,
     "counter_total_mm": 700,
     "skirting_mm": 50,
-    "carcass_mm": 18
+    "carcass_mm": 18,
+    "shadow_gap_to_ceiling_min_mm": 20
   },
   "bim_standards": {
     "_about": "BIM/Revit standards by tier, most important for our work first (user list, 4 Nov 2026). Editions as given; confirm the current edition before quoting one on a deliverable. how = what SultanRevitMCP does about it today.",
