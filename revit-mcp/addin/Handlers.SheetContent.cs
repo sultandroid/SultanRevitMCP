@@ -59,6 +59,41 @@ namespace RevitMcp
         }
 
         /// <summary>
+        /// import_cad: import a DWG into a view (a 1:1 drafting view for a CAD sheet's linework), in millimetres,
+        /// origin to origin, colours kept, current view only. Params: view_id, path, color? "preserve"|"black"
+        /// (default preserve), custom_scale? (multiply the file's millimetres, e.g. 13 to put a sheet-mm cut into a 1:13 view). Returns the import's id and its extents in the view.
+        /// </summary>
+        private static JsonNode ImportCad(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View ?? throw new ArgumentException("view_id is not a view.");
+            var path = Path.GetFullPath(ReqStr(p, "path"));
+            if (!File.Exists(path)) throw new ArgumentException($"No file at {path}.");
+            var opts = new DWGImportOptions
+            {
+                Unit = Num(p, "custom_scale").HasValue ? ImportUnit.Custom : ImportUnit.Millimeter,
+                Placement = ImportPlacement.Origin,
+                ColorMode = (Str(p, "color") ?? "preserve") == "black" ? ImportColorMode.BlackAndWhite : ImportColorMode.Preserved,
+                ThisViewOnly = true,
+                OrientToView = true,
+                VisibleLayersOnly = true,
+            };
+            // custom_scale: file units are millimetres times this factor (a sheet cut to sheet mm, imported into a 1:n view).
+            if (Num(p, "custom_scale") is double cs) opts.CustomScale = cs / 304.8;
+            return InTransaction(doc, "Import CAD", () =>
+            {
+                if (!doc.Import(path, opts, view, out ElementId id)) throw new InvalidOperationException("Revit did not import the file.");
+                var bb = doc.GetElement(id)?.get_BoundingBox(view);
+                return new JsonObject
+                {
+                    ["id"] = id.Value,
+                    ["min"] = bb == null ? null : new JsonObject { ["x"] = ToMm(bb.Min.X), ["y"] = ToMm(bb.Min.Y) },
+                    ["max"] = bb == null ? null : new JsonObject { ["x"] = ToMm(bb.Max.X), ["y"] = ToMm(bb.Max.Y) },
+                };
+            });
+        }
+
+        /// <summary>
         /// save_cloud_copy: open a cloud (ACC / Autodesk Docs) model detached from its central, save it as a plain local
         /// file and close it. Gives a local host something to link, since Revit links cloud models only into cloud hosts.
         /// The central on ACC is not changed. Params: region? (default US), project_guid, model_guid, save_path.

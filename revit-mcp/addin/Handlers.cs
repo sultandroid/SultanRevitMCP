@@ -114,6 +114,7 @@ namespace RevitMcp
             ["place_image"] = PlaceImage,
             ["set_family_text_size"] = SetFamilyTextSize,
             ["save_cloud_copy"] = SaveCloudCopy,
+            ["import_cad"] = ImportCad,
             ["list_text_notes"] = ListTextNotes,
             ["set_text_note"] = SetTextNote,
             ["add_titleblock_revision_schedule"] = AddTitleblockRevisionSchedule,

@@ -191,3 +191,10 @@ New commands: `create_text_notes` (many notes in one step, each with type, wrap 
 - **Read a linked model by name.** `document` may now name a linked model for read commands (levels, query, element boxes); writes to it fail, as Revit keeps linked documents read-only.
 - **Check a link's levels before trusting origin to origin.** The Aseer ARCH model's basement floor sits at +4200 internal, so a host FFL +0.000 plan cut at 1200 showed nothing. Plan XY matched exactly (its grids lie on the host's, which came from the design team's DWG); moving the link -4200 put its floor on the host FFL. Write the shift in the link's Comments.
 - A `RevitLinkInstance` reports no bounding box through `get_element`; take building extents from grids or from the link's walls.
+
+## Subcontractor DWG sheets (GBH WD Submittal 16, 4 Nov 2026)
+
+- **GBH draws sheets in model space at a scale (13 on Submittal 16), not on layouts.** Find each frame from the title block's fixed labels: their sheet positions are known from our title block family, so origin = label position - label sheet position x scale.
+- **AutoCAD Mechanical objects are proxies in plain AutoCAD.** They block WBLOCK ("proxy object that does not allow copying"), cannot be scaled, moved or erased, and `-EXPORTTOAUTOCAD` in accoreconsole does not convert them. Cut a sheet by erasing everything else and saving a new DWG; the proxies left behind stay at their old positions.
+- **Import such a cut into a plan view, not a drafting view.** `import_cad` (view_id, path, color?) imports in mm, origin to origin. A plan view's crop region clips the import, so stray proxies far away disappear; a drafting view cannot crop. Hide the model and links in that plan view.
+- A title block shows "1 : 1" for a sheet whose only views are 1:1. To read "As indicated", give one other view (the key plan drafting view) a second scale, with its content scaled up to match.
