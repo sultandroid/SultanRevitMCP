@@ -15,7 +15,7 @@ const N = new Map(M.nodes.map(n => [n.id, n]));
 const cname = Object.fromEntries([...M.cases, ...M.combos].map(c => [c.no, c.name]));
 const uls = M.combos.filter(c => c.type === "ULS").map(c => c.no);
 const grpOf = b => b.grp.replace(/^S /, "").replace(/ pin-\w+/, "");
-const GRP = { post: ["#1f5fa8", "Post"], rail: ["#2e9e44", "Rail"], backleg: ["#c0392b", "Frame back leg"], horiz: ["#e67e22", "Frame horizontal"], tie: ["#8e44ad", "Back tie"], "X-brace": ["#7f8c8d", "X-brace"] };
+const GRP = { post: ["#1f5fa8", "Post"], rail: ["#2e9e44", "Rail"], backleg: ["#c0392b", "Frame back leg"], horiz: ["#e67e22", "Frame horizontal"], tie: ["#8e44ad", "Back tie"], "X-brace": ["#7f8c8d", "X-brace"], diag: ["#555555", "Frame diagonal"] };
 // ---- section properties (SHS b x b x t) and AISC 360 ratio, same as kac_check.mjs ----
 const shs = s => { const m = /SHS (\d+)x\d+x([\d.]+)/.exec(s), b = +m[1], t = +m[2]; const A = b * b - (b - 2 * t) ** 2, I = (b ** 4 - (b - 2 * t) ** 4) / 12; return { A, r: Math.sqrt(I / A), Z: (b ** 3 - (b - 2 * t) ** 3) / 4 }; };
 const Fy = 275, E = 200000, phi = 0.9;
@@ -88,12 +88,12 @@ ${g.join("\n")}${L.join("\n")}
   return { svg, W, H };
 }
 const DEF = [
-  { name: "01_model", mode: "model", title: "Analysis model - typical 16 m segment from the free end", legend: true },
+  { name: "01_model", mode: "model", title: "Analysis model - segment from the open end", legend: true },
   { name: "02_defl_W1", mode: "deformed", case: 8, title: "Deformed shape - SLS D + 0.6 W1 (wind from street)", legend: true },
   { name: "03_defl_W3", mode: "deformed", case: 14, title: "Deformed shape - SLS D + 0.6 W3 (free-end zone, case C)", legend: true },
   { name: "04_moment_W1", mode: "moment", case: 6, title: "Bending moment - ULS 1.2D + 1.0 W1", legend: true },
-  { name: "05_moment_W3", mode: "moment", case: 12, title: "Bending moment - ULS 1.2D + 1.0 W3 (free end)", legend: true },
-  { name: "06_axial_W3", mode: "axial", case: 12, title: "Axial force - ULS 1.2D + 1.0 W3 (free end)", legend: true },
+  { name: "05_moment_W3", mode: "moment", case: 12, title: "Bending moment - ULS 1.2D + 1.0 W3 (open end)", legend: true },
+  { name: "06_axial_W3", mode: "axial", case: 12, title: "Axial force - ULS 1.2D + 1.0 W3 (open end)", legend: true },
   { name: "07_ratio", mode: "ratio", title: "Member utilisation - ULS envelope (AISC 360-16 LRFD)", sub: "Highest ratio over all ULS combinations, same check as section 5.2", legend: true },
   { name: "08_reactions_W1", mode: "reactions", case: 6, title: "Support reactions Fz - ULS 1.2D + 1.0 W1", legend: true },
 ];
