@@ -84,4 +84,15 @@ Myan Yard main sign, 6.3 x 9.0 m: columns steel pipe 244.5 x 5.0 and 193.7 x 5.0
 
 ## Project notes
 
-- **DAS, Dar Al Salam (Nov 2026, client Naif Alrajhi Investment):** heights 4.88 and 7.32 m. The tender spec asks for H 10" and H 12" beams with back supports, each on concrete ("خرسانة اصل ودعامة"). First sections were drawn that way: an H column and an H raking back support, each on its own footing with a base plate. Before issue, compare them with the lattice typical above and confirm the system with the user.
+- **DAS, Dar Al Salam (Nov 2026, client Naif Alrajhi Investment):** heights 4.88 and 7.32 m. The tender spec asks for H 10" and H 12" beams with back supports, each on concrete ("خرسانة اصل ودعامة"). Our spec proposal (user, 5 Nov 2026), now in the model:
+
+  | | Type A, 4.88 m | Type B, 7.32 m | Type C, 7.32 → 4.88 m |
+  |---|---|---|---|
+  | Post | IPE 160 or SHS 100x100x4 | IPE 200 to 220 or SHS 150x150x5 | as B at the high end, as A at the low end |
+  | Back brace | SHS 80x80x4 to its own pad | SHS 100x100x4 to its own pad | as B |
+  | Spacing | 2.5 m | 2.0 to 2.5 m | 2.0 to 2.5 m |
+  | Footings | small cast-in pad under the post and under the brace | larger pad under each | as B |
+  | Face | 18 mm WBP plywood on 40x40 tube rails | same | same |
+  | Finish | primer + 2 coats, front vinyl with UV laminate | same | same |
+
+  Modelled with the first option of each: IPE 160 / IPE 220 posts, 2.0 m spacing for B and C, pads 800x800x600 (A) and 1000x1500x1000 (B, C) from the tender spec, base plates 300 (A) and 400 (B, C) x 20 with 4 anchors. The front pad starts 100 mm in front of the plywood face so the post plate sits fully on it. This post-and-brace system is lighter to build than the lattice typical; the structural engineer chooses between them per job.
