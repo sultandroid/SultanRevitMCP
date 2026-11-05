@@ -36,16 +36,16 @@ function savePart(item, name, mat, thk, qty, outline, note) {
 // Arch band ribs
 const AR = { Ro: 620, Ri: 500, e: 60, zc: 2200, zs: 2050 }, ARR = { Ro: 690, Ri: 570, e: 60, zc: 2185, zs: 2035 };
 savePart("arch", "AR-BAND-RIB", "FR MDF", 18, 3 * 6, pointedRing({ ...AR, k: PLY }),
-  "Band 120 x 101: 3 ribs per arch (front, middle, back), glue blocks between, 5 mm bending ply on the curves and legs. Bottom edge = capital +2.050.");
+  "Band 120 x 101: 3 ribs per arch (front, middle, back), glue blocks between, 5 mm bending ply on the curves and legs, painted to U775 ST9 White Grey. Bottom edge = capital +2.050.");
 savePart("arch", "AR-R-BAND-RIB", "FR MDF", 18, 3 * 2, pointedRing({ ...ARR, k: PLY }),
-  "Band 120 x 105: 3 ribs per arch (front, middle, back), glue blocks between, 5 mm bending ply on the curves and legs. Bottom edge = capital +2.035.");
+  "Band 120 x 105: 3 ribs per arch (front, middle, back), glue blocks between, 5 mm bending ply on the curves and legs, painted to U775 ST9 White Grey. Bottom edge = capital +2.035.");
 savePart("arch", "AR-B1-RING-RIB", "FR MDF", 18, 2, roundRing({ Ro: 800, Ri: 680, zc: 2040, k: PLY }),
-  "Gate ring 120 x 80: 2 ribs (front and back), glue blocks between, 5 mm bending ply on both curves. Bottom edge = springing +2.040. Voussoir lines as A-2104.");
+  "Gate ring 120 x 80: 2 ribs (front and back), glue blocks between, 5 mm bending ply on both curves, painted to U775 ST9 White Grey. Bottom edge = springing +2.040. Voussoir lines as A-2104.");
 // Spandrel cladding panels
 savePart("sc", "SC-A-PANEL", "FR MDF", 18, 6, spandrelPanel({ hw: 560, zc: 2200, zTop: ZTOP, R: 600, e: 60 }),
-  "Behind the AR band, cut 20 inside the band (R 600, centres 60 past the axis). Bottom = springing +2.200, top +2.980. Painted light grey 1024.");
+  "Behind the AR band, cut 20 inside the band (R 600, centres 60 past the axis). Bottom = springing +2.200, top +2.980. Painted to U775 ST9 White Grey.");
 savePart("sc", "SC-B-PANEL", "FR MDF", 18, 2, spandrelPanel({ hw: 630, zc: 2185, zTop: ZTOP, R: 670, e: 60 }),
-  "Behind the AR-R band, cut 20 inside the band (R 670, centres 60 past the axis). Bottom = springing +2.185, top +2.980. Painted light grey 1024.");
+  "Behind the AR-R band, cut 20 inside the band (R 670, centres 60 past the axis). Bottom = springing +2.185, top +2.980. Painted to U775 ST9 White Grey.");
 savePart("sc", "SC-C-PANEL", "FR MDF", 18, 1, spandrelPanel({ hw: 800, zc: 2040, zTop: ZTOP, R: 780 }),
-  "Behind the gate ring, cut 20 inside the ring (R 780 about the springing +2.040), top +2.980. AR-B1 spandrel ornaments fix on it. Painted light grey 1024.");
+  "Behind the gate ring, cut 20 inside the ring (R 780 about the springing +2.040), top +2.980. AR-B1 spandrel ornaments fix on it. Painted to U775 ST9 White Grey.");
 for (const [k, r] of Object.entries(rows)) writeFileSync(`${OUT}/${ITEMS[k]}/_CUT-LIST.csv`, "file,part,material,thickness_mm,qty,width_mm,height_mm,note\n" + r.join("\n") + "\n");

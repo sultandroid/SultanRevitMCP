@@ -67,8 +67,8 @@ if (M.dxfDir) {
     const f = `${M.dxfDir}/${M.dxfPrefix ?? "PRJ"}-${T.key}-PLATE-2mm.dxf`;
     d.save(f);
     T.dxf = f.split("/").pop();
-    rows.push(`${T.dxf},${T.key} plate,Steel sheet black powder coat,2,${4 * T.n},${T.pW},${T.pH},${T.holes} holes D21 at 50`);
-    rows.push(`-,${T.key} side angle,Steel angle black powder coat,2,${2 * T.n},${T.aD},${T.aL},leg ${T.aD} to the plates; no holes`);
+    rows.push(`${T.dxf},${T.key} plate,Steel sheet pre-galvanised, no paint,2,${4 * T.n},${T.pW},${T.pH},${T.holes} holes D21 at 50`);
+    rows.push(`-,${T.key} side angle,Steel angle pre-galvanised,2,${2 * T.n},${T.aD},${T.aL},leg ${T.aD} to the plates; no holes`);
     console.log("dxf", f);
   }
   writeFileSync(`${M.dxfDir}/_CUT-LIST.csv`, "file,part,material,thickness_mm,qty,width_mm,height_mm,note\n" + rows.join("\n") + "\n");
@@ -149,7 +149,7 @@ await place(vd, 420, Math.min(lowest - 120, 230));
 const T_ = (x, y, s, ty = note) => call("create_text_note", { view_id: sheet, location: P(x, y), text: s, text_type_id: ty });
 const allUnits = types.reduce((a, T) => a + T.n, 0);
 await T_(NOTES, 812, `${M.title.toUpperCase()}\nFor the metal factory\nOpen shelf units: ${allUnits} (${types.map((T) => `${T.key} x${T.n}`).join(", ")})`, bold);
-await T_(NOTES, 760, "CUT LIST (steel sheet 2 mm, black)", bold);
+await T_(NOTES, 760, "CUT LIST (pre-galvanised steel 2 mm)", bold);
 const rowsTxt = types.flatMap((T) => [`${T.key} plate  ${T.pW} x ${T.pH}`, `${T.key} side angle  ${T.aD} leg x ${T.aL}`]);
 const qtyTxt = types.flatMap((T) => [`${4 * T.n} no.`, `${2 * T.n} no.`]);
 await T_(NOTES, 746, ["PART", ...rowsTxt].join("\n"));
@@ -168,7 +168,9 @@ const notes = [
   "Electrical engineer to approve, and",
   "make one tested sample first.",
   "Deburr all holes and edges.",
-  "Finish: black powder coat.",
+  "Steel pre-galvanised; laser cut after",
+  "galvanising (not hot-dip). No paint",
+  "on the plates: they carry current.",
   "DXF files (1:1, mm):",
   ...types.map((T) => "  " + (T.dxf ?? "-")),
   "All dimensions in mm.",

@@ -102,6 +102,7 @@ namespace RevitMcp
             ["cut_with_voids"] = CutWithVoids,
             ["ensure_material"] = EnsureMaterial,
             ["set_material_hatch"] = SetMaterialHatch,
+            ["rename_materials"] = RenameMaterials,
             ["create_pipe_run"] = CreatePipeRun,
             ["list_family_text"] = ListFamilyText,
             ["set_family_text"] = SetFamilyText,
@@ -3420,6 +3421,70 @@ namespace RevitMcp
                 material.Smoothness = (int)(Num(p, "smoothness") ?? material.Smoothness);
                 return new JsonObject { ["id"] = material.Id.Value, ["name"] = material.Name };
             });
+        }
+
+        /// <summary>Renames materials (and sets their colour) in the project AND inside every loaded family that uses them, then
+        /// reloads those families, so schedules, tags and inspect_family all show the new name (approved colour codes, Makkah
+        /// 6 Nov 2026). renames: [{from, to, color?}]; family_prefix limits which families are opened. When "to" already exists,
+        /// the elements using "from" are moved to it (merge) and "from" stays unused.</summary>
+        private static JsonNode RenameMaterials(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var items = (p["renames"] as JsonArray ?? throw new ArgumentException("renames is required.")).Select(n => n.AsObject())
+                .Select(o => (from: ReqStr(o, "from"), to: ReqStr(o, "to"), color: o["color"] is JsonObject ? ColorOf(o, "color") : null)).ToList();
+            var prefix = Str(p, "family_prefix");
+            var report = new JsonArray();
+            // 1. families first (their reload would otherwise bring the old names back into the project)
+            var families = new FilteredElementCollector(doc).OfClass(typeof(Family)).Cast<Family>()
+                .Where(f => f.IsEditable && !f.IsInPlace && (prefix == null || f.Name.StartsWith(prefix))).ToList();
+            foreach (var family in families)
+            {
+                Document fdoc = null;
+                try
+                {
+                    fdoc = doc.EditFamily(family);
+                    var mats = new FilteredElementCollector(fdoc).OfClass(typeof(Material)).Cast<Material>().ToList();
+                    if (!items.Any(it => mats.Any(m => m.Name == it.from))) continue;
+                    var done = new JsonArray();
+                    using (var t = new Transaction(fdoc, "MCP: Rename materials"))
+                    {
+                        t.Start();
+                        foreach (var it in items)
+                        {
+                            var src = mats.FirstOrDefault(m => m.Name == it.from); if (src == null) continue;
+                            var dst = mats.FirstOrDefault(m => m.Name == it.to);
+                            if (dst == null) { src.Name = it.to; dst = src; }
+                            else foreach (var form in new FilteredElementCollector(fdoc).OfClass(typeof(GenericForm)).Cast<GenericForm>())
+                            {
+                                var prm = form.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM);
+                                if (prm != null && !prm.IsReadOnly && prm.AsElementId() == src.Id) prm.Set(dst.Id);
+                            }
+                            if (it.color != null) dst.Color = it.color;
+                            done.Add(it.to);
+                        }
+                        t.Commit();
+                    }
+                    fdoc.LoadFamily(doc, new OverwriteFamily());
+                    report.Add(new JsonObject { ["family"] = family.Name, ["materials"] = done });
+                }
+                catch (Exception e) { report.Add(new JsonObject { ["family"] = family.Name, ["error"] = e.Message }); }
+                finally { fdoc?.Close(false); }
+            }
+            // 2. the project's own materials (merge when the new name exists already)
+            var project = new JsonArray();
+            InTransaction(doc, "Rename materials", () =>
+            {
+                var mats = new FilteredElementCollector(doc).OfClass(typeof(Material)).Cast<Material>().ToList();
+                foreach (var it in items)
+                {
+                    var src = mats.FirstOrDefault(m => m.Name == it.from); var dst = mats.FirstOrDefault(m => m.Name == it.to);
+                    if (src != null && dst == null) { src.Name = it.to; dst = src; project.Add($"{it.from} -> {it.to}"); }
+                    else if (src != null) project.Add($"{it.from}: kept, {it.to} exists");
+                    if (dst != null && it.color != null) dst.Color = it.color;
+                }
+                return null;
+            });
+            return new JsonObject { ["families"] = report, ["project"] = project };
         }
 
         /// <summary>Sets a material's cut pattern: solid, or a drafting hatch that is created when missing.</summary>

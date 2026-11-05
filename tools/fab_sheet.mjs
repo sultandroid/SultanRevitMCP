@@ -167,8 +167,11 @@ const tbi = (await call("query_elements", { category: "OST_TitleBlocks", view_id
 for (const [n, v] of C.signoff) { await setv(sheet, n, v); if (tbi) await setv(tbi, n, v); }
 await call("set_sheet_revisions", { sheet_ids: [sheet], revision_ids: C.revisions });
 const wF = W / s, hF = H / s, wS = D / s, hP = PH / s, wA = (dy + 2 * M) / s, wB = W / s, hC = (zb - za) / s;
-const TOP = 810, LEFT = 45, fx = LEFT + wF / 2, fy = TOP - hF / 2, sx = LEFT + wF + 10 + wS / 2, py = TOP - hF - 25 - hP / 2;
+// The Top View of a side unit is drawn north-up (its crop cannot be turned), so on paper it is as tall as the unit is long:
+// size it from the world box, or it runs up into the front elevation (counter D-02, Makkah Rev 07). Details keep their own row.
 const wTop = ((FACE ? Bw : b).x1 - (FACE ? Bw : b).x0 + 2 * (M + (FACE ? 150 : 0))) / s; // top view width on paper
+const hTop = FACE ? (Bw.y1 - Bw.y0 + 2 * (M + 150)) / s : hP;                         // top view height on paper
+const TOP = 810, LEFT = 45, fx = LEFT + wF / 2, fy = TOP - hF / 2, sx = LEFT + wF + 10 + wS / 2, pyD = TOP - hF - 25 - hP / 2, py = Math.max(TOP - hF - 30 - hTop / 2, 45 + hTop / 2);
 const place = (v, x, y) => call("place_view_on_sheet", { sheet_id: sheet, view_id: v, location: P(x, y) });
 const NOTES = 815, levelY = fy + ((za + zb) / 2 - (zBot + zTop) / 2) / s;
 const blocks = [[vFront, wF, fy], [vSide, wS, fy], [vA, wA, levelY], [vB, wB, levelY]];
@@ -178,16 +181,17 @@ if (free >= 30) {
   const gp = free / 3; let x = LEFT;
   for (const [k, [v, w, y]] of blocks.entries()) { const cxv = x + w / 2; await place(v, cxv, y); L[["front", "side", "A", "B"][k]] = cxv; x += w + gp; }
   await place(vTop, Math.max(L.front + (FACE ? 15 : 0), LEFT + wTop / 2 + 10), py);
-  if (big) { await place(vDT, L.side, py); await place(vDB, L.A, py); }
+  if (big) { await place(vDT, L.side, pyD); await place(vDB, L.A, pyD); }
 } else {
   await place(vFront, fx, fy); await place(vSide, sx, fy); await place(vTop, Math.max(fx, LEFT + wTop / 2 + 10), py);
   let cx = LEFT + wF + 10 + wS + 10, cy = TOP - hC / 2, row2 = false;
   for (const [v, w] of [[vA, wA], [vB, wB]]) { if (!row2 && cx + w > NOTES - 5) { row2 = true; cx = LEFT + wF + 15; cy = Math.min(TOP - hF - 25 - hC / 2, 50 + hC / 2 + 40); } await place(v, cx + w / 2, cy); cx += w + 10; }
-  if (big) { await place(vDT, 351, py); await place(vDB, 682, py); }
+  if (big) { await place(vDT, 351, pyD); await place(vDB, 682, pyD); }
 }
 // Text column.
 const txt = (x, y, tx, type = note) => call("create_text_note", { view_id: sheet, location: P(x, y), text: tx, text_type_id: type });
-const shortM = (m) => m.replace(/\s*ST\d+/, "").replace(/\s*\(.*?\)/, "").slice(0, 40);
+// Keep the approved colour code whole (EGGER "H3710 ST12" is one code: the ST part is the texture), only drop notes in brackets.
+const shortM = (m) => m.replace(/\s*\(.*?\)/, "").slice(0, 52);
 const qty = (m, q) => /LED|PVC|Edge|Softwood|Angle|Peg\b|Hardwood Peg/.test(m) ? (/Peg/.test(m) ? `${q.n} no.` : `${q.len.toFixed(2)} m`) : /Handle|Support/.test(m) && q.n < 20 ? `${q.n} no.` : `${q.area.toFixed(2)} m2`;
 await txt(NOTES, 812, `${t.title.toUpperCase()}   QTY ${t.marks.length}\n${t.size ?? `${r(dx)} x ${r(dy)} x ${r(b.z1 - b.z0)}`}\nUnits: ${t.marks.join(", ")}`, bold);
 await txt(NOTES, 770, "KEYNOTES", bold);
@@ -195,7 +199,10 @@ await txt(NOTES, 757, [...mats.map(([m], k) => `${k + 1}   ${shortM(m)}`), "Grey
 const y2 = 757 - (mats.length + 1) * 7.8 - 20;
 await txt(NOTES, y2, "MATERIAL QUANTITIES", bold);
 await txt(NOTES, y2 - 12, "(per unit, net, no waste, approx.)");
-await txt(NOTES, y2 - 28, ["MATERIAL", ...mats.map(([m]) => shortM(m))].join("\n"));
+// The quantity list has the QTY column at x 975, so its names are kept short (the code stays; the keynote list above gives
+// the full colour name): "Natural Carini Walnut" -> "Walnut", "Painted" -> "ptd.", at most 40 characters.
+const shortQ = (m) => shortM(m).replace(/ Natural Carini Walnut/, " Walnut").replace(/\bPainted\b/, "ptd.").slice(0, 40);
+await txt(NOTES, y2 - 28, ["MATERIAL", ...mats.map(([m]) => shortQ(m))].join("\n"));
 await txt(975, y2 - 28, ["QTY", ...mats.map(([m, q]) => qty(m, q))].join("\n"));
 const notesTxt = `${t.note ? t.note + "\n" : ""}${nearCeiling ? `Top +${(b.z1 / 1000).toFixed(3)}: ${r(C.ceiling - b.z1)} shadow gap\nto the ceiling (${GAP} min.).\n` : ""}All dimensions in mm.\nCheck on site before cutting.\nCurved parts: cut from the CNC file.`;
 await txt(NOTES, y2 - 28 - (mats.length + 2) * 7.8 - 8, notesTxt);
