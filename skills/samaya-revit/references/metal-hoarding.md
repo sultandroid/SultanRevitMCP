@@ -1,0 +1,87 @@
+# Metal hoarding
+
+How Samaya Factory builds site hoarding, by height. Taken from our past designs and their structural calculation reports (user, 5 Nov 2026). Use it to set up any hoarding model, section or tender. **Steel sizes can change per project, but the system stays the same.** Every new job still needs its own calculation for its wind speed and soil.
+
+Source files (Al Khozama tender folder): `Samaya\Tenders\2025\PHI\Al Khozama\Design\`
+- `6M FINAL.pdf`: typical 6 m drawing (front, back, top, section, plywood and base plate details).
+- `CALCULATION REPORT -HOARDING 6.00M HEIGHT.pdf` and `... 8.00M HEIGHT.pdf`: EXPO 2030 Riyadh, client Binyah, April 2025.
+- `CALCULATION SHEET - HOARDING -4.20m HEIGHT.pdf` and `HOARDING 3.00M HEIGHT.pdf`: KAFD, consultant Machinery Source.
+- `STRUCTURAL ANALYSIS  REPORT - MAIN SIGNAGE.pdf`: Myan Yard sign, 6.3 m wide x 9 m high.
+
+## Pick the system by height
+
+| Height | System | Base |
+|---|---|---|
+| Up to about 4.2 m | Light tube frame: a post every 1 m, a raking prop every second post | Precast Jersey-type concrete block, 1.0 m long, bolted with anchors |
+| Above 4 m (our typical: 6 m and 8 m) | **Lattice frame**: front column and back column joined by diagonals, every 3 m | One RCC footing under each frame |
+
+## Above 4 m: lattice frame (the standard typical)
+
+From the 6 m typical drawing, checked against the 6 m and 8 m calculations.
+
+**Frame (one every 3000 mm along the hoarding)**
+- Front column and back column, MS tube **60x60**. The drawing shows 60x60x3; **the calculation uses 60x60x4.0**, so use 4.0 unless a new calculation says otherwise.
+- The back column leans in: the frame is about 1.2 to 1.55 m deep at the base and about 0.6 m deep at the top (6 m frame).
+- Diagonals, MS tube 50x50x3.0 (drawing, and 8 m calculation). Other frame members, MS tube 50x50x2.5.
+- Base member: IPE 220 on top of the footing, carrying both columns.
+- Base plate 300x300x14 mm, 6 anchors M20 x 500 mm, grade 8.8 (drawing). The 6 m calculation checked a 12 mm plate with Hilti HIT-HY 200-R V3 + HAS-U 5.8 M20 chemical anchors; use what the job's calculation checks.
+
+**Face**
+- Horizontal rails, MS tube 50x50x2.5, at 1220 mm (one at every plywood sheet edge).
+- 18 mm plywood sheets, 1220 x 2440, fixed to the rails.
+- Back X-bracing, MS tube 50x50x2.5, in one bay **every 5 frames**.
+- Top: optional solar panel and solar light on a 50x50x2 angle beam.
+
+**Footing (one per frame)**
+
+| Height | Footing L x W x H | Columns on it | Steel | Notes |
+|---|---|---|---|---|
+| 6 m | 1800 x 1000 x 800 (drawing); calculation used 2000 x 1000 x 800 | Two, about 900 apart | Top and bottom mesh, T12 @ 200 | Mostly above ground: about 100 mm set in, 700 mm above |
+| 8 m | 2300 x 1400 x 1000 | Two, 1000 apart | Per calculation | About 100 mm set in, 900 mm above |
+
+- Footing length runs across the hoarding (front to back), so it holds the frame against wind.
+- Under it: 100 mm blinding (BCC) on a polyethylene sheet.
+- Concrete C30 (fcu 30). Soil bearing assumed 150 kN/m² (SLS), friction angle 20, base friction 0.5. Ask for a soil report; if there is none, say these are assumed.
+
+**Steel notes on every hoarding drawing**
+1. Steel grade S275 (fy 275 N/mm²).
+2. All welds 4 mm unless noted (6 mm on the signage).
+3. Anchor bolts high strength, grade 8.8.
+4. All dimensions in millimetres, levels in metres.
+
+## Up to about 4.2 m: light frame
+
+- **3.0 m (KAFD):** frame of MS tube 50x50x3.2 and 40x40x3.0, panels 3.0 m wide, rails at 1220. Base: precast concrete block 1000 long, 500 wide, 850 high (0.29 m³, 7.4 kN). Checked: overturning safety 2.48, sliding 1.64.
+- **4.2 m (KAFD):** posts MS tube 40x40x3.0 every 1.0 m, rails and props 30x30x2.5, rails at about 1.5 m, a raking prop on every second post. Base: concrete block 1000 long, 425 wide, 755 high (0.205 m³, 5.1 kN). Anchors Hilti HST3 M16, 85 mm in, plate 8 mm.
+
+## Design loads we have used
+
+| Job | Code | Wind speed | Exposure | Wind pressure used | Dead load on face |
+|---|---|---|---|---|---|
+| 3.0 m KAFD | ASCE 7-05 | 50 m/s (180 km/h) | C | 0.83 kN/m² | 0.15 kN/m² (18 mm plywood 0.14 + banner) |
+| 4.2 m KAFD | ASCE 7-05 | 50 m/s | C | 0.76 kN/m² | 0.37 kN/m² |
+| 6 m EXPO | ASCE 7-05 | 45 m/s (160 km/h) | C/D | **1.70 kN/m² design** (0.81 calculated) | 0.37 kN/m² (sheet, banner, services) |
+| 8 m EXPO | ASCE 7-05 | 45 m/s | C/D | **1.70 kN/m² design** (0.87 calculated) | 0.37 kN/m² |
+| 9 m sign, Myan Yard | ASCE 7-05 | 45 m/s | C | 0.49 push, 0.37 suction | 0.24 kN/m² (aluminium + acrylic) |
+
+- Wind factors used: Kd 0.85 (open signs), Kzt 1, G 0.85, GCpi 0 (open).
+- Load cases: DL, WL +Z, WL -Z; combinations 1.0 DL + 1.0 WL and **0.6 DL + 1.0 WL** (the uplift case that decides the footing).
+- Highest steel use found: 8 m front column 60x60x4 at 0.91 of capacity. Taller than 8 m needs a bigger column, not just more frames.
+- New codes: Saudi work is now to SBC 301. Take the wind speed from SBC 301 for the site; the reports above used ASCE 7-05.
+
+## Signage (for reference)
+
+Myan Yard main sign, 6.3 x 9.0 m: columns steel pipe 244.5 x 5.0 and 193.7 x 5.0, face frame MS tube 40x40x2.5, holding-down bolts M20 grade 8.8, 600 long in C30, 6 mm welds.
+
+## Modelling a hoarding in Revit
+
+- **Levels:** `FGL +0.000` (finished ground), the bottom of the face (often +0.150) and one level per top height, named with the height, such as `Top Run A +5.030`.
+- **One family per type of frame module:** a frame with its footing and one bay of rails and plywood. Copy the module along the plan at the frame spacing. Footings are Generic Model families so the concrete shows its hatch in section.
+- **Materials and hatch:** concrete crosshatch 45 at 4 mm, steel solid, plywood lines 0 at 1 mm (see `material-hatching.md`).
+- **Typical section per type** at 1:25: heights, footing size, frame depth and spacing, member sizes, base plate and anchors, and a red note for anything assumed.
+- **Plan** from the site survey coordinates. Mark each run with its type, and show where the height changes.
+- **Always note:** "Design to be checked by a structural engineer for the site wind speed and soil." Never issue a hoarding drawing as structurally designed without a calculation.
+
+## Project notes
+
+- **DAS, Dar Al Salam (Nov 2026, client Naif Alrajhi Investment):** heights 4.88 and 7.32 m. The tender spec asks for H 10" and H 12" beams with back supports, each on concrete ("خرسانة اصل ودعامة"). First sections were drawn that way: an H column and an H raking back support, each on its own footing with a base plate. Before issue, compare them with the lattice typical above and confirm the system with the user.

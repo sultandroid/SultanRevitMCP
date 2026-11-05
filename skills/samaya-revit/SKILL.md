@@ -1,6 +1,6 @@
 ---
 name: samaya-revit
-description: Samaya Factory Revit standards and working method. Use for any Revit modelling, view, sheet, schedule, title block, phase, revision or family work, including through the SultanRevitMCP bridge (RevitMcp add-in). Covers the questions to ask before starting a project, stakeholders and sign-off, phases, revisions, view templates, scales, sheet arrangement, title blocks, file organisation and bridge lessons. Trigger on Revit, RVT, RFA, views, sheets, schedules, scale, title block, phase, revision, or a Samaya Factory shopfit project.
+description: Samaya Factory Revit standards and working method. Use for any Revit modelling, view, sheet, schedule, title block, phase, revision or family work, including through the SultanRevitMCP bridge (RevitMcp add-in). Covers the questions to ask before starting a project, stakeholders and sign-off, phases, revisions, view templates, scales, sheet arrangement, title blocks, file organisation and bridge lessons. Trigger on Revit, RVT, RFA, views, sheets, schedules, scale, title block, phase, revision, or a Samaya Factory shopfit project, metal hoarding or site fence.
 ---
 
 # Samaya Factory Revit standards
@@ -21,6 +21,7 @@ Read these when relevant:
 - [references/drawing-and-bim-standards.md](references/drawing-and-bim-standards.md): ISO 128 drawing rules, ISO 19650 information management and IFC. Read before any sheet, issue or export.
 - [references/material-hatching.md](references/material-hatching.md): the hatch for each material in sections and details. Read before making any section, detail or material legend.
 - [references/revit-bridge.md](references/revit-bridge.md): SultanRevitMCP bridge use and known failures.
+- [references/metal-hoarding.md](references/metal-hoarding.md): our hoarding systems by height (light frame up to 4.2 m, lattice frame on RCC footings above 4 m), member sizes, footings, wind loads used and how to model them. Read before any hoarding or site fence job.
 
 ## Always
 
