@@ -242,3 +242,25 @@ New commands: `create_text_notes` (many notes in one step, each with type, wrap 
 - **After Revit restarts, check `handlers_info`.** The loader may pick a different version folder than the one last used; copy the newest build's DLL and PDB into the folder it names and call `reload_handlers`.
 - **`make_unit_family` takes its category from the template.** Metric Furniture gives a family Revit never cuts in section or plan; use Metric Generic Model for anything that must show cut (decks, slopes, glass) in sections. Type 4 used Furniture and had to redraw its cases as outlines on the lighting sheets; Type 1 uses Generic Model and is cut with its material hatch (Aseer, 5 Nov 2026).
 - **Startup add-in errors block the bridge.** An "External Tools - External Tool Failure" dialog in the Revit that owns the bridge port stops every command ("did not pick up the command within 30 seconds"). Find the port owner (`Get-NetTCPConnection -State Listen -LocalPort 48884`), then close that Revit's dialogs; there can be several in a row.
+
+## Fabrication CAD for the factory (Madina 1, 5 Nov 2026)
+
+The manufacturing department wants clean CAD with polylines, beside the PDF set. Put both in the order folder: `Samaya/Orders/<year>/<no. name>/Final Fabrications Drawings/PDF` and `/CAD`.
+
+1. **PDF:** `export_sheets_pdf`. Make one combined set (cover, GA and fabrication sheets) and one with the fabrication sheets only.
+2. **DWG:** `export_sheets_dwg` with `sheet_ids` and `folder`. It writes one DWG per sheet, named "<number> <name>". Views are merged (no xrefs), units are mm, the format is AutoCAD 2018.
+3. **Clean:** run `tools/cad/fab_clean.scr` through AutoCAD core console on each DWG (`tools/cad/fab_clean_all.sh <folder>`). It does this:
+   - explodes every model-space block, nested too;
+   - JOINs all lines and arcs into polylines;
+   - removes uncropped views. A viewport that runs outside the sheet limits (usually a 3D view with the crop off) is erased, with the model geometry it shows;
+   - detaches images, purges three times plus regapps, runs AUDIT and saves in paper space.
+4. **Check by plotting the layout to PNG**, then copy the files.
+   - Leave out sheets that are only 3D (for example the exploded view); they stay in the PDF.
+
+Core-console lessons:
+- QAEFLAGS can't be set, so explode one entity at a time: `(command "_.EXPLODE" e "")`, with the empty string.
+- PEDIT Multiple crashes the core console. JOIN with `_ALL` from a script line works.
+- `entdel` doesn't delete a paper viewport while TILEMODE is 1. Collect the entities and ERASE them after TILEMODE 0.
+- There is no VLA in the core console.
+
+Bridge note: this Revit loads handlers only from the folder `handlers\20261104-075232`. To get a new build in, back up the DLL there and copy the new DLL and PDB over it, then call `reload_handlers`. Other sessions do the same.

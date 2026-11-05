@@ -128,6 +128,7 @@ namespace RevitMcp
             ["set_view_overrides"] = SetViewOverrides,
             ["set_element_overrides"] = SetElementOverrides,
             ["remove_z_band"] = RemoveZBand,
+            ["join_family_solids"] = JoinFamilySolids,
             ["set_viewport_no_title"] = SetViewportNoTitle,
             ["isolate_in_view"] = IsolateInView,
             ["hide_elements"] = HideElementsInView,
@@ -139,6 +140,7 @@ namespace RevitMcp
             ["set_revision_sequence"] = SetRevisionSequence,
             ["paint_element"] = PaintElement,
             ["export_sheets_pdf"] = ExportSheetsPdf,
+            ["export_sheets_dwg"] = ExportSheetsDwg,
             ["create_dimension_string"] = CreateDimensionString,
             ["tag_elements"] = TagElements,
             ["create_drafting_view"] = CreateDraftingView,
@@ -2539,6 +2541,37 @@ namespace RevitMcp
             return new JsonObject { ["exported"] = done };
         }
 
+        /// <summary>Exports each sheet to its own DWG named by sheet number: views merged into the sheet (no xrefs), mm, AutoCAD 2018.
+        /// Clean-up for manufacturing (join to polylines, purge) is done afterwards with AutoCAD core console.</summary>
+        private static JsonNode ExportSheetsDwg(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var ids = ReqIds(p, "sheet_ids");
+            var folder = ReqStr(p, "folder");
+            Directory.CreateDirectory(folder);
+            var options = new DWGExportOptions
+            {
+                MergedViews = true,
+                FileVersion = ACADVersion.R2018,
+                TargetUnit = ExportUnit.Millimeter,
+                SharedCoords = false,
+                HideScopeBox = true,
+                HideReferencePlane = true,
+                HideUnreferenceViewTags = true,
+                Colors = ExportColorMode.TrueColorPerView,
+                ExportOfSolids = SolidGeometry.Polymesh,
+            };
+            var files = new JsonArray();
+            foreach (var id in ids)
+            {
+                var sheet = doc.GetElement(id) as ViewSheet ?? throw new ArgumentException($"{id} is not a sheet.");
+                var name = string.Join("_", $"{sheet.SheetNumber} {sheet.Name}".Split(Path.GetInvalidFileNameChars()));
+                var ok = doc.Export(folder, name, new List<ElementId> { id }, options);
+                files.Add(new JsonObject { ["sheet"] = sheet.SheetNumber, ["file"] = Path.Combine(folder, name + ".dwg"), ["ok"] = ok });
+            }
+            return new JsonObject { ["files"] = files };
+        }
+
         /// <summary>Changes the category of an instance's family, for example to one that sections can cut, and reloads it.</summary>
         private static JsonNode SetFamilyCategory(UIApplication app, JsonObject p)
         {
@@ -2772,7 +2805,78 @@ namespace RevitMcp
                 var above = BooleanOperationsUtils.CutWithHalfSpace(solid, Plane.CreateByNormalAndOrigin(XYZ.BasisZ, new XYZ(0, 0, z1)));
                 if (above != null && above.Volume > 0) pieces.Add(SolidUtils.CreateTransformed(above, drop));
             }
+            // The two pieces meet face to face after the drop: join them, so a panel stays one part (no joint on shop drawings).
+            if (pieces.Count == 2)
+            {
+                try
+                {
+                    var joined = BooleanOperationsUtils.ExecuteBooleanOperation(pieces[0], pieces[1], BooleanOperationsType.Union);
+                    if (joined != null && Math.Abs(joined.Volume - pieces[0].Volume - pieces[1].Volume) < 1e-6 * Math.Max(1, joined.Volume) + 1e-9)
+                        return new List<Solid> { joined };
+                }
+                catch { /* keep the two pieces */ }
+            }
             return pieces;
+        }
+
+        /// <summary>Joins the touching free-form solids of one material in a loaded family into single solids (for example the two
+        /// pieces an older remove_z_band left), then reloads the family. Optional form_ids limits it to those forms.</summary>
+        private static JsonNode JoinFamilySolids(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var instance = RequireElement(doc, ReqId(p, "element_id")) as FamilyInstance ?? throw new ArgumentException("element_id is not a family instance.");
+            var only = p["form_ids"] is JsonArray ids ? ids.Select(n => n.GetValue<long>()).ToHashSet() : null;
+            var options = new Options { DetailLevel = ViewDetailLevel.Fine };
+            var familyDoc = doc.EditFamily(instance.Symbol.Family);
+            try
+            {
+                int before = 0, after = 0;
+                using (var transaction = new Transaction(familyDoc, "MCP: Join solids"))
+                {
+                    transaction.Start();
+                    var forms = new FilteredElementCollector(familyDoc).OfClass(typeof(FreeFormElement)).Cast<FreeFormElement>()
+                        .Where(f => only == null || only.Contains(f.Id.Value)).ToList();
+                    foreach (var group in forms.GroupBy(f => f.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.AsElementId()?.Value ?? -1))
+                    {
+                        var items = group.Select(f => (form: f, solid: SolidsOf(f.get_Geometry(options)).FirstOrDefault())).Where(x => x.solid != null).ToList();
+                        before += items.Count;
+                        var merged = items.Select(x => (forms: new List<FreeFormElement> { x.form }, solid: x.solid)).ToList();
+                        bool changed = true;
+                        while (changed)
+                        {
+                            changed = false;
+                            for (int i = 0; i < merged.Count && !changed; i++)
+                                for (int j = i + 1; j < merged.Count && !changed; j++)
+                                {
+                                    Solid u = null;
+                                    try { u = BooleanOperationsUtils.ExecuteBooleanOperation(merged[i].solid, merged[j].solid, BooleanOperationsType.Union); } catch { }
+                                    // touching only: the union keeps both volumes and is one connected piece
+                                    if (u == null || Math.Abs(u.Volume - merged[i].solid.Volume - merged[j].solid.Volume) > 1e-6 * Math.Max(1, u.Volume) + 1e-9) continue;
+                                    if (SolidUtils.SplitVolumes(u).Count != 1) continue;
+                                    merged[i] = (merged[i].forms.Concat(merged[j].forms).ToList(), u);
+                                    merged.RemoveAt(j);
+                                    changed = true;
+                                }
+                        }
+                        var material = group.Key;
+                        foreach (var m in merged)
+                        {
+                            after++;
+                            if (m.forms.Count == 1) continue;
+                            foreach (var f in m.forms) familyDoc.Delete(f.Id);
+                            var created = FreeFormElement.Create(familyDoc, m.solid);
+                            if (material != -1) created.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.Set(new ElementId(material));
+                        }
+                    }
+                    transaction.Commit();
+                }
+                familyDoc.LoadFamily(doc, new OverwriteFamily());
+                return new JsonObject { ["solids_before"] = before, ["solids_after"] = after };
+            }
+            finally
+            {
+                familyDoc.Close(false);
+            }
         }
 
         /// <summary>Shortens a direct shape or a family's solids by removing a band between two project heights. Everything above the band drops.</summary>

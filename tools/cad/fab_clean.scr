@@ -1,0 +1,64 @@
+(setq plmin (list 0.0 0.0) plmax (getvar "LIMMAX") vpk nil)
+_.TILEMODE
+1
+(defun ms (f) (ssget "_X" (append f '((410 . "Model")))))
+(defun cnt (f / s) (if (setq s (ms f)) (sslength s) 0))
+(defun xpl ( / s i) (if (setq s (ms '((0 . "INSERT")))) (progn (setq i 0) (repeat (sslength s) (if (entget (ssname s i)) (command "_.EXPLODE" (ssname s i) "")) (setq i (1+ i))))))
+(repeat 6 (xpl))
+(princ (strcat "\nEXPLODED ins=" (itoa (cnt '((0 . "INSERT")))) " line=" (itoa (cnt '((0 . "LINE"))))))
+(defun z0 (p) (< (abs (caddr p)) 0.01))
+(defun is3d (d / k) (setq k (cdr (assoc 0 d)))
+  (cond ((member k '("3DFACE" "MESH" "3DSOLID" "BODY" "REGION" "SURFACE" "PLANESURFACE" "POLYFACEMESH")) T)
+        ((and (= k "POLYLINE") (/= 0 (logand 112 (cdr (assoc 70 d))))) T)
+        ((= k "LINE") (not (and (z0 (cdr (assoc 10 d))) (z0 (cdr (assoc 11 d))))))
+        ((member k '("ARC" "CIRCLE" "LWPOLYLINE" "HATCH" "ELLIPSE" "SPLINE")) (not (equal (cdr (assoc 210 d)) '(0.0 0.0 1.0) 1e-6)))
+        (T nil)))
+(setq n3 0)
+(if (setq s (ms nil)) (progn (setq i 0) (repeat (sslength s) (setq e (ssname s i)) (if (is3d (entget e)) (progn (entdel e) (setq n3 (1+ n3)))) (setq i (1+ i)))))
+(setq nv 0 sw 841.0 sh 594.0)
+(if (setq s (ssget "_X" '((0 . "INSERT") (2 . "*Samaya Factory A#*")))) (progn (setq nm (strcase (cdr (assoc 2 (entget (ssname s 0))))))
+  (cond ((wcmatch nm "*FACTORY A0*") (setq sw 1189.0 sh 841.0)) ((wcmatch nm "*FACTORY A1*") (setq sw 841.0 sh 594.0))
+        ((wcmatch nm "*FACTORY A2*") (setq sw 594.0 sh 420.0)) ((wcmatch nm "*FACTORY A3*") (setq sw 420.0 sh 297.0)))))
+(command "_.ZOOM" "_E")
+(setq dead nil)
+(if (setq s (ssget "_X" '((0 . "VIEWPORT")))) (progn (setq i 0) (repeat (sslength s) (setq d (entget (ssname s i)) c (cdr (assoc 10 d)) w (cdr (assoc 40 d)) h (cdr (assoc 41 d)))
+  (if (and (/= 1 (cdr (assoc 69 d))) (or (< (- (car c) (/ w 2)) (- (car plmin) 5)) (< (- (cadr c) (/ h 2)) (- (cadr plmin) 5)) (> (+ (car c) (/ w 2)) (+ (car plmax) 5)) (> (+ (cadr c) (/ h 2)) (+ (cadr plmax) 5))))
+    (progn (setq vc (cdr (assoc 12 d)) vh (cdr (assoc 45 d)) vw (* vh (/ w h)))
+      (setq dead (cons (list (list (- (car vc) (/ vw 2)) (- (cadr vc) (/ vh 2))) (list (+ (car vc) (/ vw 2)) (+ (cadr vc) (/ vh 2)))) dead))
+      (if (and (assoc 340 d) (entget (cdr (assoc 340 d)))) (entdel (cdr (assoc 340 d))))
+      (if (setq t2 (ssget "_X" (list '(0 . "INSERT") '(2 . "*View Title*") '(-4 . ">=,>=,*") (list 10 (- (car c) (/ w 2)) (- (cadr c) (/ h 2)) 0.0) '(-4 . "<=,<=,*") (list 10 (+ (car c) (/ w 2)) (+ (cadr c) (/ h 2)) 0.0))))
+        (progn (setq j 0) (repeat (sslength t2) (setq vpk (cons (ssname t2 j) vpk)) (setq j (1+ j)))))
+      (if (setq t2 (ssget "_X" (list '(0 . "LWPOLYLINE") '(-4 . "<NOT") '(410 . "Model") '(-4 . "NOT>") '(-4 . ">=,>=,*") (list 10 (- (car c) (/ w 2) 1) (- (cadr c) (/ h 2) 1) 0.0) '(-4 . "<=,<=,*") (list 10 (+ (car c) (/ w 2) 1) (+ (cadr c) (/ h 2) 1) 0.0))))
+        (progn (setq j 0) (repeat (sslength t2) (setq dd (entget (ssname t2 j))) (if (= 4 (cdr (assoc 90 dd))) (setq vpk (cons (ssname t2 j) vpk))) (setq j (1+ j)))))
+      (setq vpk (cons (ssname s i) vpk)) (setq nv (1+ nv))))
+  (setq i (1+ i)))))
+(foreach b dead (if (setq s (ssget "_X" (list '(410 . "Model") '(-4 . "<AND") '(-4 . ">=,>=,*") (cons 10 (append (car b) '(0.0))) '(-4 . "<=,<=,*") (cons 10 (append (cadr b) '(0.0))) '(-4 . "AND>"))))
+  (progn (setq i 0) (repeat (sslength s) (entdel (ssname s i)) (setq i (1+ i))) (setq n3 (+ n3 (sslength s))))))
+(princ (strcat "\nREMOVED3D ents=" (itoa n3) " viewports=" (itoa nv)))
+_.JOIN
+_ALL
+
+(princ (strcat "\nJOINED line=" (itoa (cnt '((0 . "LINE")))) " pl=" (itoa (cnt '((0 . "LWPOLYLINE,POLYLINE")))) " arc=" (itoa (cnt '((0 . "ARC"))))))
+_.-IMAGE
+_D
+*
+_.-PURGE
+_A
+*
+_N
+_.-PURGE
+_A
+*
+_N
+_.-PURGE
+_R
+*
+_N
+_.AUDIT
+_Y
+_.TILEMODE
+0
+(foreach v vpk (if (entget v) (command "_.ERASE" v "")))
+(princ (strcat "
+VPLEFT=" (itoa (sslength (ssget "_X" (quote ((0 . "VIEWPORT"))))))))
+_.QSAVE
