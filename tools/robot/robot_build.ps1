@@ -32,17 +32,17 @@ $S.Labels.Store($ml); $log += "S275 from database: $okm"
 $md2 = $S.Labels.Get($LT::I_LT_MATERIAL, "S275").Data; $log += "S275 check E=" + $md2.E + " RO=" + $md2.RO + " RE=" + $md2.RE + " type=" + $md2.Type
 
 function Sec-DB($name) { $l = $S.Labels.Create($LT::I_LT_BAR_SECTION, $name); $d = $l.Data; $ok = $d.LoadFromDBase($name); $d.MaterialName = "S275"; $S.Labels.Store($l); return $ok }
-function Sec-Box($name, $b, $t) {
+function Sec-Box($name, $b, $t, $h = $null) { if ($null -eq $h) { $h = $b }
   $l = $S.Labels.Create($LT::I_LT_BAR_SECTION, $name); $d = $l.Data
   $d.Type = [RobotOM.IRobotBarSectionType]::I_BST_NS_BOX; $d.ShapeType = [RobotOM.IRobotBarSectionShapeType]::I_BSST_BOX
   $n = $d.CreateNonstd(0)
-  $n.SetValue([RobotOM.IRobotBarSectionNonstdDataValue]::I_BSNDV_BOX_B, $b); $n.SetValue([RobotOM.IRobotBarSectionNonstdDataValue]::I_BSNDV_BOX_H, $b)
+  $n.SetValue([RobotOM.IRobotBarSectionNonstdDataValue]::I_BSNDV_BOX_B, $b); $n.SetValue([RobotOM.IRobotBarSectionNonstdDataValue]::I_BSNDV_BOX_H, $h)
   $n.SetValue([RobotOM.IRobotBarSectionNonstdDataValue]::I_BSNDV_BOX_TW, $t); $n.SetValue([RobotOM.IRobotBarSectionNonstdDataValue]::I_BSNDV_BOX_TF, $t)
   $d.CalcNonstdGeometry(); $d.MaterialName = "S275"; $S.Labels.Store($l)
   return [math]::Round($d.GetValue([RobotOM.IRobotBarSectionDataValue]::I_BSDV_AX) * 1e6, 1)
 }
 foreach ($sn in ($M.bars.sec | Sort-Object -Unique)) { if ($sn -like "IPE *") { $log += "$sn db: " + (Sec-DB $sn) } }
-foreach ($sn in ($M.bars.sec | Sort-Object -Unique)) { if ($sn -match "^SHS (\d+)x\d+x([\d.]+)$") { $log += "$sn area mm2: " + (Sec-Box $sn ([double]$Matches[1] / 1000) ([double]$Matches[2] / 1000)) } elseif ($sn -notlike "IPE *") { $log += "$sn db: " + (Sec-DB $sn) } }
+foreach ($sn in ($M.bars.sec | Sort-Object -Unique)) { if ($sn -match "^SHS (\d+)x\d+x([\d.]+)$") { $log += "$sn area mm2: " + (Sec-Box $sn ([double]$Matches[1] / 1000) ([double]$Matches[2] / 1000)) } elseif ($sn -match "^RHS (\d+)x(\d+)x([\d.]+)$") { $log += "$sn area mm2: " + (Sec-Box $sn ([double]$Matches[1] / 1000) ([double]$Matches[3] / 1000) ([double]$Matches[2] / 1000)) } elseif ($sn -notlike "IPE *") { $log += "$sn db: " + (Sec-DB $sn) } }
 
 # releases: brace pinned at the post end (the foot is a pinned support); X-brace pinned both ends
 # Robot: I_BERV_NONE = no release (rigid), I_BERV_FIXED = released
