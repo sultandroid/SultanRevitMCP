@@ -11,7 +11,14 @@ Source files (Al Khozama tender folder): `Samaya\Tenders\2025\PHI\Al Khozama\Des
 **Rules from the user (5 Nov 2026), for every hoarding:**
 - **Height is the total height from ground level,** everything included. A "4.88 m" hoarding tops out at +4.880, not 4.88 m above the 150 mm gap. The plywood runs from +0.150 to the top, so its panel is 150 mm less than the stated height.
 - **One concrete base per frame, all of it above the ground.** No part of it below FGL. The whole frame, front post and back brace or back column, stands on that one base. Never a separate footing under each member.
-- **Horizontal tubes (rails) at 600 mm centres maximum,** spaced evenly from a rail at the bottom of the plywood to one at the top.
+- **Horizontal tubes (rails) at 1220 mm centres maximum** (one at every plywood sheet edge), spaced evenly from a rail at the bottom of the plywood to one at the top. This replaces an earlier 600 mm rule from the same day.
+- **Frames and concrete bases at 3.0 m centres** (centre to centre), as in the factory typicals.
+- **Front frame continuous:** rails run unbroken past the posts, from corner to corner. Close every side end with a corner panel (plywood on rails, no post) back to the corner post. No gaps in the face.
+- **Bracing to the standard: an X-braced bay every 5 frames** (factory typical, SHS 50x50x2.5), plus one at each end of every side. Keep braced bays out of height transitions.
+- **Corners:** one corner frame per corner: corner post behind both faces, back brace on the corner bisector, and one base shaped to the corner (parallelogram along both faces, all behind the rails). Rails of both sides fix to the corner post. **Concrete bases may never overlap**: move the first frame of each side out from the corner (3.0 m or more; the sharp corner on DAS needed 4.7 m) and check every base outline against its neighbours before issue.
+- **Height changes are smooth** where the client's design shows it: a cosine S-curve over the stated length (DAS: 24.0 m = 8 bays of 3.0 m), one family per bay so the plywood top, rails and post height follow the curve; mirrored set for the other walking direction.
+- **Base sizes are not copied blindly:** a typical's base was designed for its own frame spacing and wind. Check overturning (base weight against wind moment, FOS 1.5) for the job's wind pressure, or mark the size ASSUMED for the structural engineer.
+- **Ground levels:** survey points rarely carry levels. Ask for a level survey; until then model flat at FGL and say so in red.
 
 ## Pick the system by height
 
