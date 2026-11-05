@@ -203,6 +203,17 @@ A study that changes a design element gets two sheets in the item's fabrication 
 
 Every sheet, of any kind, is laid out on one grid: A1 drawing area x 20 to 1012, 6 columns of 165 mm, lines at 20, 186, 351, 516, 682, 847, 1012, centres at 103, 268, 434, 599, 764, 929. Views centre on a column or a column line. Views in a row share a level, so the same height reads across them. Notes and tables start on a column line. Never place by eye.
 
+**Fill the sheet (user, DAS, 5 Nov 2026: "manage the views to fit in the sheet size, no big white spaces").** After placing views, look at the render for any empty block bigger than about a quarter of a column by a row:
+- First raise the scale one step (1:150 to 1:140, 1:30 to 1:20) as far as the widest view still fits between column lines 20 and 1012 with 15 mm clear of the title block.
+- Then spread the rows evenly over the height, each view centred on the drawing area or on its columns.
+- Then put a useful extra view in what is left (a 3D of the typical bay, a missing elevation, a plan detail). Never leave half a sheet blank.
+- View titles are short (one line, about 25 characters). A long title wraps over its own scale line; move the extra words to a note.
+
+**Engineering views: Hidden Line, black and white (user, DAS, 5 Nov 2026: "standard view engineering hidden without colours ... clean view").** Every view placed on a sheet uses Hidden Line (`set_view_display` style "HLR"), never Shaded or Realistic, and shows no material colour. 3D views on sheets are Hidden Line too. Keep the drawing clean:
+- Repeated parts that only show a pattern (plywood sheet joints, studs, cladding panels, rails in a long elevation) get line weight 1 by element override in that view, so the joints read as thin lines and the structure stays bold.
+- Do not show every family edge: hide categories the view does not need (levels, section marks, callouts) and do not draw split lines where one member is built from several families.
+- Colour on a sheet is only for dimensions (blue), INPUT REQUIRED (red) and the key plan mark (red).
+
 **Sheets from someone else's DWG (supplier workshop drawings) are re-laid on the grid too** (user, Aseer, 4 Nov 2026: "arranged by views in grids layout"). Never place the supplier's whole sheet as one viewport. Import the DWG into a 1:1 plan view cropped to its drawing area, then split it into its separate views and give each one a framed, lettered panel on the 6-column grid. A panel takes as many columns as its view needs. Rows keep the supplier's reading order, spare columns go to the widest panels, and spare height is shared by the rows. Name each panel from the supplier's own caption. If there is none, name it from its labels. Supplier labels are often MULTILEADERs (text in DXF group 304), not TEXT or MTEXT, so read all three. Tool: Aseer `22_Revit_Files\Rvt\Showcase Template\scripts\gbh_grid.ps1` with `work\tools\cluster_views.py`.
 
 ## Key plan must be correct

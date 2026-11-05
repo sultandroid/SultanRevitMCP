@@ -24,6 +24,7 @@ Source files (Al Khozama tender folder): `Samaya\Tenders\2025\PHI\Al Khozama\Des
 - **Trim and connect, never overlap:** the back brace is cut square to a 10 mm end plate bolted to the post back flange (4 M16, 8.8) and cut level onto its base plate (6 mm fillet all round). Rails welded to the post front flange (4 mm). No member runs into another.
 - **L-anchors, M20 L-bolt type 400:** 4 per plate, 400 mm leg in the concrete, 100 mm hook turned in, 50 mm from the plate edges, double nut. Cast in.
 - **Draw real sections:** IPE posts and braces as true I-profiles, SHS as hollow tubes, plates and anchors modelled, so the model gives the steel takeoff (count, length, kg) by component. Issue a quantities sheet (A-1901) and an Excel takeoff, and a connection details sheet (A-1301) cut from the typical bay at 1:5.
+- **Sheet views are Hidden Line, black and white** (see `views-and-sheets.md`). In elevations give the plywood, studs and corner panels line weight 1 so the sheet joints read thin. Elevations sheet: one elevation per row, every side shown (DAS: S, N, E, W at 1:140 on one A0). Details sheet: add a Hidden Line 3D of the typical bay in the free space.
 
 ## Pick the system by height
 
