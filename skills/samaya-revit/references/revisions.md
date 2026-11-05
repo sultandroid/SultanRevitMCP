@@ -46,5 +46,7 @@
 
 ## Default revision in a new project (Aseer, 4 Nov 2026)
 
+- KAC (5 Nov 2026): the default revision’s Description and Date are read-only through `set_parameter`, and `set_sheet_revisions` with it failed. Make a new revision with `create_revision`, delete the default one, then `set_revision_numbering` start 1, min 2 digits: REV reads 01.
+
 - **A project made from the template already holds "Revision 1" (Date 1).** A new revision then numbers second (01, not 00) even on a sequence starting at 0. `list_revisions` now lists every revision (id, sequence, number, date, description, issued, numbering sequence); delete the default one if it is on no sheet, then check the number reads as intended.
 - `set_revision_numbering` applies the new sequence to the revisions that exist when it runs; a revision made after it needs `set_revision_sequence`.
