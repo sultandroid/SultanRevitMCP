@@ -36,8 +36,10 @@ export function projected(B, fwd) {
  * area is [x0, x1, y0, y1] in sheet mm; `title` leaves room under the box for the view title.
  * Returns { view, scale, viewport, w, h }.
  */
-export async function unit3d(call, { name, ids, sheet = null, area = null, dir = "front-left", margin = 30, style = "ShadingWithEdges", title = 20, isolate = true, scales = null }) {
-  const B = await boxOf(call, ids);
+export async function unit3d(call, { name, ids, sheet = null, area = null, dir = "front-left", margin = 30, style = "ShadingWithEdges", title = 20, isolate = true, scales = null, box = null }) {
+  // `box` ({min:[x,y,z], max:[x,y,z]}) overrides the element boxes: Casework families made from Metric Casework.rft report a box
+  // inflated by the template's camera, so pass the box of the family's own solids for those.
+  const B = box ?? await boxOf(call, ids);
   const lo = B.min.map((v) => v - margin), hi = B.max.map((v) => v + margin);
   const c = B.min.map((v, i) => (v + B.max[i]) / 2), f = ISO[dir] ?? dir, d = 10000;
   const P = (a) => ({ x: a[0], y: a[1], z: a[2] });
