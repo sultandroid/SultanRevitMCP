@@ -8,6 +8,8 @@ Source files (Al Khozama tender folder): `Samaya\Tenders\2025\PHI\Al Khozama\Des
 - `CALCULATION SHEET - HOARDING -4.20m HEIGHT.pdf` and `HOARDING 3.00M HEIGHT.pdf`: KAFD, consultant Machinery Source.
 - `STRUCTURAL ANALYSIS  REPORT - MAIN SIGNAGE.pdf`: Myan Yard sign, 6.3 m wide x 9 m high.
 
+**Base rule:** one concrete base per frame, mostly above the ground (about 100 mm set in). The whole frame, front post and back brace or back column, stands on that one base. Never a separate footing under each member (user, 5 Nov 2026).
+
 ## Pick the system by height
 
 | Height | System | Base |
@@ -95,4 +97,6 @@ Myan Yard main sign, 6.3 x 9.0 m: columns steel pipe 244.5 x 5.0 and 193.7 x 5.0
   | Face | 18 mm WBP plywood on 40x40 tube rails | same | same |
   | Finish | primer + 2 coats, front vinyl with UV laminate | same | same |
 
-  Modelled with the first option of each: IPE 160 / IPE 220 posts, 2.0 m spacing for B and C, pads 800x800x600 (A) and 1000x1500x1000 (B, C) from the tender spec, base plates 300 (A) and 400 (B, C) x 20 with 4 anchors. The front pad starts 100 mm in front of the plywood face so the post plate sits fully on it. This post-and-brace system is lighter to build than the lattice typical; the structural engineer chooses between them per job.
+  **Base rule (user, 5 Nov 2026): only one concrete base per frame, above the ground.** The post and the brace both stand on it; never a separate pad under each. The base is set 100 mm into the ground and the rest stands above, as in the 6 m and 8 m typicals.
+
+  Modelled with the first option of each: IPE 160 / IPE 220 posts, 2.0 m spacing for B and C, base plates 300 (A) and 400 (B, C) x 20 with 4 anchors. Bases taken from the factory typicals: A 1800 x 1000 x 800 (top +0.700), B and C 2300 x 1400 x 1000 (top +0.900). The base front face sits right behind the rails; the plywood runs down in front of it to +0.150. The post plate's front edge is flush with the post, so it sits fully on the base. This post-and-brace system is lighter to build than the lattice typical; the structural engineer chooses between them per job.
