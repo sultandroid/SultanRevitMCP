@@ -1,0 +1,7 @@
+{
+  "name": "samaya-code-rag",
+  "private": true,
+  "type": "module",
+  "description": "Local retrieval over licensed building-code PDFs. The code text is extracted to a local library outside git; only tools and our own notes are committed.",
+  "dependencies": { "pdfjs-dist": "4.10.38" }
+}
