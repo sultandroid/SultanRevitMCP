@@ -50,3 +50,8 @@
 
 - **A project made from the template already holds "Revision 1" (Date 1).** A new revision then numbers second (01, not 00) even on a sequence starting at 0. `list_revisions` now lists every revision (id, sequence, number, date, description, issued, numbering sequence); delete the default one if it is on no sheet, then check the number reads as intended.
 - `set_revision_numbering` applies the new sequence to the revisions that exist when it runs; a revision made after it needs `set_revision_sequence`.
+
+## Several submittals in one model (Aseer, 5 Nov 2026)
+
+- **Use Per Sheet numbering** when one Revit model holds more than one submittal (Aseer Type 1 and Type 4 showcases). Revit refuses two revisions with the same number Per Project ("Revision Number 00 is used more than once"), so a second submittal's first issue cannot read 00. Per Sheet, each sheet numbers its own revisions, so every submittal starts at 00. Bridge: `set_revision_numbering_mode` {"mode": "per_sheet"}.
+- `set_revision_numbering` puts **every** revision on the new sequence. Moving revisions back one at a time creates a passing duplicate and is rolled back; leave them on the new sequence if its format is the same.

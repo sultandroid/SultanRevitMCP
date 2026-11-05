@@ -138,6 +138,7 @@ namespace RevitMcp
             ["set_family_category"] = SetFamilyCategory,
             ["set_revision_numbering"] = SetRevisionNumbering,
             ["set_revision_sequence"] = SetRevisionSequence,
+            ["set_revision_numbering_mode"] = SetRevisionNumberingMode,
             ["paint_element"] = PaintElement,
             ["export_sheets_pdf"] = ExportSheetsPdf,
             ["export_sheets_dwg"] = ExportSheetsDwg,
@@ -2501,6 +2502,20 @@ namespace RevitMcp
                 var sequence = RevisionNumberingSequence.CreateNumericSequence(doc, Str(p, "name") ?? "Samaya Numeric", settings);
                 foreach (var id in Revision.GetAllRevisionIds(doc)) ((Revision)doc.GetElement(id)).RevisionNumberingSequenceId = sequence.Id;
                 return new JsonObject { ["sequence_id"] = sequence.Id.Value };
+            });
+        }
+
+        /// <summary>Revision numbering Per Project or Per Sheet ("mode": "per_sheet" | "per_project"). Per Sheet lets
+        /// several submittals in one model each start at their own first number (Aseer Type 1 and Type 4 both 00).</summary>
+        private static JsonNode SetRevisionNumberingMode(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var mode = (Str(p, "mode") ?? "per_sheet").ToLowerInvariant();
+            return InTransaction(doc, "Set revision numbering mode", () =>
+            {
+                var settings = RevisionSettings.GetRevisionSettings(doc);
+                settings.RevisionNumbering = mode == "per_project" ? RevisionNumbering.PerProject : RevisionNumbering.PerSheet;
+                return new JsonObject { ["mode"] = settings.RevisionNumbering.ToString() };
             });
         }
 
