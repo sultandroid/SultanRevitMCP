@@ -87,9 +87,9 @@ Myan Yard main sign, 6.3 x 9.0 m: columns steel pipe 244.5 x 5.0 and 193.7 x 5.0
 
 ## Modelling a hoarding in Revit
 
-- **Levels:** `FGL +0.000` (finished ground), the bottom of the face (often +0.150) and one level per top height, named with the height, such as `Top Run A +5.030`.
+- **Levels:** `FGL +0.000` (finished ground), the bottom of the face (often +0.150) and one level per top height, named with the total height, such as `Top Run A +4.880`.
 - **Rebuilding a module family by its own name updates every placed copy,** but if its lowest corner moves (for example the base goes from -0.100 to FGL), reset "Offset from Host" on all copies, or they float or sink by that amount.
-- **Set-out:** walk each side anticlockwise, face on the boundary, frames inside; module origin = bottom corner of the face at the bay start; rotation = side direction. A gap of less than one bay is left at each side end, to cut on site.
+- **Set-out:** walk each side anticlockwise, face on the boundary, frames inside; module origin = bottom corner of the face at the bay start; rotation = side direction. Share the spare length between the two corner panels of each side. Elevations along a side: `create_section` takes depth in mm (9 m = 9000), and looks into the site with look_direction = minus the outward normal.
 - **One family per type of frame module:** a frame with its footing and one bay of rails and plywood. Copy the module along the plan at the frame spacing. Footings are Generic Model families so the concrete shows its hatch in section.
 - **Materials and hatch:** concrete crosshatch 45 at 4 mm, steel solid, plywood lines 0 at 1 mm (see `material-hatching.md`).
 - **Typical section per type** at 1:25: heights, footing size, frame depth and spacing, member sizes, base plate and anchors, and a red note for anything assumed.
@@ -109,8 +109,8 @@ Myan Yard main sign, 6.3 x 9.0 m: columns steel pipe 244.5 x 5.0 and 193.7 x 5.0
   | Face | 18 mm WBP plywood on 40x40 tube rails | same | same |
   | Finish | primer + 2 coats, front vinyl with UV laminate | same | same |
 
-  **Base rule (user, 5 Nov 2026): only one concrete base per frame, above the ground.** The post and the brace both stand on it; never a separate pad under each. The base is set 100 mm into the ground and the rest stands above, as in the 6 m and 8 m typicals.
+  **Base rule (user, 5 Nov 2026): only one concrete base per frame, above the ground.** The post and the brace both stand on it; never a separate pad under each. The whole base stands on the ground (none below FGL).
 
   **Back support is the same section as the column (user, 5 Nov 2026):** IPE 160 for A, IPE 220 for B and C, replacing the SHS braces in the table above.
 
-  Modelled with the first option of each: IPE 160 / IPE 220 posts and back braces, 2.0 m spacing for B and C, base plates 300 (A) and 400 (B, C) x 20 with 4 anchors. Bases taken from the factory typicals, standing on the ground: A 1800 x 1000 x 800 (top +0.800), B and C 2300 x 1400 x 1000 (top +1.000). Tops of hoarding +4.880 and +7.320; rails at 586 (A) and 594 (B, C). Site plan set out from the Balady survey report (6 points + side lengths), 366 modules placed. The base front face sits right behind the rails; the plywood runs down in front of it to +0.150. The post plate's front edge is flush with the post, so it sits fully on the base. This post-and-brace system is lighter to build than the lattice typical; the structural engineer chooses between them per job.
+  Modelled (end of 5 Nov 2026): IPE 160 / IPE 220 posts and back braces at 3.0 m, base plates 300 (A) and 400 (B, C) x 20 with 4 anchors. Bases from the factory typicals, standing on the ground: A 1800 x 1000 x 800 (top +0.800), B and C 2300 x 1400 x 1000 (top +1.000); a quick overturning check shows these are too small at 1.70 kN/m², so they stay ASSUMED for the engineer. Tops +4.880 and +7.320; rails at 1173 (A) and 1188 (B, C). All four corners 7.32 m with smooth 24 m transitions (6 in all). Site plan from the Balady survey report: 141 A, 83 B, 48 transition bays, 4 corner frames, 8 corner panels, 49 X-braced bays; zero base overlaps. Sheets A-1001 site plan, A-1101 typical sections, A-1102 elevations, rev 01 "Tender issue - for review". The base front face sits right behind the rails; the plywood runs down in front of it to +0.150. The post plate's front edge is flush with the post, so it sits fully on the base. This post-and-brace system is lighter to build than the lattice typical; the structural engineer chooses between them per job.
