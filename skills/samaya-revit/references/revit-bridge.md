@@ -232,3 +232,10 @@ New commands: `create_text_notes` (many notes in one step, each with type, wrap 
 - A title block shows "1 : 1" for a sheet whose only views are 1:1. To read "As indicated", give one other view (the key plan drafting view) a second scale, with its content scaled up to match.
 - **`create_filled_regions` (view_id, regions [{points, color}])** makes solid fills in any 2D view, sections included (points are projected onto the view plane). Use it for finish shading on schematic views; keep fills off the object zone, since detail items draw over model elements.
 - **PowerShell traps seen again:** `| Select-Object -First n` stops the script feeding it (a PDF page render stopped after page 1); and `$W` and `$w` are one variable.
+
+## Shared models and sheet lists (Aseer, 5 Nov 2026)
+
+- **`create_sheet_list` takes `filters`**: `[{ "field": "Sheet Name", "op": "begins_with", "value": "Type 4" }]` (ops: equals, not_equals, contains, not_contains, begins_with, not_begins_with; a filter field not in `fields` is added hidden). Use it whenever one model holds more than one submittal: an unfiltered live index picks up every sheet in the model (the Type 4 cover listed the Type 1 sheets).
+- **`open_view` works only on the active model.** With another session's model active it fails with "Not a view of this document". Scripts that open a view only so they can delete the current sheet must wrap it in try/catch: a model that is not active has no open view to protect.
+- **Revision fields are read-only to `set_parameter`** (Description, Date, Issued to/by). An unissued revision with the wrong text: delete it, `create_revision` again, then `set_revision_sequence` (`revision_id`, `sequence_id`) and `set_sheet_revisions`. Keep the description short (about 22 characters on the Aseer title block): longer text wraps and clips the row.
+- **After Revit restarts, check `handlers_info`.** The loader may pick a different version folder than the one last used; copy the newest build's DLL and PDB into the folder it names and call `reload_handlers`.

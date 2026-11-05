@@ -1960,6 +1960,31 @@ namespace RevitMcp
                 }
                 foreach (var sort in sorts)
                     if (added.TryGetValue(sort, out var field)) definition.AddSortGroupField(new ScheduleSortGroupField(field.FieldId));
+                // Optional filters, e.g. one submittal's sheets only: [{ "field": "Sheet Name", "op": "begins_with", "value": "Type 4" }].
+                // A filter field not in "fields" is added hidden. ops: equals, not_equals, contains, not_contains, begins_with, not_begins_with.
+                foreach (var fn in p["filters"] as JsonArray ?? new JsonArray())
+                {
+                    var fo = fn as JsonObject ?? throw new ArgumentException("Each filter is an object.");
+                    var fname = fo["field"]?.GetValue<string>() ?? throw new ArgumentException("filter.field is required.");
+                    if (!added.TryGetValue(fname, out var ff))
+                    {
+                        var m = available.FirstOrDefault(f => f.GetName(doc).Equals(fname, StringComparison.OrdinalIgnoreCase))
+                            ?? throw new ArgumentException($"Filter field '{fname}' is not a sheet field.");
+                        ff = definition.AddField(m); ff.IsHidden = true; added[fname] = ff;
+                    }
+                    var op = (fo["op"]?.GetValue<string>() ?? "equals").ToLowerInvariant();
+                    var type = op switch
+                    {
+                        "equals" => ScheduleFilterType.Equal,
+                        "not_equals" => ScheduleFilterType.NotEqual,
+                        "contains" => ScheduleFilterType.Contains,
+                        "not_contains" => ScheduleFilterType.NotContains,
+                        "begins_with" => ScheduleFilterType.BeginsWith,
+                        "not_begins_with" => ScheduleFilterType.NotBeginsWith,
+                        _ => throw new ArgumentException($"Unknown filter op '{op}'.")
+                    };
+                    definition.AddFilter(new ScheduleFilter(ff.FieldId, type, fo["value"]?.GetValue<string>() ?? ""));
+                }
                 return new JsonObject { ["id"] = schedule.Id.Value, ["name"] = schedule.Name, ["missing_fields"] = missing };
             });
         }
