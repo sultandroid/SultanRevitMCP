@@ -227,6 +227,13 @@ Check the key plan on every sheet before sending it, by looking at it in the ren
 - **Out-of-scope items** (goods, carpets, loose furniture) show grey and halftone, never in colour.
 - **Keep a margin:** nothing (views, titles, bubbles, dimensions) within 15 mm of the drawing border or the title block.
 - **Chains:** drop segments under about 60 mm from a chain, since the number will not fit; give those sizes in a table or a larger detail.
+- **Dimensions, tags and callouts stay readable (user, 5 Nov 2026).** Check each one on the render, at the factory dimension style's real size (5 mm text):
+  - Every dimension uses the factory type ("Samaya ISO 129-1 Blue 5mm"). A new dimension made by the bridge takes Revit's default type, so re-type all dimensions after every script that draws them, then render.
+  - Dimension lines and figures sit outside the drawn object, never on it: chains below the ground line or beside the object, figures at least 3 mm (paper) clear of any geometry, text or other figure.
+  - Keep at least 7 mm (paper) between a chain and the view title under it. Raise the chain or extend the crop, never let the title touch it.
+  - A dimension whose references fall outside the view crop is hidden. When an end has no free edge (a wall that runs on past the crop), give that height in a label instead of a dimension on the object.
+  - Section and callout marks of detail views must not land on another view's notes or geometry: hide `OST_Sections` / `OST_Callouts` in the parent view when they clash, and reference the details by sheet number in a note.
+  - Labels and tags are placed beside the object with clear space, never across a line, bubble or another label; move them, never shrink the text below the standard.
 - **Re-isolate after model changes.** An isolated view hides only what existed when it was isolated, so any new or rebuilt element appears in every unit and 3D view. After changing the model, rebuild or re-isolate every sheet that could show it, and re-render before reporting.
 - **Grids** show on plans, sections and arrangement elevations, never in an isolated unit view.
 - Revision and sign-off are filled.
