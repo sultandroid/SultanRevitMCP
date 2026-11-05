@@ -22,7 +22,7 @@ Read these when relevant:
 - [references/material-hatching.md](references/material-hatching.md): the hatch for each material in sections and details. Read before making any section, detail or material legend.
 - [references/revit-bridge.md](references/revit-bridge.md): SultanRevitMCP bridge use and known failures.
 - [references/metal-hoarding.md](references/metal-hoarding.md): our hoarding systems by height (light frame up to 4.2 m, lattice frame on RCC footings above 4 m), member sizes, footings, wind loads used and how to model them. Read before any hoarding or site fence job.
-- Calculation notes (structural): build with `tools/calc_note/build_calc_note.mjs` (spec JSON -> docx, full-resolution figures) and `tools/calc_note/docx_to_pdf.ps1`. Style: Samaya Factory technical document guide (`samaya-doc-style-guide/projects/factory-technical`): factory logo, client logo, analysis-software logo on the cover, result columns OK green / FAILS red, and a "Where we can reduce" section in every note.
+- Calculation notes (structural): build with `tools/calc_note/build_calc_note.mjs` (spec JSON -> docx, full-resolution figures) and `tools/calc_note/docx_to_pdf.ps1`. Style: Samaya Factory technical document guide (`samaya-doc-style-guide/projects/factory-technical`): factory logo, client logo, analysis-software logo on the cover, result columns OK green / FAILS red. The note is analysis only: no cost-saving or "where we can reduce" section (cost reductions go to the user in chat). Word conversion: the temp copy needs a unique file name, or after a killed Word a hidden "serious error, open it?" prompt hangs Open.
 
 ## Always
 

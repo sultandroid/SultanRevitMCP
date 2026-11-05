@@ -6,7 +6,9 @@
 param([Parameter(Mandatory)][string]$Docx, [Parameter(Mandatory)][string]$Pdf)
 $ErrorActionPreference = "Stop"
 $tmp = Join-Path $env:TEMP ("calcnote_" + [guid]::NewGuid().ToString("N").Substring(0, 8)); New-Item -ItemType Directory $tmp | Out-Null
-$td = Join-Path $tmp "note.docx"; $tp = Join-Path $tmp "note.pdf"; Copy-Item $Docx $td
+# unique file name: after a killed Word, a fixed name ("note.docx") triggers a hidden "it caused a serious error, open it?" prompt and Open hangs
+$stem = "note_" + [guid]::NewGuid().ToString("N").Substring(0, 8)
+$td = Join-Path $tmp "$stem.docx"; $tp = Join-Path $tmp "$stem.pdf"; Copy-Item $Docx $td
 $w = New-Object -ComObject Word.Application; $w.Visible = $false; $w.DisplayAlerts = 0
 try {
   $d = $w.Documents.Open($td, $false, $false, $false)          # not read-only: a read-only open can hang Word
