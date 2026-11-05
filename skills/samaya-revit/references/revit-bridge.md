@@ -32,6 +32,8 @@ Compile check while Revit is open: build with `-p:OutDir="$TEMP/revitmcp_check/"
 | "Sketch plane creation is not allowed in this family" | Old add-in build in the `lines` branch of `build_title_block`. Source is fixed, reinstall. |
 | A linked model loads but draws nothing, in every view | The link was made with a forward-slash path (`C:/...`). Revit loads the file but cannot tie the link to it: the journal says "Where is the document?" and `inspect_link` shows `link_doc` null. Delete the link and link again with a backslash path. The add-in now turns paths to backslashes itself (Makkah, 4 Nov 2026). Hand-made links are fine. |
 | "One or more of the elementIds cannot be deleted" | Often the active view. Have the user switch view, or update in place. |
+| Timeout on the first rename in a new model | Template `Level 1` plan and level share a name, so renaming either one opens the rename dialog (DAS, 5 Nov 2026: the level got renamed too, and Revit was then closed). In a new model never rename `Level 1` / `Level 2`: create the named levels, make and open a new plan, then delete the template levels (their views and the Site plan go with them). |
+| Comments on a grid: "no such parameter" | Grids have no Comments parameter. Put a grid's source and ASSUMED status in a note on the plan sheet instead. |
 
 ## Scripting
 
