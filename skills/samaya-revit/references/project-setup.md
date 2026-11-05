@@ -58,3 +58,7 @@ Samaya's Odoo holds the project code, name and client: `https://samayainv.odoo.c
 | Code at the end of the name | Project Number |
 
 The label parameters take Arabic text. Render the sheet to check it.
+
+**Project files from an Odoo task** (offers, award letter, specifications): `node tools/odoo_task_files.mjs <access file> <task id> <out dir>` downloads every attachment of the task through the API and checks each file size (KAC task 3594 -> `00_Source_DocumentsOdoo Task 3594 - Offers and Award`). The key is read from the user-supplied access file and never printed or saved. The task id is the number after `/tasks/` in the Odoo link.
+
+**Client name and logo:** take both from the client's official website, never a logo aggregator. A site logo is often white for a dark header: make a print version (dark on opaque white) from the site's own SVG and save it as `RfaTitle Blockslogo-client.png`, keeping the originals in `client-logo-source`. KAC: مؤسسة الملك عبدالله الإنسانية / King Abdullah Humanitarian Foundation (kahf.org.sa).
