@@ -44,6 +44,7 @@ const rot = t.rot ?? instRot; // t.rot: the face direction when it differs from 
 const turn = ([x, y]) => instRot === 90 ? [-y, x] : instRot === 180 ? [-x, -y] : instRot === 270 ? [y, -x] : [x, y];
 const parts = raw.map((f) => { const [a, c] = [turn([f.min.x, f.min.y]), turn([f.max.x, f.max.y])]; return { m: f.material ?? "Unassigned", x0: Math.min(a[0], c[0]) + o.x, x1: Math.max(a[0], c[0]) + o.x, y0: Math.min(a[1], c[1]) + o.y, y1: Math.max(a[1], c[1]) + o.y, z0: f.min.z + o.z, z1: f.max.z + o.z }; });
 const b = { x0: Math.min(...parts.map((f) => f.x0)), x1: Math.max(...parts.map((f) => f.x1)), y0: Math.min(...parts.map((f) => f.y0)), y1: Math.max(...parts.map((f) => f.y1)), z0: Math.min(...parts.map((f) => f.z0)), z1: Math.max(...parts.map((f) => f.z1)) };
+// A rear-wall unit placed at rotation 0 (Makkah OSB-1, AR-B1, SC-C1) needs "rot": 270 in its config, or front and side swap.
 const FACE = rot === 0 ? "+x" : rot === 180 ? "-x" : null, Bw = { ...b };
 if (FACE) {
   const rr = FACE === "+x" ? ([x, y]) => [-y, x] : ([x, y]) => [y, -x];  // unit frame -> world
@@ -167,6 +168,7 @@ for (const [n, v] of C.signoff) { await setv(sheet, n, v); if (tbi) await setv(t
 await call("set_sheet_revisions", { sheet_ids: [sheet], revision_ids: C.revisions });
 const wF = W / s, hF = H / s, wS = D / s, hP = PH / s, wA = (dy + 2 * M) / s, wB = W / s, hC = (zb - za) / s;
 const TOP = 810, LEFT = 45, fx = LEFT + wF / 2, fy = TOP - hF / 2, sx = LEFT + wF + 10 + wS / 2, py = TOP - hF - 25 - hP / 2;
+const wTop = ((FACE ? Bw : b).x1 - (FACE ? Bw : b).x0 + 2 * (M + (FACE ? 150 : 0))) / s; // top view width on paper
 const place = (v, x, y) => call("place_view_on_sheet", { sheet_id: sheet, view_id: v, location: P(x, y) });
 const NOTES = 815, levelY = fy + ((za + zb) / 2 - (zBot + zTop) / 2) / s;
 const blocks = [[vFront, wF, fy], [vSide, wS, fy], [vA, wA, levelY], [vB, wB, levelY]];
@@ -175,10 +177,10 @@ const L = {};
 if (free >= 30) {
   const gp = free / 3; let x = LEFT;
   for (const [k, [v, w, y]] of blocks.entries()) { const cxv = x + w / 2; await place(v, cxv, y); L[["front", "side", "A", "B"][k]] = cxv; x += w + gp; }
-  await place(vTop, L.front + (FACE ? 15 : 0), py);
+  await place(vTop, Math.max(L.front + (FACE ? 15 : 0), LEFT + wTop / 2 + 10), py);
   if (big) { await place(vDT, L.side, py); await place(vDB, L.A, py); }
 } else {
-  await place(vFront, fx, fy); await place(vSide, sx, fy); await place(vTop, fx, py);
+  await place(vFront, fx, fy); await place(vSide, sx, fy); await place(vTop, Math.max(fx, LEFT + wTop / 2 + 10), py);
   let cx = LEFT + wF + 10 + wS + 10, cy = TOP - hC / 2, row2 = false;
   for (const [v, w] of [[vA, wA], [vB, wB]]) { if (!row2 && cx + w > NOTES - 5) { row2 = true; cx = LEFT + wF + 15; cy = Math.min(TOP - hF - 25 - hC / 2, 50 + hC / 2 + 40); } await place(v, cx + w / 2, cy); cx += w + 10; }
   if (big) { await place(vDT, 351, py); await place(vDB, 682, py); }

@@ -52,18 +52,26 @@ for (const key of M.units) {
   console.log(key, "plate", pW, "x", pH, "holes", hx.length, "x", hz.length, "angle", aD, "x", aL, "board", r(py1 - py0));
 }
 
-// DXF, 1:1 mm, one file per plate type: outline + holes (R12 ASCII, LINE and CIRCLE only, readable by any laser software).
+// DXF per the factory CNC standard (joinery-practice.md "CNC files"): one part per file, 1:1 mm, lower-left at 0,0, outline
+// as ONE closed polyline on CUT, holes as circles on HOLES, label on TEXT (not cut); R12 via tools/cnc_dxf.mjs. Plus a CSV cut list.
+// The side angles are bent parts with no holes: they are on the cut list only.
 if (M.dxfDir) {
+  const { Dxf, rectPath } = await import("./cnc_dxf.mjs");
   mkdirSync(M.dxfDir, { recursive: true });
+  const rows = [];
   for (const T of types) {
-    const e = [], L = (a, b, c, d, lay = "CUT") => e.push(`0\nLINE\n8\n${lay}\n10\n${a}\n20\n${b}\n30\n0\n11\n${c}\n21\n${d}\n31\n0`);
-    L(0, 0, T.pW, 0); L(T.pW, 0, T.pW, T.pH); L(T.pW, T.pH, 0, T.pH); L(0, T.pH, 0, 0);
-    for (const x of T.hx) for (const z of T.hz) e.push(`0\nCIRCLE\n8\nCUT\n10\n${f1(x)}\n20\n${f1(z)}\n30\n0\n40\n${SPEC.HOLE_R}`);
+    const d = new Dxf(), CUT = d.layer("CUT", 7), HOLES = d.layer("HOLES", 1), TXT = d.layer("TEXT", 3);
+    d.poly(rectPath(0, 0, T.pW, T.pH), CUT);
+    for (const x of T.hx) for (const z of T.hz) d.circle(x, z, SPEC.HOLE_R, HOLES);
+    d.text(10, T.pH - 40, 12, `${M.dxfPrefix ?? "PRJ"} ${T.key} PLATE 2MM x${4 * T.n} (LEFT; RIGHT = TURN 180)`, TXT);
     const f = `${M.dxfDir}/${M.dxfPrefix ?? "PRJ"}-${T.key}-PLATE-2mm.dxf`;
-    writeFileSync(f, `0\nSECTION\n2\nHEADER\n9\n$INSUNITS\n70\n4\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n${e.join("\n")}\n0\nENDSEC\n0\nEOF\n`);
+    d.save(f);
     T.dxf = f.split("/").pop();
+    rows.push(`${T.dxf},${T.key} plate,Steel sheet black powder coat,2,${4 * T.n},${T.pW},${T.pH},${T.holes} holes D21 at 50`);
+    rows.push(`-,${T.key} side angle,Steel angle black powder coat,2,${2 * T.n},${T.aD},${T.aL},leg ${T.aD} to the plates; no holes`);
     console.log("dxf", f);
   }
+  writeFileSync(`${M.dxfDir}/_CUT-LIST.csv`, "file,part,material,thickness_mm,qty,width_mm,height_mm,note\n" + rows.join("\n") + "\n");
 }
 
 // Drafting views: per type the plate (1:5) with its hole grid and the side angle beside it.
@@ -110,10 +118,14 @@ await setv(vd, "Title on Sheet", "Build-up (plan) 1:1");
   L.push(...rect(c - 80, X[3], c + 80, X[4]), ...rect(c - 80, X[4], c + 80, X[5]));
   for (const x of [150, 170]) L.push({ start: P(x, -15), end: P(x, X[5] + 15) });  // break lines
   await lines(vd, L);
-  await dim(vd, X.map((y) => P(-18, y)), 40);
+  await dim(vd, [P(-18, X[1]), P(-18, X[2])], 40);
+  await dim(vd, [P(-18, X[3]), P(-18, X[4]), P(-18, X[5])], 40);
+  await dim(vd, [P(-18, X[0]), P(-18, X[5])], 75);
   await dim(vd, [P(c - 2.5, 0), P(c + 2.5, 0)], -25);
   const tn = (x, y, s) => call("create_text_note", { view_id: vd, location: P(x, y), text: s, text_type_id: txt3 });
   await tn(-60, X[5] + 50, "Side panel EGGER 18");
+  await tn(180, X[5] + 50, "From the back: rear plate 2 | space 30 | front plate 2 | FR MDF 18 | EGGER 8 = 60");
+
   await tn(10, -25, "Side angle 2 mm");
   await tn(40, X[5] + 40, "EGGER 8 face\nFR MDF 18 core");
   await tn(40, 22, "30 space (wiring)");
