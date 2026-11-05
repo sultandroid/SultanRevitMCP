@@ -90,6 +90,11 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - `set_element_overrides` takes `line_color` {r,g,b} (5 Nov 2026) as well as halftone, line_weight, line_pattern, hide_patterns and surface_transparency. White hides the edges of chosen elements while their surfaces still hide what is behind.
 - `create_detail_lines` with many connected segments can roll back with "Can't keep elements joined". Send one segment per call and keep the ids in a file, so a rerun deletes the old outline first. Never delete every `OST_Lines` element in a view: that also fails with the same error.
 
+- **Analytical model commands** (5 Nov 2026, `Handlers.Analytical.cs`): `load_family_types` (chosen types from a type-catalog family, for example IPE220 from IPE-Beams.rfa), `create_analytical_members` (start, end, section_type_id, material_id, role column|beam|member, release_start / release_end fixed|pinned|bending, rotation_deg, comments), `create_point_supports` (member_id, end start|end, fixity fixed|pinned; reports skipped ones), `create_load_cases`, `create_line_loads` (kN/m, global axes, hosted on analytical members), `create_load_combinations`.
+  - The column role needs a Structural Columns type (IPE-Column.rfa); a framing type gives "sectionTypeId ... not of the category".
+  - Point supports need a model from a structural template. In an architectural model `NewPointBoundaryConditions` returns null. The reference is `member.GetReference(new AnalyticalModelSelector(AnalyticalCurveSelector.StartPoint|EndPoint))`; a `new Reference(node)` is refused.
+  - `create_project` makes the new model active. Note the active document first and give it back with `activate_document`, so another session on the same Revit keeps its model.
+
 ## SultanRevitMCP: loader and hot reload (installed 4 Nov 2026)
 
 The add-in is split in two:
