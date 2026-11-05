@@ -15,7 +15,7 @@ const N = new Map(M.nodes.map(n => [n.id, n]));
 const cname = Object.fromEntries([...M.cases, ...M.combos].map(c => [c.no, c.name]));
 const uls = M.combos.filter(c => c.type === "ULS").map(c => c.no);
 const grpOf = b => b.grp.replace(/^S /, "").replace(/ pin-\w+/, "");
-const GRP = { post: ["#1f5fa8", "Post"], rail: ["#2e9e44", "Rail"], backleg: ["#c0392b", "Frame back leg"], horiz: ["#e67e22", "Frame horizontal"], tie: ["#8e44ad", "Back tie"], "X-brace": ["#7f8c8d", "X-brace"], diag: ["#555555", "Frame diagonal"] };
+const GRP = { post: ["#1f5fa8", "Post"], rail: ["#2e9e44", "Rail"], backleg: ["#c0392b", "Frame back leg"], horiz: ["#e67e22", "Frame horizontal"], tie: ["#8e44ad", "Back tie"], "X-brace": ["#7f8c8d", "X-brace"], diag: ["#555555", "Frame diagonal"], jamb: ["#0b3d91", "Door jamb"], leaf: ["#16a085", "Door leaf"], stay: ["#c0392b", "Back stay"], hinge: ["#000000", "Hinge"], latch: ["#7f8c8d", "Latch / bolt"], topbar: ["#d35400", "Removable top bar"] };
 // ---- section properties (SHS b x b x t) and AISC 360 ratio, same as kac_check.mjs ----
 const shs = s => { const m = /SHS (\d+)x\d+x([\d.]+)/.exec(s), b = +m[1], t = +m[2]; const A = b * b - (b - 2 * t) ** 2, I = (b ** 4 - (b - 2 * t) ** 4) / 12; return { A, r: Math.sqrt(I / A), Z: (b ** 3 - (b - 2 * t) ** 3) / 4 }; };
 const Fy = 275, E = 200000, phi = 0.9;

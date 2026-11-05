@@ -40,11 +40,12 @@ function table({ head, rows, widths, size = 8.5, caption, align }) {
   const n = head.length; let w = widths && widths.length === n ? widths.slice() : Array(n).fill(USABLE_MM / n);
   const k = USABLE_MM / w.reduce((a, b) => a + b, 0); w = w.map(v => v * k);
   const numeric = head.map((_, c) => rows.length > 0 && rows.every(r => /^[-+]?[\d.,/ ]+(%| kN| kPa| mm| m)?$|^-$|^OK|^FAILS/.test(String(r[c] ?? ""))));
+  const last = rows.length - 1;   // keep the whole table on one page: every row keeps with the next (Word still breaks a table longer than a page)
   const mk = (cells, isHead, i) => new TableRow({ tableHeader: isHead, cantSplit: true, children: cells.map((t, c) => new TableCell({
     width: { size: mm(w[c]), type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER,
     shading: isHead ? { type: ShadingType.CLEAR, fill: C.navy, color: "auto" } : (i % 2 ? { type: ShadingType.CLEAR, fill: C.band, color: "auto" } : undefined),
     margins: { top: 30, bottom: 30, left: 80, right: 80 },
-    children: [new Paragraph({ alignment: isHead || numeric[c] || (align && align[c] === "c") ? AlignmentType.CENTER : AlignmentType.LEFT, spacing: { before: 0, after: 0, line: 240 }, children: [cellRun(t, head[c], size, isHead)] })] })) });
+    children: [new Paragraph({ alignment: isHead || numeric[c] || (align && align[c] === "c") ? AlignmentType.CENTER : AlignmentType.LEFT, spacing: { before: 0, after: 0, line: 240 }, keepNext: isHead || i < last, keepLines: true, children: [cellRun(t, head[c], size, isHead)] })] })) });
   const out = [];
   if (caption) out.push(para(run(caption, { size: 9, italic: true, color: C.muted }), { align: AlignmentType.LEFT, before: 4, after: 3, keepNext: true }));
   out.push(new Table({ layout: TableLayoutType.FIXED, width: { size: mm(USABLE_MM), type: WidthType.DXA }, columnWidths: w.map(mm), borders: gridBorders, rows: [mk(head, true, 0), ...rows.map((r, i) => mk(r, false, i))] }));
@@ -79,11 +80,12 @@ front.push(new TableOfContents("Contents", { hyperlink: true, headingStyleRange:
 // ---------- body ----------
 const body = [];
 let fig = 0;
-for (const b of spec.body) {
+for (const [bi, b] of spec.body.entries()) {
+  const nx = spec.body[bi + 1] || {}, lead = !!(nx.table || nx.img || nx.list);   // a lead-in paragraph stays with its table, figure or list
   if (b.h1) body.push(new Paragraph({ heading: HeadingLevel.HEADING_1, pageBreakBefore: !b.noBreak, keepNext: true, children: [run(b.h1.toUpperCase(), { size: 14, bold: true, color: C.navy })], spacing: { before: 0, after: 120 }, border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: C.rule, space: 2 } } }));
   else if (b.h2) body.push(new Paragraph({ heading: HeadingLevel.HEADING_2, keepNext: true, children: [run(b.h2, { size: 11.5, bold: true, color: C.accent })], spacing: { before: 240, after: 80 } }));
   else if (b.h3) body.push(new Paragraph({ heading: HeadingLevel.HEADING_3, keepNext: true, children: [run(b.h3, { size: 10.5, bold: true, color: C.dark })], spacing: { before: 160, after: 60 } }));
-  else if (b.p != null) body.push(para(run(b.p, { size: b.size ?? 10, bold: b.bold }), { keepNext: b.keepNext }));
+  else if (b.p != null) body.push(para(run(b.p, { size: b.size ?? 10, bold: b.bold }), { keepNext: b.keepNext ?? lead }));
   else if (b.list) b.list.forEach((t, i) => body.push(para([run(`${i + 1}.  `, { bold: true, color: C.accent }), run(t)], { after: 3 })));
   else if (b.note) body.push(new Paragraph({ children: [run((b.note.label || "NOTE") + "   ", { bold: true, color: C.accent }), run(b.note.text, { color: C.dark })], spacing: { before: 120, after: 120 }, indent: { left: 160 },
     border: { left: { style: BorderStyle.SINGLE, size: 24, color: C.light, space: 8 } } }));
