@@ -8,7 +8,10 @@ Source files (Al Khozama tender folder): `Samaya\Tenders\2025\PHI\Al Khozama\Des
 - `CALCULATION SHEET - HOARDING -4.20m HEIGHT.pdf` and `HOARDING 3.00M HEIGHT.pdf`: KAFD, consultant Machinery Source.
 - `STRUCTURAL ANALYSIS  REPORT - MAIN SIGNAGE.pdf`: Myan Yard sign, 6.3 m wide x 9 m high.
 
-**Base rule:** one concrete base per frame, mostly above the ground (about 100 mm set in). The whole frame, front post and back brace or back column, stands on that one base. Never a separate footing under each member (user, 5 Nov 2026).
+**Rules from the user (5 Nov 2026), for every hoarding:**
+- **Height is the total height from ground level,** everything included. A "4.88 m" hoarding tops out at +4.880, not 4.88 m above the 150 mm gap. The plywood runs from +0.150 to the top, so its panel is 150 mm less than the stated height.
+- **One concrete base per frame, all of it above the ground.** No part of it below FGL. The whole frame, front post and back brace or back column, stands on that one base. Never a separate footing under each member.
+- **Horizontal tubes (rails) at 600 mm centres maximum,** spaced evenly from a rail at the bottom of the plywood to one at the top.
 
 ## Pick the system by height
 
@@ -78,6 +81,8 @@ Myan Yard main sign, 6.3 x 9.0 m: columns steel pipe 244.5 x 5.0 and 193.7 x 5.0
 ## Modelling a hoarding in Revit
 
 - **Levels:** `FGL +0.000` (finished ground), the bottom of the face (often +0.150) and one level per top height, named with the height, such as `Top Run A +5.030`.
+- **Rebuilding a module family by its own name updates every placed copy,** but if its lowest corner moves (for example the base goes from -0.100 to FGL), reset "Offset from Host" on all copies, or they float or sink by that amount.
+- **Set-out:** walk each side anticlockwise, face on the boundary, frames inside; module origin = bottom corner of the face at the bay start; rotation = side direction. A gap of less than one bay is left at each side end, to cut on site.
 - **One family per type of frame module:** a frame with its footing and one bay of rails and plywood. Copy the module along the plan at the frame spacing. Footings are Generic Model families so the concrete shows its hatch in section.
 - **Materials and hatch:** concrete crosshatch 45 at 4 mm, steel solid, plywood lines 0 at 1 mm (see `material-hatching.md`).
 - **Typical section per type** at 1:25: heights, footing size, frame depth and spacing, member sizes, base plate and anchors, and a red note for anything assumed.
@@ -101,4 +106,4 @@ Myan Yard main sign, 6.3 x 9.0 m: columns steel pipe 244.5 x 5.0 and 193.7 x 5.0
 
   **Back support is the same section as the column (user, 5 Nov 2026):** IPE 160 for A, IPE 220 for B and C, replacing the SHS braces in the table above.
 
-  Modelled with the first option of each: IPE 160 / IPE 220 posts and back braces, 2.0 m spacing for B and C, base plates 300 (A) and 400 (B, C) x 20 with 4 anchors. Bases taken from the factory typicals: A 1800 x 1000 x 800 (top +0.700), B and C 2300 x 1400 x 1000 (top +0.900). The base front face sits right behind the rails; the plywood runs down in front of it to +0.150. The post plate's front edge is flush with the post, so it sits fully on the base. This post-and-brace system is lighter to build than the lattice typical; the structural engineer chooses between them per job.
+  Modelled with the first option of each: IPE 160 / IPE 220 posts and back braces, 2.0 m spacing for B and C, base plates 300 (A) and 400 (B, C) x 20 with 4 anchors. Bases taken from the factory typicals, standing on the ground: A 1800 x 1000 x 800 (top +0.800), B and C 2300 x 1400 x 1000 (top +1.000). Tops of hoarding +4.880 and +7.320; rails at 586 (A) and 594 (B, C). Site plan set out from the Balady survey report (6 points + side lengths), 366 modules placed. The base front face sits right behind the rails; the plywood runs down in front of it to +0.150. The post plate's front edge is flush with the post, so it sits fully on the base. This post-and-brace system is lighter to build than the lattice typical; the structural engineer chooses between them per job.
