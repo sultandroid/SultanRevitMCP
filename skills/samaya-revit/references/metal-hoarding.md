@@ -19,6 +19,11 @@ Source files (Al Khozama tender folder): `Samaya\Tenders\2025\PHI\Al Khozama\Des
 - **Height changes are smooth** where the client's design shows it: a cosine S-curve over the stated length (DAS: 24.0 m = 8 bays of 3.0 m), one family per bay so the plywood top, rails and post height follow the curve; mirrored set for the other walking direction.
 - **Base sizes are not copied blindly:** a typical's base was designed for its own frame spacing and wind. Check overturning (base weight against wind moment, FOS 1.5) for the job's wind pressure, or mark the size ASSUMED for the structural engineer.
 - **Ground levels:** survey points rarely carry levels. Ask for a level survey; until then model flat at FGL and say so in red.
+- **Plywood in standard sheets, 1220 x 2440,** laid landscape in rows of 1220 from +0.150, from the start corner of each side. Horizontal tubes sit on every sheet joint; a vertical SHS 40x40 stud backs every vertical joint (2440 c/c). Top row cut to the height line (and to the curve in transitions).
+- **Back brace plate at least 200 mm from every edge of the concrete.** On corner bases, slide the plate in along the bisector until it clears; make the corner base big enough (DAS: 2.2 m along each face) that the brace keeps a sensible slope.
+- **Trim and connect, never overlap:** the back brace is cut square to a 10 mm end plate bolted to the post back flange (4 M16, 8.8) and cut level onto its base plate (6 mm fillet all round). Rails welded to the post front flange (4 mm). No member runs into another.
+- **L-anchors, M20 L-bolt type 400:** 4 per plate, 400 mm leg in the concrete, 100 mm hook turned in, 50 mm from the plate edges, double nut. Cast in.
+- **Draw real sections:** IPE posts and braces as true I-profiles, SHS as hollow tubes, plates and anchors modelled, so the model gives the steel takeoff (count, length, kg) by component. Issue a quantities sheet (A-1901) and an Excel takeoff, and a connection details sheet (A-1301) cut from the typical bay at 1:5.
 
 ## Pick the system by height
 
@@ -90,7 +95,8 @@ Myan Yard main sign, 6.3 x 9.0 m: columns steel pipe 244.5 x 5.0 and 193.7 x 5.0
 - **Levels:** `FGL +0.000` (finished ground), the bottom of the face (often +0.150) and one level per top height, named with the total height, such as `Top Run A +4.880`.
 - **Rebuilding a module family by its own name updates every placed copy,** but if its lowest corner moves (for example the base goes from -0.100 to FGL), reset "Offset from Host" on all copies, or they float or sink by that amount.
 - **Set-out:** walk each side anticlockwise, face on the boundary, frames inside; module origin = bottom corner of the face at the bay start; rotation = side direction. Share the spare length between the two corner panels of each side. Elevations along a side: `create_section` takes depth in mm (9 m = 9000), and looks into the site with look_direction = minus the outward normal.
-- **One family per type of frame module:** a frame with its footing and one bay of rails and plywood. Copy the module along the plan at the frame spacing. Footings are Generic Model families so the concrete shows its hatch in section.
+- **One family per type of frame module:** a frame with its footing and one bay of rails (the plywood is laid per side so sheet joints run true). Copy the module along the plan at the frame spacing. Footings are Generic Model families so the concrete shows its hatch in section. A trimmed brace is built from three plates (web and two flanges), each a polygon in the frame plane cut by the end-plate face and the base-plate top.
+- **Detail views:** cut connection sections on the anchor line, looking back at the steel (a cut through the post web turns post, end plate and brace into one black shape; cut through the flanges for the end plate). A 3D top view with a section box gives the base plan with the anchor layout.
 - **Materials and hatch:** concrete crosshatch 45 at 4 mm, steel solid, plywood lines 0 at 1 mm (see `material-hatching.md`).
 - **Typical section per type** at 1:25: heights, footing size, frame depth and spacing, member sizes, base plate and anchors, and a red note for anything assumed.
 - **Plan** from the site survey coordinates. Mark each run with its type, and show where the height changes.
