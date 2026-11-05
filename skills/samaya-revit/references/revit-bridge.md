@@ -107,6 +107,7 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - `FX > 0` is compression. Set `CalcEngine.AnalysisParams.IgnoreWarnings` so a warning cannot stop the run.
 - Check the post orientation from the results: if wind gives Mz (weak axis), set `Gamma = 90` and run again.
 - Always check equilibrium (sum of reactions = applied load) before reading forces.
+- **Structural report = Robot's own calculation note** (user, DAS, 5 Nov 2026: "the report should be extracted from Robot"). `tools/robot/robot_report.ps1 -Rtd x.rtd -Rtf note.rtf`: opens the model, sets metric units, adds a 3D view, the My diagram and the standard tables (sections, nodes, bars, supports, loads, combinations, reaction envelope and totals, displacements, forces, stresses) and saves with `PrintEngine.SaveReportToFile(..., I_OFF_RTF_JPEG)`. Word only converts it to PDF; nothing is added. Add tables with `PrintEngine.AddToReport($table.Printable)` (passing the table itself fails). Units: a US install prints ft/kip; set `Units.UseMetricAsDefault`, force "kN", and for moment and stress the complex unit `Name` + `Name2` ("kN" + "m", "MN" + "m" = MPa).
 
 ## SultanRevitMCP: loader and hot reload (installed 4 Nov 2026)
 
