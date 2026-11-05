@@ -24,7 +24,10 @@ Ask for anything not already given. Do not guess and do not leave Revit placehol
 |---|---|---|
 | Mohamed Sultan | Checker, sometimes designer | **Always Checked By.** Sometimes also Designed By, confirm per project. |
 | Raouf Aldeeb | Production Manager | Production stakeholder. Sheet field not yet defined. |
-| Anas Matter | Approver | Approved By on HT-KEC-MAD01. Confirm on other projects. |
+| Anas Matter | Client side (Hadaya Teiba) | Approved By on HT-KEC-MAD01 only, as that client's engineer. Not a default approver. |
+| Lorch | Drafter | Drawn By (Madina 1, DAS). |
+
+**Approved By is the client's engineer on each project** (user, 5 Nov 2026). Leave it blank until the client names their engineer; never fill it from another project.
 | Insignia | External designer | Designed By on HT-KEC-MAD01. Confirm on other projects. |
 
 Add other people here as the user names them. Spell names exactly as listed.
