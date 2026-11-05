@@ -9,6 +9,7 @@ $lines = @(
   $count,
   "FABCOUNT",
   "(setvar `"PEDITACCEPT`" 1)",
+  "(setvar `"ISAVEBAK`" 0)",
   "_.AUDIT _Y",
   "_.-PURGE _A * _N",
   "_.-PURGE _R * _N",
