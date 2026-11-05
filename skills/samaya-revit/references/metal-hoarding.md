@@ -74,6 +74,14 @@ From the 6 m typical drawing, checked against the 6 m and 8 m calculations.
 - **3.0 m (KAFD):** frame of MS tube 50x50x3.2 and 40x40x3.0, panels 3.0 m wide, rails at 1220. Base: precast concrete block 1000 long, 500 wide, 850 high (0.29 m³, 7.4 kN). Checked: overturning safety 2.48, sliding 1.64.
 - **4.2 m (KAFD):** posts MS tube 40x40x3.0 every 1.0 m, rails and props 30x30x2.5, rails at about 1.5 m, a raking prop on every second post. Base: concrete block 1000 long, 425 wide, 755 high (0.205 m³, 5.1 kN). Anchors Hilti HST3 M16, 85 mm in, plate 8 mm.
 
+## Up to about 2.5 m: New Jersey barrier base (factory typical, user, 5 Nov 2026)
+
+- **Base:** ready-made precast concrete safety barriers (New Jersey shape) **1000 long x 800 high x 500 base**, laid end to end in a continuous line right behind the face. T10 mesh top and bottom in the barrier (temperature and shrinkage).
+- **Post:** SHS 50x50x3, **one per barrier at 1000 c/c**, on the barrier centre line (top plate 425 from the barrier end, so centred). **Back support:** SHS 40x40x2 from the post down to a plate on the barrier top. Post fixed to the barrier toe at the front.
+- **Face:** horizontal frame SHS 40x40x2 (rails still 1220 c/c max), 18 mm plywood fixed with 6 mm self-drilling screws @ 250.
+- **Section line from the face inward:** plywood 0-18, rails 18-58, post 58-108, barrier front 150. Keep ground plates of corner and end posts inside 150 deep so they do not hit the barrier, and turn them with the run.
+- **Set-out:** walk each run from its start; at a convex corner push the next run first barrier clear of the previous run blocks (KAC: 625 mm at a 90 degree corner); no barriers in door openings; leave the spare length at the run end. Check every barrier footprint against every other one and against door jamb plates before placing.
+
 ## Design loads we have used
 
 | Job | Code | Wind speed | Exposure | Wind pressure used | Dead load on face |
