@@ -95,6 +95,19 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
   - Point supports need a model from a structural template. In an architectural model `NewPointBoundaryConditions` returns null. The reference is `member.GetReference(new AnalyticalModelSelector(AnalyticalCurveSelector.StartPoint|EndPoint))`; a `new Reference(node)` is refused.
   - `create_project` makes the new model active. Note the active document first and give it back with `activate_document`, so another session on the same Revit keeps its model.
 
+## Robot Structural Analysis (RobotOM COM, 5 Nov 2026)
+
+`tools/robot/robot_build.ps1 -Model m.json -Rtd out.rtd -Results r.json` builds a 3D frame in Robot 2026, runs it, saves the .rtd and writes forces, displacements and reactions. `tools/robot/aisc_check_hoarding.mjs` is the DAS example of the AISC 360 member, deflection and base checks on those results. Lessons:
+- Run all Robot calls in ONE PowerShell process. When it ends, Robot closes; a new process gets a fresh Robot that throws RPC_E_SERVERFAULT until it has started. Wait for `$app.Project` before the first call.
+- PowerShell variable names ignore case: a loop `$s` overwrites the structure `$S`. Use distinct names.
+- PowerShell 5 `ConvertFrom-Json` gives decimals; cast every value to `[double]` / `[int]` before passing it to Robot.
+- `Nodes.Get(id)` returns null from PowerShell; label nodes through a selection (`Selections.Create(I_OT_NODE)` + `Nodes.SetLabel`) or `Nodes.GetAll().Get(i)`.
+- A US install has only AISC/AISI/... section databases: add `EURO` to `Preferences.SectionsActive` before `LoadFromDBase("IPE 220")`. Material S275 is not in the US base: define it (E 210 GPa, RO 77 kN/m³, RE 275 MPa).
+- Releases: `I_BERV_NONE` = no release (rigid), `I_BERV_FIXED` = released. Swapping them makes every brace carry nothing and the model a mechanism (huge displacements).
+- `FX > 0` is compression. Set `CalcEngine.AnalysisParams.IgnoreWarnings` so a warning cannot stop the run.
+- Check the post orientation from the results: if wind gives Mz (weak axis), set `Gamma = 90` and run again.
+- Always check equilibrium (sum of reactions = applied load) before reading forces.
+
 ## SultanRevitMCP: loader and hot reload (installed 4 Nov 2026)
 
 The add-in is split in two:
