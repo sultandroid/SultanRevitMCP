@@ -2059,6 +2059,9 @@ namespace RevitMcp
             var hidePatterns = p["hide_patterns"]?.GetValue<bool>() ?? false;
             // Optional: surface_transparency 0-100; 100 leaves only the edges in shaded views.
             var transparency = Num(p, "surface_transparency");
+            // Optional: line_color {r,g,b} for projection and cut lines. White (255,255,255) hides joint edges on a sheet
+            // (plywood sheets, cladding panels) while the parts behind stay hidden by the surface.
+            Color lineColor = p["line_color"] is JsonObject ? ColorOf(p, "line_color") : null;
             var linePattern = patternName == null ? null
                 : LinePatternElement.GetLinePatternElementByName(doc, patternName) ?? throw new ArgumentException($"No line pattern named '{patternName}'.");
             return InTransaction(doc, "Set element overrides", () =>
@@ -2085,6 +2088,11 @@ namespace RevitMcp
                         settings.SetCutBackgroundPatternVisible(false);
                     }
                     if (transparency != null) settings.SetSurfaceTransparency(Math.Max(0, Math.Min(100, (int)transparency)));
+                    if (lineColor != null)
+                    {
+                        settings.SetProjectionLineColor(lineColor);
+                        settings.SetCutLineColor(lineColor);
+                    }
                     view.SetElementOverrides(id, settings);
                 }
                 return new JsonObject { ["changed"] = ids.Count, ["line_pattern"] = linePattern?.Name, ["hide_patterns"] = hidePatterns };

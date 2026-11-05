@@ -87,6 +87,9 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - **One family for a composed pier or unit, made from one measured instance.** Group the designer pieces per instance in a local frame (wall to room, along the wall), compare the groups, and build from one when they match (mirror copies count as matching). Then delete the other groups and place copies (`tools`: Makkah `pier_groups.mjs`, `pier_family.mjs`).
 - **A duplicate of "3D all" keeps its section box.** Units placed outside the shop (exploded copies) vanish in it, and `place_view_on_sheet` then fails with "Object reference not set" because the view is empty. Make those views with `create_3d_view` aimed at the copy, and hide `OST_RvtLinks` in every 3D view on a sheet, since isolation does not hide links (lights from the linked model show otherwise).
 
+- `set_element_overrides` takes `line_color` {r,g,b} (5 Nov 2026) as well as halftone, line_weight, line_pattern, hide_patterns and surface_transparency. White hides the edges of chosen elements while their surfaces still hide what is behind.
+- `create_detail_lines` with many connected segments can roll back with "Can't keep elements joined". Send one segment per call and keep the ids in a file, so a rerun deletes the old outline first. Never delete every `OST_Lines` element in a view: that also fails with the same error.
+
 ## SultanRevitMCP: loader and hot reload (installed 4 Nov 2026)
 
 The add-in is split in two:
@@ -98,7 +101,7 @@ The add-in is split in two:
 - Revit never loads the handlers DLL itself, so there is no "Always Load" prompt for command changes.
 - `handlers_info` reports the loaded version.
 - To roll back, delete the newest version folder and call `reload_handlers`.
-- **Check the version after every install.** If `handlers_info` still names an older folder and a new command says "Unknown command", the running Revit is not picking up new folders (seen 4 Nov 2026: it stayed on 20261104-075232 through several installs, sandboxed or not). Work-around: copy the new `SultanRevitMCP.Handlers.dll` and `.pdb` into the folder it names (keep a backup of the old DLL), then call `reload_handlers`. The loader reads the DLL as bytes, so the copy is not locked. The cause is not found yet.
+- **Check the version after every install.** If `handlers_info` still names an older folder and a new command says "Unknown command", the running Revit is not picking up new folders (seen 4 Nov 2026: it stayed on 20261104-075232 through several installs, sandboxed or not). Work-around: copy the new `SultanRevitMCP.Handlers.dll` and `.pdb` into the folder it names (keep a backup of the old DLL), then call `reload_handlers`. The loader reads the DLL as bytes, so the copy is not locked. The cause is not found yet. Seen again 5 Nov 2026: `reload_handlers` returned `version 20261104-075232` after a new build; the copy work-around fixed it.
 
 **One-time switch:** with Revit closed, run `install-sultan.ps1 -Loader`. It retires `RevitMcp.addin` to `.bak`.
 

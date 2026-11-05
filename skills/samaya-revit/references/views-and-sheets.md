@@ -210,7 +210,7 @@ Every sheet, of any kind, is laid out on one grid: A1 drawing area x 20 to 1012,
 - View titles are short (one line, about 25 characters). A long title wraps over its own scale line; move the extra words to a note.
 
 **Engineering views: Hidden Line, black and white (user, DAS, 5 Nov 2026: "standard view engineering hidden without colours ... clean view").** Every view placed on a sheet uses Hidden Line (`set_view_display` style "HLR"), never Shaded or Realistic, and shows no material colour. 3D views on sheets are Hidden Line too. Keep the drawing clean:
-- Repeated parts that only show a pattern (plywood sheet joints, studs, cladding panels, rails in a long elevation) get line weight 1 by element override in that view, so the joints read as thin lines and the structure stays bold.
+- Hide the lines between repeated parts (plywood or cladding sheet joints, studs, panels) in elevations and arrangement views: give those elements a white line colour by element override (`set_element_overrides` with `line_color` 255,255,255) and draw one outline of the whole face with detail lines. The joints belong in the details, not the elevations. Where the joints must show, use line weight 1.
 - Do not show every family edge: hide categories the view does not need (levels, section marks, callouts) and do not draw split lines where one member is built from several families.
 - Colour on a sheet is only for dimensions (blue), INPUT REQUIRED (red) and the key plan mark (red).
 
