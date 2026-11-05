@@ -141,6 +141,7 @@ namespace RevitMcp
             ["paint_element"] = PaintElement,
             ["export_sheets_pdf"] = ExportSheetsPdf,
             ["export_sheets_dwg"] = ExportSheetsDwg,
+            ["export_view_dwg"] = ExportViewDwg,
             ["create_dimension_string"] = CreateDimensionString,
             ["tag_elements"] = TagElements,
             ["create_drafting_view"] = CreateDraftingView,
@@ -2095,6 +2096,11 @@ namespace RevitMcp
             // Optional: line_color {r,g,b} for projection and cut lines. White (255,255,255) hides joint edges on a sheet
             // (plywood sheets, cladding panels) while the parts behind stay hidden by the surface.
             Color lineColor = p["line_color"] is JsonObject ? ColorOf(p, "line_color") : null;
+            // Optional: surface_fill_color / cut_fill_color {r,g,b}: solid fill, e.g. a showcase body in its finish colour.
+            Color surfaceFill = p["surface_fill_color"] is JsonObject ? ColorOf(p, "surface_fill_color") : null;
+            Color cutFill = p["cut_fill_color"] is JsonObject ? ColorOf(p, "cut_fill_color") : null;
+            var solidFill = (surfaceFill == null && cutFill == null) ? null
+                : new FilteredElementCollector(doc).OfClass(typeof(FillPatternElement)).Cast<FillPatternElement>().First(f => f.GetFillPattern().IsSolidFill);
             var linePattern = patternName == null ? null
                 : LinePatternElement.GetLinePatternElementByName(doc, patternName) ?? throw new ArgumentException($"No line pattern named '{patternName}'.");
             return InTransaction(doc, "Set element overrides", () =>
@@ -2121,6 +2127,16 @@ namespace RevitMcp
                         settings.SetCutBackgroundPatternVisible(false);
                     }
                     if (transparency != null) settings.SetSurfaceTransparency(Math.Max(0, Math.Min(100, (int)transparency)));
+                    if (surfaceFill != null)
+                    {
+                        settings.SetSurfaceForegroundPatternId(solidFill.Id); settings.SetSurfaceForegroundPatternColor(surfaceFill);
+                        settings.SetSurfaceForegroundPatternVisible(true);
+                    }
+                    if (cutFill != null)
+                    {
+                        settings.SetCutForegroundPatternId(solidFill.Id); settings.SetCutForegroundPatternColor(cutFill);
+                        settings.SetCutForegroundPatternVisible(true);
+                    }
                     if (lineColor != null)
                     {
                         settings.SetProjectionLineColor(lineColor);

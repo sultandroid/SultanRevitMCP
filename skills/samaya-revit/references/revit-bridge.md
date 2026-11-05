@@ -267,3 +267,6 @@ Core-console lessons:
 - There is no VLA in the core console.
 
 Bridge note: this Revit loads handlers only from the folder `handlers\20261104-075232`. To get a new build in, back up the DLL there and copy the new DLL and PDB over it, then call `reload_handlers`. Other sessions do the same.
+- **`set_element_overrides` takes `surface_fill_color` and `cut_fill_color`** ({r,g,b}, solid fill). Use it to shade a showcase body in its finish colour on lighting sheets without drawing fills by hand (Aseer Type 1, 5 Nov 2026).
+- **Rebuilding a sheet from an issued PDF** when the DWG is older than the issue: `work/tools/pdf_sheet_dump.py` (PyMuPDF; rotate text direction with the page) + `t1_sheet_prep.py` (fit PDF plot to sheet mm on texts common to both, keep text and table lines outside the view panels, grey header bands from the page render). Aseer fit: X = 1.0323 x - 19.2, Y = 1.0324 y - 20.26.
+- **PowerShell traps hit again:** variable names are case-blind (`$w`/`$W`, `$s`/`$S`, `$h`/`$H`, `$d`/`$D` all clashed in one session and silently shortened a family); a bare `-150` passed to a script function arrives as a string (write `(-150)`); Windows PowerShell 5 has no `? :`.
