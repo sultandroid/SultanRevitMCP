@@ -135,3 +135,14 @@ MEP sheets follow ISO 128: black lines on white, hidden line views, never colour
 Circuit layouts use curved arcs between devices, as on real projects, never straight lines across the room, and each circuit ends in a home-run arrow labelled with its number, not a line to the panel.
 
 Read the CAD's own DB schedule before writing one. Loads, breakers and cables come from it, not from assumptions. Confirm the site supply, single or three phase, before sizing. Electrical packages include a schedules sheet: mark, description, quantity, load, mounting, circuit and sheet.
+
+
+## Factory fabrication deliverables
+
+- For Samaya WOOD/GRC production scope, target fabrication-ready assemblies and shop drawings for confirmed/awarded items. LOD 300 is coordination geometry; an LOD label alone does not make a model suitable for manufacture. Use LOD 400 as shorthand only when it matches the agreed deliverable, and still verify the required information.
+- Before detailing, establish the project's approved source hierarchy, awarded scope, and applicable factory standards. Do not automatically substitute a remembered material standard or thickness from another project. Apply a factory material substitution only when approved for this project and record both design intent and approved production material.
+- Model fabrication-critical part breakdown, exact dimensions/profiles, material grade/build-up/thickness, finish code/sample, joints, hardware, tolerances, assembly, and installation interfaces only from approved drawings, specifications, engineering, or written decisions. Maintain traceable source/revision and evidence status in element comments/parameters and schedules.
+- Convert missing inputs into explicit RFIs/hold points with the required decision and responsible party. Do not invent hidden substrates, supports, fixings, reinforcement, joints, tolerances, or finish codes to make a model look complete.
+- Keep visualization material separate from specified finish. Mark unapproved appearance as “Color Unverified” and exclude it from shop schedules and fabrication release.
+- Prepare dimensioned plans/elevations/sections and assembly/details with parts marks, quantities, materials, finish, hardware, and revision/status. Reconcile schedules to the modeled parts. Show unresolved items and approval status clearly.
+- Treat model/shop drawing completion and fabrication release as separate gates. Record required design/client/engineering approval and controlled issue revision before production.
