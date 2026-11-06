@@ -32,6 +32,8 @@ Some shops sit inside a bigger project that has its own Revit model, and open in
 
 Samaya Factory builds in **EGGER laminates and painted FR MDF**, and this replaces veneer and HPL shown on design drawings. Confirm the codes for each project. On Madina 1: EGGER H1113 ST10 Brown Kansas Oak, EGGER U775 ST9 White Grey and F186 ST9 Light Chicago Concrete. EGGER thickness is 18 or 8 mm only. The legend shows the material actually used, not the design file's.
 
+- Keep material specification separate from the display colour used in Revit. Use cited material/finish codes when the source provides them. If the source names a species or generic painted finish but gives no approved colour/sample, any RGB appearance must be named and documented as a visual placeholder with unverified colour; do not present it as an approved finish or use it for fabrication release.
+
 ## Freestanding furniture
 
 Model counters, islands and displays as furniture families from the design file's furniture plan and detail sheets, named with their schedule code, such as D-01. Set the position from the furniture plan, and check it against the masonry, because built-in units may have moved since the drawing.
