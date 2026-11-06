@@ -192,7 +192,8 @@ if (free >= 30) {
 const txt = (x, y, tx, type = note) => call("create_text_note", { view_id: sheet, location: P(x, y), text: tx, text_type_id: type });
 // Keep the approved colour code whole (EGGER "H3710 ST12" is one code: the ST part is the texture), only drop notes in brackets.
 const shortM = (m) => m.replace(/\s*\(.*?\)/, "").slice(0, 52);
-const qty = (m, q) => /LED|PVC|Edge|Softwood|Angle|Peg\b|Hardwood Peg/.test(m) ? (/Peg/.test(m) ? `${q.n} no.` : `${q.len.toFixed(2)} m`) : /Handle|Support/.test(m) && q.n < 20 ? `${q.n} no.` : `${q.area.toFixed(2)} m2`;
+// A rail ring plus its posts is one welded set for the metal factory: count it as a set, not by area.
+const qty = (m, q) => /Rail\b/.test(m) ? "1 set" : /LED|PVC|Edge|Softwood|Angle|Peg\b|Hardwood Peg/.test(m) ? (/Peg/.test(m) ? `${q.n} no.` : `${q.len.toFixed(2)} m`) : /Handle|Support/.test(m) && q.n < 20 ? `${q.n} no.` : `${q.area.toFixed(2)} m2`;
 await txt(NOTES, 812, `${t.title.toUpperCase()}   QTY ${t.marks.length}\n${t.size ?? `${r(dx)} x ${r(dy)} x ${r(b.z1 - b.z0)}`}\nUnits: ${t.marks.join(", ")}`, bold);
 await txt(NOTES, 770, "KEYNOTES", bold);
 await txt(NOTES, 757, [...mats.map(([m], k) => `${k + 1}   ${shortM(m)}`), "Grey: 1700 mm figure, indicative"].join("\n"));
