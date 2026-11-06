@@ -40,6 +40,14 @@ Model counters, islands and displays as furniture families from the design file'
 
 **Every project has grids.** Take them from the source drawing where it has any. Otherwise set them on the inside faces of the existing walls (not on joinery faces), and always add centre grids both ways. Keep grid bubbles clear of section heads; put them on the other end if they clash. Always dimension grid to grid on every plan and elevation that shows grids. Number one direction (1, 2, 3) from right to left as seen from the entrance, and letter the other (A, B, C) from the front, and keep the same grids in every discipline file. Show them on all plans and sections, and dimension key items from them.
 
+## Scope and reference context
+
+- Read the project's scope and LOD requirements before modelling. Separate reference context from the contracted production scope.
+- Keep out-of-scope context within its stated maximum detail. Do not upgrade the whole context model to production detail just because some elements are missing.
+- Refine context only where it affects a production interface, and use a cited source drawing/revision for the relevant edge, level, host or clearance. Record the evidence and any open decision.
+- Treat approximate context envelopes as coordination aids, not approved dimensions, quantities, structural design or fabrication geometry. Do not infer hidden structure or site conditions from them.
+- If source information does not resolve an interface, leave it open for the responsible designer or site verification. Build awarded production elements in their assigned discipline model to the level needed for coordination and shop output.
+
 ## Modelling
 
 - Build fabricated units as families, one per unit, with a Mark and a Comments note. Export the marks and unit parts to CSV.
