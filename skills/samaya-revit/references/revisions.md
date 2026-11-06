@@ -55,3 +55,7 @@
 
 - **Use Per Sheet numbering** when one Revit model holds more than one submittal (Aseer Type 1 and Type 4 showcases). Revit refuses two revisions with the same number Per Project ("Revision Number 00 is used more than once"), so a second submittal's first issue cannot read 00. Per Sheet, each sheet numbers its own revisions, so every submittal starts at 00. Bridge: `set_revision_numbering_mode` {"mode": "per_sheet"}.
 - `set_revision_numbering` puts **every** revision on the new sequence. Moving revisions back one at a time creates a passing duplicate and is rolled back; leave them on the new sequence if its format is the same.
+
+## Revit 2026.3 template revision recovery (6 Nov 2026)
+
+Deleting the sole unused revision from the current Samaya Factory template triggered an internal RevisionSettings assertion and a Revit crash. This is specific observed behaviour, not a safe general deletion procedure. Keep that template revision unused; create and assign a new project revision to the sheet, then verify the displayed revision. Save geometry before revision operations. Do not repeat the sole-revision deletion on this template without reproducing and fixing it in an isolated test.
