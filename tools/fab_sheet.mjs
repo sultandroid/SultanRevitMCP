@@ -186,6 +186,7 @@ if (free >= 30) {
   await place(vFront, fx, fy); await place(vSide, sx, fy); await place(vTop, Math.max(fx, LEFT + wTop / 2 + 10), py);
   let cx = LEFT + wF + 10 + wS + 10, cy = TOP - hC / 2, row2 = false;
   for (const [v, w] of [[vA, wA], [vB, wB]]) { if (!row2 && cx + w > NOTES - 5) { row2 = true; cx = LEFT + wF + 15; cy = Math.min(TOP - hF - 25 - hC / 2, 50 + hC / 2 + 40); } await place(v, cx + w / 2, cy); cx += w + 10; }
+  L.row2Right = row2 ? cx : null; // where the location views may start when a section dropped to row two
   if (big) { await place(vDT, 351, pyD); await place(vDB, 682, pyD); }
 }
 // Text column.
@@ -225,7 +226,77 @@ const wb = { min: [Bw.x0, Bw.y0, Bw.z0], max: [Bw.x1, Bw.y1, Bw.z1] };
 const dirW = FACE === "+x" ? [-1, 1, -1] : FACE === "-x" ? [1, -1, -1] : rot === 90 ? [-1, -1, -1] : [1, 1, -1];
 const r3 = await unit3d(call, { name: P_ + "3D View", ids: [id], sheet, area: [X0, X1, Y0, Ytop], dir: dirW, style: "HLR", box: wb });
 const v3 = r3.view, s3 = r3.scale;
-log[key_] = { sheet, sheetNumber: SN, scale: s, scale3d: s3, keyPlanMarks: marks, views: { vFront, vSide, vA, vB, vTop, vDT, vDB, kp, v3 } };
+// Location: every item drawn in its place, not alone (user, 6 Nov 2026). A section through the unit's bay and a plan, NOT
+// isolated, with the unit in red, its neighbours, wall, floor and ceiling, and dimensions of the space it has: width between
+// its neighbours, height to whatever is above it, depth to the wall and the clear walkway in front. Neighbours are found by
+// rays from each face (probe_ray), so the views say what the unit really touches.
+const toW = (p) => (ROT ? { ...p, ...ROT(p) } : p);
+const SKIP = /Room|Line|Camera|Level|Grid|Section Box|Area|Space|Light|Electric|Fixture|Device|Terminal|Duct|Sprinkler|Pipe|Conduit|Cable|Data|Communication|Fire/i;
+const probe = async (o, d, max = 4000) => {
+  const r = await call("probe_ray", { origin: toW(o), direction: { ...toW({ x: d.x, y: d.y }), z: d.z ?? 0 }, max_distance_mm: max, limit: 12 }).catch(() => ({ hits: [] }));
+  const h = (r.hits ?? []).filter((x) => x.element_id !== id && !SKIP.test(x.category ?? "") && x.distance_mm > 0)[0];
+  if (!h) return null;
+  let label = h.link ? `${/wall/i.test(h.name ?? "") ? "existing wall" : (h.name ?? h.category) + " (existing)"}` : h.name ?? h.category;
+  if (!h.link) { const e = await call("get_element", { element_id: h.element_id }).catch(() => null); const mk = e?.parameters?.find((p) => p.name === "Mark")?.value; if (mk) label = mk; else if (/Ceiling/i.test(h.category ?? "")) label = "ceiling"; }
+  // short labels so the SPACE note stays clear of the 3D view: drop project-name prefixes of existing elements
+  label = String(label).replace(/^(Madina|Makkah|Existing)\s+(Existing\s+)?/i, "").slice(0, 32);
+  return { d: Math.max(0, h.distance_mm - 1), label };
+};
+const zm = (b.z0 + b.z1) / 2;
+// probe_ray sees only what the {3D} view shows: switch its section box off while probing, then back on (Revit keeps the box).
+const v3d = (await call("list_views", {})).views.find((v) => v.name === "{3D}")?.id;
+const boxOn = v3d ? (await call("get_element", { element_id: v3d })).parameters.find((p) => p.name === "Section Box")?.value === "Yes" : false;
+if (boxOn) await setv(v3d, "Section Box", 0);
+const NB = {
+  left: await probe(P(b.x0 + 1, yc, zm), { x: -1, y: 0 }), right: await probe(P(b.x1 - 1, yc, zm), { x: 1, y: 0 }),
+  up: await probe(P(xc, yc, b.z1 - 1), { x: 0, y: 0, z: 1 }, 2000), back: await probe(P(xc, b.y1 - 1, zm), { x: 0, y: 1 }, 3000),
+  front: await probe(P(xc, b.y0 + 1, Math.min(zm, 900)), { x: 0, y: -1 }, 6000),
+};
+if (boxOn) await setv(v3d, "Section Box", 1);
+const xL = NB.left ? b.x0 - NB.left.d : null, xR = NB.right ? b.x1 + NB.right.d : null;
+const zU = NB.up ? b.z1 + NB.up.d : C.ceiling ?? null, yB = NB.back ? b.y1 + NB.back.d : null, yF = NB.front ? b.y0 - NB.front.d : null;
+// context: 700 beyond the neighbours each side; in plan the walkway in front is shown up to 1500 (its full length is in the note)
+const LX0 = Math.min(xL ?? b.x0, b.x0) - 700, LX1 = Math.max(xR ?? b.x1, b.x1) + 700, LZ1 = Math.max(C.ceiling ?? 0, zU ?? 0, b.z1 + 300) + 250;
+const yFs = yF != null && b.y0 - yF <= 1500 ? yF : null;
+const PY1 = (yB ?? b.y1 + 300) + 250, PY0 = (yFs ?? b.y0 - 1500) - 250;
+// the plan is drawn north-up: for a side unit its width runs up the paper
+const wPl = (FACE ? PY1 - PY0 : LX1 - LX0), hPlan = (FACE ? LX1 - LX0 : PY1 - PY0);
+// free area for the two views: under Section B (or beside the top view), above the bottom margin, left of the 3D view
+// Row two holds the top view (and in the second layout a dropped section): the location views go to the right of what is there.
+const rx0 = free >= 30 ? (big ? L.A + 75 : Math.max(L.side, LEFT + wTop + 25)) : Math.max(LEFT + wTop + 25, (L.row2Right ?? 0) + 15) + (big ? 0 : 0), rx1 = NOTES - 35;
+const ry1 = TOP - hF - 40, ry0 = 50;
+const sL = [20, 25, 30, 40, 50, 75, 100, 150, 200].find((q) => Math.max(LX1 - LX0, wPl) / q <= rx1 - rx0 && (LZ1 + 150) / q + hPlan / q + 90 <= ry1 - ry0);
+let locNote = "";
+if (sL) {
+  const vLS = await sec("Location Section", "Location Section", P(LX0, yc), P(LX1, yc), P(0, 1, 0), (yB ?? b.y1 + 300) - yc + 80, sL, LZ1, -150);
+  await call("set_view_categories", { view_id: vLS, hide: ["OST_Sections", "OST_Elev", "OST_Callouts", "OST_Levels", "OST_Grids", "OST_CLines"] }).catch(() => {});
+  const lp = await call("duplicate_view", { view_id: planId, name: P_ + "Location Plan", option: "Duplicate" }), vLP = lp.id ?? lp.view_id;
+  for (const [n, x] of [["View Template", -1], ["View Scale", sL], ["Detail Level", 2], ["Title on Sheet", "Location Plan"], ["Crop View", 1], ["Annotation Crop", 1]]) await setv(vLP, n, x);
+  await call("set_view_categories", { view_id: vLP, hide: ["OST_Sections", "OST_Elev", "OST_Callouts", "OST_CLines", "OST_TextNotes", "OST_Grids"] }).catch(() => {});
+  // cut through the middle of the unit, so the plan shows its footprint and what stands beside it at that height
+  await call("set_view_range", { view_id: vLP, top_mm: zm + 200, cut_mm: zm, bottom_mm: 0 }).catch(() => {});
+  const c1 = toW(P(LX0, PY0)), c2 = toW(P(LX1, PY1)), qb = (await call("get_element", { element_id: vLP })).bounding_box;
+  const bx0 = Math.min(c1.x, c2.x), bx1 = Math.max(c1.x, c2.x), by0 = Math.min(c1.y, c2.y), by1 = Math.max(c1.y, c2.y);
+  await call("extend_view_crop", { view_id: vLP, left_mm: qb.min.x - bx0, right_mm: bx1 - qb.max.x, bottom_mm: qb.min.y - by0, top_mm: by1 - qb.max.y }).catch((e) => console.log("loc crop", e.message.slice(0, 80)));
+  for (const v of [vLS, vLP]) await call("set_element_overrides", { view_id: v, element_ids: [id], line_color: { r: 210, g: 20, b: 20 }, line_weight: 6 }).catch(() => {});
+  // dimensions: width chain under the floor line, height chain on the right, depth chain in plan through the unit centre
+  const wx = [xL, b.x0, b.x1, xR].filter((x) => x != null);
+  await dim(vLS, wx.map((x) => P(x, yc, -90)));
+  if (xL != null && xR != null) await dim(vLS, [P(xL, yc, LZ1 - 90), P(xR, yc, LZ1 - 90)]);
+  const hz = [...new Set([0, r(b.z0), r(b.z1), zU != null ? r(zU) : null, C.ceiling && (zU == null || Math.abs(zU - C.ceiling) > 5) ? C.ceiling : null].filter((z) => z != null))].sort((a, c) => a - c);
+  await dim(vLS, hz.map((z) => P(LX1 - 150, yc, z)));
+  await dim(vLP, wx.map((x) => P(x, b.y0 - 150, 0)));
+  const dyz = [yB, b.y1, b.y0, yFs].filter((y) => y != null);
+  if (dyz.length > 2) await dim(vLP, dyz.map((y) => P(xc, y, 0)));
+  const hS = (LZ1 + 150) / sL, hPl = hPlan / sL, cxL = (rx0 + rx1) / 2;
+  await place(vLS, cxL, ry1 - hS / 2 - 2);
+  await place(vLP, cxL, ry1 - hS - 25 - hPl / 2);
+  const w = (k, n) => (NB[k] ? `${n} ${NB[k].label} at ${r(NB[k].d)}` : `${n} nothing within reach`);
+  locNote = [`SPACE: ${xL != null && xR != null ? r(xR - xL) : "-"} wide x ${yB != null ? r(yB - b.y0) : "-"} deep x ${zU != null ? r(zU) : "-"} high`, `(floor to ${NB.up?.label ?? "ceiling"})`,
+    w("left", "Left:"), w("right", "Right:"), w("up", "Above:"), w("back", "Behind:"), w("front", "In front (walkway):")].join("\n");
+  await txt(rx0, Math.max(ry1 - hS - 30 - hPl - 22, 95), locNote);
+} else console.log("location views: no room on the sheet, scale not found");
+log[key_] = { sheet, sheetNumber: SN, scale: s, scale3d: s3, keyPlanMarks: marks, location: { scale: sL, NB }, views: { vFront, vSide, vA, vB, vTop, vDT, vDB, kp, v3 } };
 writeFileSync(LOG, JSON.stringify(log, null, 1));
 await call("save_document", { title: C.doc });
 console.log("done", key_, SN, "scale 1:" + s, "3D 1:" + s3, "rot", rot, "face", FACE, "key plan", marks + "/" + t.marks.length, "mats", mats.map(([m, q]) => m + "=" + qty(m, q)).join("; "));
