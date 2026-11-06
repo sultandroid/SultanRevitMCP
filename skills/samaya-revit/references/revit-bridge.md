@@ -205,7 +205,8 @@ Each Revit still runs its commands one at a time.
 ## Aseer Type 4 lessons (4 Nov 2026)
 
 - **Pass `document` on every call when another session shares the Revit.** The active model flipped to another session's file twice in one hour. The MCP tools do not take it yet, so script through the socket with `"document": "<title>"` (export_view_image works this way too and returns the PNG as base64).
-- **A ready socket client for this:** a 20-line Node `call(command, params)` that writes `{command, params}` + newline to 127.0.0.1:48884 and parses the reply (KAC: `Revit Files_workscriptsv.mjs`). Pass JSON through stdin or a file; Windows paths in an inline heredoc lost their backslashes, so use forward slashes. An MCP call made while another session has its model active fails with "No element with id": that is the active-document flip, not a bad id.
+- **A ready socket client for this:** a 20-line Node `call(command, params)` that writes `{command, params}` + newline to 127.0.0.1:48884 and parses the reply (KAC: `Revit Files_workscripts
+v.mjs`). Pass JSON through stdin or a file; Windows paths in an inline heredoc lost their backslashes, so use forward slashes. An MCP call made while another session has its model active fails with "No element with id": that is the active-document flip, not a bad id.
 - **`make_unit_family` puts the family origin at the bounding-box minimum of the elements, not at 0,0.** Read `origin_mm` from the result and offset every placement by it (KAC frame: origin at local -250, 58).
 - **Never send bridge writes in parallel** (`Promise.all` over `create_text_note`): the add-in answered "Object reference not set" and left about 90 duplicate notes behind (KAC, 5 Nov 2026). Send writes one at a time; before re-running a sheet script, delete the sheet’s text notes (`query_elements` view_id = sheet, category OST_TextNotes).
 - **Dimensions from `create_dimension_string` hang on detail ticks (OST_Lines).** Deleting a view’s detail lines to redraw swing lines also deletes its dimensions: redraw them after. **Edit a sheet note’s text with `replace_text`** (socket only): `pairs: [{find, replace}]`; text notes expose no Text parameter through `get_element`.
@@ -276,3 +277,13 @@ Bridge note: this Revit loads handlers only from the folder `handlers\20261104-0
 - **PDF only, no DWG (e.g. a subcontractor sheet sent as PDF):** AutoCAD's `-PDFIMPORT` runs in accoreconsole (`F`, file, page, `0,0`, scale `1`, rotation `0`, then SAVEAS). It keeps the PDF's own drawing scale (GBH's 1:13 model units came back exactly), and true-type text stays text; SHX captions come in as lines. Feed the DWG into the same cut/import tools as a native DWG, and name views from their text labels, not captions.
 - **Revisions with Per Sheet numbering:** `create_revision` and `set_revision_sequence` fail while numbering is Per Sheet. Switch to Per Project (`set_revision_numbering_mode`), create the revision and set its sequence, then switch back. `set_sheet_revisions` works in either mode.
 - **Plan overrides hidden by a link:** a linked model's own casework at the same spot draws over a host element's colour override. Hide that category in the view (the link follows the host's category visibility).
+
+## CAD geometry and datum checks (6 Nov 2026)
+
+Use `inspect_cad_geometry` on an ImportInstance to read source layer counts and vector endpoints without exploding the import. Filter by layer and page large results. Nested block transforms are accumulated; output coordinates are host-model millimetres. These are CAD reference vectors, not evidence that the design was built.
+
+`inspect_datums` reports actual grid endpoints (optionally transformed from a Revit link) and source level elevations. `set_elements_pinned` pins specific elements and returns the resulting states; use it on datum links. Neither command establishes Copy/Monitor relationships or a verified survey transform.
+
+### CAD filled regions and surfaces
+
+`inspect_cad_geometry` also reports non-curve object kinds by layer. With `include_surfaces: true`, upward planar faces of CAD solids return closed tessellated loops in host mm; their areas are explicitly source-symbol areas. With `include_meshes: true`, hatch meshes return boundary edges with shared triangle edges removed. These flags default to false to keep ordinary curve responses small. CAD fills can be wall hatches or existing-context shading: do not treat every large fill as a floor plate. Match its layer, source label and plan context first.
