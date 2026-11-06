@@ -283,3 +283,7 @@ Bridge note: this Revit loads handlers only from the folder `handlers\20261104-0
 Use `inspect_cad_geometry` on an ImportInstance to read source layer counts and vector endpoints without exploding the import. Filter by layer and page large results. Nested block transforms are accumulated; output coordinates are host-model millimetres. These are CAD reference vectors, not evidence that the design was built.
 
 `inspect_datums` reports actual grid endpoints (optionally transformed from a Revit link) and source level elevations. `set_elements_pinned` pins specific elements and returns the resulting states; use it on datum links. Neither command establishes Copy/Monitor relationships or a verified survey transform.
+
+### CAD filled regions and surfaces
+
+`inspect_cad_geometry` also reports non-curve object kinds by layer. With `include_surfaces: true`, upward planar faces of CAD solids return closed tessellated loops in host mm; their areas are explicitly source-symbol areas. With `include_meshes: true`, hatch meshes return boundary edges with shared triangle edges removed. These flags default to false to keep ordinary curve responses small. CAD fills can be wall hatches or existing-context shading: do not treat every large fill as a floor plate. Match its layer, source label and plan context first.
