@@ -64,7 +64,7 @@ const destructive = { readOnlyHint: false, destructiveHint: true };
 
 // All lengths and coordinates are in millimetres. Every model change is one named undo step in Revit.
 const tools = [
-  ["inspect_cad_geometry", "Read CAD vectors and layer counts without exploding or changing the import. Coordinates are host model mm. Use layer_contains and pagination for large imports.", { element_id: id, layer_contains: z.string().optional(), limit: z.number().int().min(0).max(50000).optional(), offset: z.number().int().min(0).optional() }, read],
+  ["inspect_cad_geometry", "Read CAD vectors and layer counts without exploding or changing the import. Coordinates are host model mm. Use layer_contains and pagination for large imports. include_meshes adds hatch mesh boundary edges; include_surfaces adds upward planar solid-face loops. Face areas are in source-symbol coordinates.", { element_id: id, layer_contains: z.string().optional(), include_meshes: z.boolean().optional(), include_surfaces: z.boolean().optional(), limit: z.number().int().min(0).max(50000).optional(), offset: z.number().int().min(0).optional() }, read],
   ["inspect_datums", "Read grid endpoints and level elevations, optionally from a loaded Revit link. Linked grid endpoints are transformed into host coordinates.", { link_instance_id: id.optional() }, read],
   ["set_elements_pinned", "Pin or unpin specified elements, such as datum links. Returns their actual pin states.", { element_ids: ids, pinned: z.boolean().optional() }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["list_documents", "List the documents open in Revit, including linked models. No activation, no writes.", {}, read],
