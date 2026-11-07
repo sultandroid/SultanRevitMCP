@@ -10,7 +10,16 @@
   "designer": "Insignia Design Group",
   "contractor": "Samaya Factory",
   "location": "Knowledge Economic City (KEC), Madinah",
-  "order_folder": "Samaya/Orders/2026/038 متجر المدينة 1",
+  "onedrive": {
+    "root": "OneDrive - SAMAYA INVESTMENT/Samaya",
+    "project_folder": "Technical Office/Bim Unit/Knowledge Econmic City_ShopFit projects/Madina 1",
+    "revit_models": "Technical Office/Bim Unit/Knowledge Econmic City_ShopFit projects/Madina 1/Revit Files/Rvt",
+    "design_files": "Technical Office/Bim Unit/Knowledge Econmic City_ShopFit projects/Madina 1/Design Files",
+    "boq": "Technical Office/Bim Unit/Knowledge Econmic City_ShopFit projects/Madina 1/B.O.Q",
+    "order_folder": "Orders/2026/038 متجر المدينة 1",
+    "fabrication_package": "Orders/2026/038 متجر المدينة 1/Final Fabrications Drawings",
+    "approved_colours": "Orders/2026/038 متجر المدينة 1/الوان الاخشاب متجر الغمامة (this is Madina 1's, user confirmed 6 Nov 2026)"
+  },
   "people": {
     "drawn_by": "Lorch",
     "information_manager": "Mohamed Sultan",

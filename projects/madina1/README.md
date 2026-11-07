@@ -2,6 +2,19 @@
 
 تنفيذ متجر مدينة المعرفة 1 (ستايل مديني). A shop fit-out in the Knowledge Economic City (KEC) mall, Madinah. The client is شركة هدايا طيبة, the designer is Insignia Design Group, and the builder is Samaya Factory. All project data is in [project.json](project.json): models, levels, colours, revisions, sheets and open items.
 
+## Where it is on OneDrive
+
+All paths are under `OneDrive - SAMAYA INVESTMENT/Samaya/`.
+
+| What | Folder |
+|---|---|
+| Project folder | `Technical Office/Bim Unit/Knowledge Econmic City_ShopFit projects/Madina 1` |
+| Revit models | `.../Madina 1/Revit Files/Rvt` (ARCH, MECH, ELEC, FIN EXISTING MODEL) |
+| Designer files | `.../Madina 1/Design Files` (rev-01, rev-02) |
+| BOQ | `.../Madina 1/B.O.Q` |
+| Order folder | `Orders/2026/038 متجر المدينة 1` |
+| Fabrication package | `Orders/2026/038 متجر المدينة 1/Final Fabrications Drawings` |
+
 ## Main decisions
 
 - **Keel arch** on all arch units, replacing the five-centred arch (Rev 04).
