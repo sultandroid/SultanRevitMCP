@@ -1,0 +1,65 @@
+{
+  "_about": "Project data for SultanRevitMCP tools (BEP, sheets, BCF). Project data comes from the user; never guess it.",
+  "code": "MAD1",
+  "number": "HT-KEC-MAD01",
+  "name_ar": "تنفيذ متجر مدينة المعرفة 1 (ستايل مديني)",
+  "name_en": "Knowledge Economic City Store 1 (Madina style)",
+  "client": "شركة هدايا طيبة",
+  "client_en": null,
+  "consultant": "Samaya Invest",
+  "designer": "Insignia Design Group",
+  "contractor": "Samaya Factory",
+  "location": "Knowledge Economic City (KEC), Madinah",
+  "order_folder": "Samaya/Orders/2026/038 متجر المدينة 1",
+  "people": {
+    "drawn_by": "Lorch",
+    "information_manager": "Mohamed Sultan",
+    "checker": "Mohamed Sultan"
+  },
+  "client_requirements": "None received. If the client issues an EIR or BIM standard, it overrides this BEP.",
+  "models": [
+    { "file": "Madina1_EXT.rvt", "folder": "Revit Files/Rvt/FIN EXISTING MODEL", "discipline": "Existing shell (as-built)", "role": "A", "links": [] },
+    { "file": "Madina1_ARCH_02_Keel-Option2.rvt", "folder": "Revit Files/Rvt/ARCH", "discipline": "Architecture and joinery (live model)", "role": "A", "links": ["Madina1_EXT.rvt"] },
+    { "file": "Madina1_MECH.rvt", "folder": "Revit Files/Rvt/MECH", "discipline": "Mechanical (HVAC)", "role": "M", "links": ["Madina1_EXT.rvt", "Madina1_ARCH_02_Keel-Option2.rvt"] },
+    { "file": "Madina1_ELEC.rvt", "folder": "Revit Files/Rvt/ELEC", "discipline": "Electrical", "role": "E", "links": ["Madina1_ARCH_02_Keel-Option2.rvt"] }
+  ],
+  "superseded_models": ["Madina1_ARCH.rvt", "Madina1_ARCH_02.rvt", "Madina1_ARCH_02_Round-Option.rvt"],
+  "design_source": "Insignia rev-02 (Madina 1/Design Files/rev-02) and the as-built CAD",
+  "key_levels": {
+    "ceiling_C01": "+3.07 gypsum, one 200 step up to the tray",
+    "tray_C02": "+3.27",
+    "grilles": "150 mm",
+    "shadow_gap": "20 mm min between joinery and ceiling"
+  },
+  "approved_colours": [
+    { "code": "EGGER H1113 ST10", "name": "Brown Kansas Oak", "where": "arch units, low bays, shelves, mihrab and niche units, island, counter top, fillers" },
+    { "code": "EGGER U775 ST9", "name": "White Grey", "where": "base cabinet and counter carcasses" },
+    { "code": "EGGER F186 ST9", "name": "Light Chicago Concrete", "where": "base cabinet doors (18 mm)" },
+    { "code": "RAL to confirm", "name": "Black paint", "where": "skirtings, plinths, mihrab steel, carpet hanger" },
+    { "code": "to confirm", "name": "Strip cladding HPL light grey", "where": "SC-A, SC-B" }
+  ],
+  "revisions": [
+    { "no": "04", "date": "03 Nov 2026", "note": "Arches changed to keel arch, marble fascia from +2.330" },
+    { "no": "05", "note": "Ceiling +3.07 with 150 grilles, A-1302 redrawn, niche cabinet skirting" },
+    { "no": "06", "date": "06 Nov 2026", "note": "Approved EGGER colours: F186 ST9 on base cabinet doors; full codes" }
+  ],
+  "deliverables": [
+    { "series": "A-1001..", "title": "General arrangement plans and RCP (A-1302 ceiling)" },
+    { "series": "A-2000..A-2106", "title": "Fabrication drawings: arch units and low bays (A-2106 marble, not in the factory set)" },
+    { "series": "A-2200..A-2203", "title": "Base cabinets and counters" },
+    { "series": "A-2300..A-2307", "title": "Mihrab, niche cabinets, island (A-2302 study, not in the factory set)" },
+    { "series": "A-2401..A-2402", "title": "Pegboard and metal work" },
+    { "series": "A-2501..A-2502", "title": "Strip cladding (separate item)" },
+    { "series": "E-1202", "title": "Electrical layout for joinery" }
+  ],
+  "fabrication_package": {
+    "folder": "Orders/2026/038 متجر المدينة 1/Final Fabrications Drawings",
+    "current_rev": "06",
+    "contents": ["00 READ ME - Index.pdf", "PDF (26 sheets + full set)", "DWG (clean)", "3D Model (carpentry) as ACIS solids", "CNC DXF per curved or holed part, with CSV cut lists", "Colours (approved)"]
+  },
+  "open_items": [
+    "Black paint RAL (user will send)",
+    "Strip cladding HPL grey code (user will send)",
+    "Then: rename the to-confirm materials, update sheet notes, issue Rev 07, re-export the package"
+  ]
+}
