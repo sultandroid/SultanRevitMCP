@@ -9,7 +9,7 @@ Source is in `revit-mcp/`. Client helper: `tools/rvt.mjs`. Raw socket on 127.0.0
 - It works only on the **active document**. Check `get_project_info` title before every write.
 - The active document does not stay put. After open_document or activate_document, Revit can flip back to another open document between calls or between script runs. A long script on a second document must call activate_document and assert the title before each step. Make scripts resumable, skipping steps already logged, so a flip costs only a resume. On Madina 1 an ELEC rebuild flipped to ARCH halfway and saved with half its circuits gone.
 - To work in a linked discipline file, close the host and open that file alone. Confirm from the title before any write, and reload the link in the host afterwards.
-- There are no save, open or link commands. The user saves: click in the drawing area, press Ctrl+S. Do not send save keystrokes, Revit hung after one. Verify with file time and `is_modified`.
+- Use the bridge's `open_document`, `save_document` and `close_document` commands for document control. Never ask the user to save with a click or keyboard shortcut. Verify saves with file time and `is_modified`.
 - Use `export_view_image` to see results. Otherwise check with `probe_ray`, bounding boxes and counts.
 
 ## Installing the add-in
