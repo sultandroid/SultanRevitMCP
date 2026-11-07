@@ -11,7 +11,7 @@ function Put($ws, $rows, $hdrRow) { $rr = 1; foreach ($row in $rows) { $col = 1;
 try {
   $wb = $xl.Workbooks.Add(); while ($wb.Worksheets.Count -lt 3) { $wb.Worksheets.Add([Type]::Missing, $wb.Worksheets.Item($wb.Worksheets.Count)) | Out-Null }
   $ws = $wb.Worksheets.Item(1); $ws.Name = "Steel"
-  $rows = @(,@($Title)); $rows += ,@("Net quantities from the model geometry, no waste allowance. Lengths are member centrelines. Plates and anchors ASSUMED - structural check needed."); $rows += ,@("")
+  $rows = @(,@($Title)); $rows += ,@("Net quantities from the model geometry, no waste allowance. Lengths are member centrelines. Cleats and anchors as the structural calculation note."); $rows += ,@("")
   $rows += ,@("Component", "Section", "Count", "Total length (m)", "kg/m", "Weight (kg)")
   foreach ($s in $T.steel) { $rows += ,@($s.component, $s.section, $s.count, $s.length_m, $s.kg_m, $s.weight_kg) }
   foreach ($p in $T.plates) { $rows += ,@($p.component, "Plate", $p.count, "", ("{0} kg each" -f $p.kg_each), $p.weight_kg) }

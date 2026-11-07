@@ -113,6 +113,7 @@ namespace RevitMcp
             ["rename_materials"] = RenameMaterials,
             ["create_pipe_run"] = CreatePipeRun,
             ["create_duct_run"] = CreateDuctRun,
+            ["create_opening"] = CreateOpening,
             ["connect_ducts"] = ConnectDucts,
             ["list_family_text"] = ListFamilyText,
             ["set_family_text"] = SetFamilyText,
@@ -1761,7 +1762,13 @@ namespace RevitMcp
             var view = views.FirstOrDefault(v => v.Name == "{3D}") ?? views.FirstOrDefault()
                        ?? throw new InvalidOperationException("Probing needs a 3D view in the model.");
 
-            var intersector = new ReferenceIntersector(new ElementClassFilter(typeof(FamilySymbol), true), FindReferenceTarget.Face, view)
+            var rayTarget = (Str(p, "target") ?? "family").Trim().ToLowerInvariant();
+            ElementFilter rayFilter = rayTarget == "walls"
+                ? new ElementClassFilter(typeof(Wall), true)
+                : rayTarget == "all"
+                    ? new ElementIsElementTypeFilter(false)
+                    : new ElementClassFilter(typeof(FamilySymbol), true);
+            var intersector = new ReferenceIntersector(rayFilter, FindReferenceTarget.Face, view)
             {
                 FindReferencesInRevitLinks = true,
             };
@@ -3550,12 +3557,21 @@ namespace RevitMcp
             var level = RequireLevel(doc, ReqId(p, "level_id"));
             var points = (p["points"] as JsonArray ?? throw new ArgumentException("points is required.")).Select(ToPoint).ToList();
             if (points.Count < 2) throw new ArgumentException("points needs at least 2 points.");
-            var classification = Enum.TryParse<MEPSystemClassification>(ReqStr(p, "system"), true, out var parsed)
-                ? parsed
-                : throw new ArgumentException("system must be DomesticColdWater, DomesticHotWater or Sanitary.");
+            var sysStr = ReqStr(p, "system");
+            MEPSystemClassification classification;
+            string createName = null;
+            if (sysStr.Equals("FireProtection", StringComparison.OrdinalIgnoreCase)) { classification = MEPSystemClassification.FireProtectWet; createName = "Fire Protection"; }
+            else if (sysStr.Equals("ChilledWater", StringComparison.OrdinalIgnoreCase)) { classification = MEPSystemClassification.SupplyHydronic; createName = "Chilled Water"; }
+            else if (!Enum.TryParse<MEPSystemClassification>(sysStr, true, out classification))
+                throw new ArgumentException("system must be DomesticColdWater, DomesticHotWater, Sanitary, FireProtection or ChilledWater.");
             var system = new FilteredElementCollector(doc).OfClass(typeof(Autodesk.Revit.DB.Plumbing.PipingSystemType)).Cast<Autodesk.Revit.DB.Plumbing.PipingSystemType>()
-                             .FirstOrDefault(s => s.SystemClassification == classification)
-                         ?? throw new InvalidOperationException($"This model has no piping system for {classification}.");
+                             .FirstOrDefault(s => createName != null ? s.Name.Equals(createName, StringComparison.OrdinalIgnoreCase) : s.SystemClassification == classification);
+            if (system == null)
+                InTransaction(doc, "Create piping system type", () =>
+                {
+                    system = Autodesk.Revit.DB.Plumbing.PipingSystemType.Create(doc, classification, createName ?? classification.ToString());
+                    return new JsonObject { ["created"] = system.Name };
+                });
             var pipeType = new FilteredElementCollector(doc).OfClass(typeof(Autodesk.Revit.DB.Plumbing.PipeType)).FirstElementId();
             if (pipeType == ElementId.InvalidElementId) throw new InvalidOperationException("This model has no pipe type.");
             var diameter = FromMm(ReqNum(p, "diameter_mm"));

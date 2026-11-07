@@ -112,6 +112,7 @@ const tools = [
     direction: point.describe("Ray direction; only its direction is used"),
     max_distance_mm: z.number().positive().optional().describe("Default 5000"),
     limit: z.number().int().min(1).max(50).optional().describe("Default 8"),
+    target: z.enum(["family", "walls", "all"]).optional().describe("What the ray may hit: family instances (default), walls only, or every model element"),
   }, read],
   ["inspect_cut", "Report whether a family instance can be cut, and what geometry its family holds. Changes nothing.", {
     element_id: id,
@@ -363,6 +364,23 @@ const tools = [
     comments: z.string().optional(),
   }, additive],
   ["create_panel_schedule", "Create a Revit panel schedule (DB schedule) for a panel.", { panel_id: id }, additive],
+  ["create_opening", "Cut a rectangular opening in a wall at two opposite corners on the wall plane (mm). The wall keeps its identity, so a door or window family can host in it later.", {
+    document: z.string().describe("Exact full path of the open, writable target RVT"),
+    wall_id: id,
+    corner_a: point,
+    corner_b: point,
+    comments: z.string().optional(),
+  }, additive],
+  ["create_duct_run", "Create one native rectangular duct between two points. No fittings, turns or equipment connections.", {
+    document: z.string().describe("Exact full path of the open, writable target RVT"),
+    system_type_id: id,
+    duct_type_id: id,
+    level_id: id,
+    width_mm: z.number().positive(),
+    height_mm: z.number().positive(),
+    points: z.array(point).length(2),
+    comments: z.string().optional(),
+  }, additive],
   ["create_circuit", "Create a power circuit from electrical devices, optionally assigning it to a panel.", {
     device_ids: ids,
     panel_id: id.optional(),

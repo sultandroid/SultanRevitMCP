@@ -63,6 +63,7 @@ Build it with `tools/costing/build_cost_workbook.ps1 -Spec cost_spec.json -Out "
 | Consumables and welding | m² | 7.5 | assumed |
 | Anchor M12 | no. | 6 | assumed |
 | NJ barrier 1000x800x500, ready-made | no. | 380 (+60 handling) | assumed - get a supplier quote (buy or rent) |
+| NJ concrete barrier 50x85x100 cm (KAC PO P02874, Shield Capital, 5 Nov 2026) | no. | 45 (+25 transport, unload, place) | Odoo PO (draft) - confirm buy or rent; read POs from Odoo read-only with the access file |
 | Steel site gate double 2600x2500 / door single 1200x2500 | no. | 4,500 / 2,200 | assumed - workshop quote |
 
 ## Notes file (ملاحظات التسعير)
@@ -85,4 +86,4 @@ Same headings every time: header (code, date, status), البنود table (direc
 ## Projects
 
 - **DAS** (Dar Al Salam, advertising hoarding tender, 30 Oct 2026): `G:\My Drive\02_Tenders_Costing\DAS — ...\COST-DAS-FENCE Rev01 (مصدر الحساب).xlsx`, 5,380 m², 2,904,635 SAR incl. VAT.
-- **KAC** (King Abdullah Humanitarian Foundation, site hoarding, 5 Nov 2026): `G:\My Drive\01_Projects\King Abdullah Center — SIC-004-MUM-MMH\03_Cost\`, 71.5 m x 2.5 m, NJ base and NJ ballast, 179,154 SAR incl. VAT (preliminary, supplier prices assumed).
+- **KAC** (King Abdullah Humanitarian Foundation, site hoarding, 5 Nov 2026): `G:\My Drive\01_Projects\King Abdullah Center — SIC-004-MUM-MMH\03_Cost\`, 71.5 m x 2.5 m, NJ base and NJ ballast, 179,154 SAR incl. VAT (preliminary, supplier prices assumed). Rev03 (6 Nov 2026, final design: h 2.59, triangle frames, 108 NJ at the PO price): 106,188 SAR incl. VAT.

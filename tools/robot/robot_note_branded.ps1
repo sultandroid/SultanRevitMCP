@@ -131,23 +131,8 @@ if ($K.out_pdf) {
     # 4 pictures after the title page to the full text width
     $tw = [single]($doc.PageSetup.PageWidth - $doc.PageSetup.LeftMargin - $doc.PageSetup.RightMargin)
     if (-not $K.images) { $i = 0; foreach ($s in $doc.InlineShapes) { $i++; if ($i -le 4) { continue }; $s.LockAspectRatio = -1; if ($s.Width -lt $tw) { $s.Width = $tw } } }
-    # 4b high-res result pictures (config images: [{path, caption}]) at the start of the body, one or two per page
-    if ($K.images) {
-      $t0 = $doc.Content.Text; $pb2 = $t0.IndexOf([char]12)
-      $at = $doc.Range($pb2 + 1, $pb2 + 1)
-      $at.InsertParagraphBefore(); $at = $doc.Range($pb2 + 1, $pb2 + 1)
-      $at.Text = "Analysis results - pictures"; $at.Font.Size = [single]13; $at.Font.Bold = 1; $at.Font.Color = 0x3F2A1F; $at.ParagraphFormat.SpaceAfter = [single]6
-      $cur = $at.End
-      $k2 = 0
-      foreach ($im in $K.images) { $k2++
-        $r = $doc.Range($cur, $cur); $r.InsertParagraphAfter(); $r = $doc.Range($cur + 1, $cur + 1)
-        $sh = $doc.InlineShapes.AddPicture([string]$im.path, $false, $true, $r); $sh.LockAspectRatio = -1; $sh.Width = $tw
-        $sh.Range.ParagraphFormat.Alignment = 1; $sh.Range.ParagraphFormat.KeepWithNext = -1; $sh.Range.ParagraphFormat.SpaceBefore = [single]6
-        $e = $sh.Range.End; $c = $doc.Range($e, $e); $c.InsertParagraphAfter(); $c = $doc.Range($e + 1, $e + 1)
-        $c.Text = "Figure " + $k2 + "  " + [string]$im.caption; $c.Font.Size = [single]8.5; $c.Font.Italic = 1; $c.Font.Bold = 0; $c.ParagraphFormat.Alignment = 1; $c.ParagraphFormat.SpaceAfter = [single]10
-        $cur = $c.End
-        if ($k2 % 2 -eq 0 -or $k2 -eq $K.images.Count) { $pbr = $doc.Range($cur, $cur); $pbr.InsertBreak(7); $cur = $cur + 1 } }
-      $log += "pictures inserted: $k2" }
+    # 4b (pictures) runs after the tables are rebuilt, see below: inserted before step 5 they landed inside the first
+    # Robot table, the rebuild dropped them (blank pages) and pushed their captions into the table header (KAC 7 Nov 2026).
     # 5 tables (skip the title-page table): Arial 7, shaded repeating header, rows kept whole, fitted to the page width
     # Robot writes each table on a wide grid of mostly empty cells, so Word cannot fit it. Rebuild every table:
     # read the values row by row, drop columns that are empty in every row, and convert clean tab text back to a table.
@@ -163,6 +148,9 @@ if ($K.out_pdf) {
         if ($line) { [void]$rows.Add(@($line)) } }
       $rows = @($rows | Where-Object { ($_ -join "").Trim().Length -gt 0 })
       if ($rows.Count -eq 0) { continue }
+      # Robot repeats the header row inside long tables: drop the repeats (Word repeats the header itself), otherwise
+      # no column is ever "the same in every row" and the table stays too wide (KAC 7 Nov 2026)
+      if ($rows.Count -gt 2) { $h0 = ($rows[0] -join "|"); $rows = @(, $rows[0]) + @($rows[1..($rows.Count - 1)] | Where-Object { ($_ -join "|") -ne $h0 }) }
       $nc = ($rows | ForEach-Object { $_.Count } | Measure-Object -Maximum).Maximum
       $keep = @(0..($nc - 1) | Where-Object { $ci = $_; @($rows | Where-Object { $ci -lt $_.Count -and $_[$ci] -ne "" }).Count -gt 0 })
       # columns with the same value in every data row carry no information: list them once under the table
@@ -174,7 +162,7 @@ if ($K.out_pdf) {
       $start = $t.Range.Start; $t.Delete()
       $rng = $doc.Range($start, $start); $rng.InsertBefore($text + "`r"); $rng = $doc.Range($start, $start + $text.Length)
       $nt = $rng.ConvertToTable(1, $rows.Count, $keep.Count)
-      $nt.Range.Font.Name = "Arial"; $nt.Range.ParagraphFormat.SpaceBefore = 0; $nt.Range.ParagraphFormat.SpaceAfter = 0; $nt.Range.ParagraphFormat.Alignment = 0
+      $nt.Range.Font.Name = "Arial"; $nt.Range.Font.Bold = 0; $nt.Range.Font.Italic = 0; $nt.Range.ParagraphFormat.SpaceBefore = 0; $nt.Range.ParagraphFormat.SpaceAfter = 0; $nt.Range.ParagraphFormat.Alignment = 0
       $nt.Borders.Enable = 1; $nt.Borders.InsideColor = 0xBBBBBB; $nt.Borders.OutsideColor = 0x888888
       $nt.TopPadding = 1; $nt.BottomPadding = 1; $nt.LeftPadding = 3; $nt.RightPadding = 3
       $nt.Rows.Item(1).HeadingFormat = -1; $nt.Rows.Item(1).Range.Font.Bold = 1; $nt.Rows.Item(1).Shading.BackgroundPatternColor = 0xEEEEEE
@@ -187,6 +175,24 @@ if ($K.out_pdf) {
       $nt.Rows.Alignment = 1; $nOk++
       if ($const.Count) { $after = $nt.Range; $after.Collapse(0); $after.InsertAfter("Same in every row: " + ($const -join ";  ") + "`r"); $after.Font.Size = [single]7; $after.Font.Italic = 1; $after.Font.Bold = 0 } }
     $log += "tables rebuilt: $nOk"
+    # 4b high-res result pictures (config images: [{path, caption}]) after the title page, two per page, in their own
+    # paragraphs OUTSIDE the first table: everything goes in just before one empty paragraph that sits above that table.
+    if ($K.images) {
+      $pb2 = $doc.Content.Text.IndexOf([char]12)
+      $at = $doc.Range($pb2 + 1, $pb2 + 1)
+      if ($at.Information(12)) { [void]$at.Tables.Item(1).Split(1) } else { $at.InsertParagraphBefore() }   # 12 = wdWithInTable; Split(1) puts an empty paragraph above the table
+      $script:pm = $pb2 + 1
+      $fmt = { param($rg, $size, $bold, $italic, $align, $after) $rg.Font.Hidden = 0; $rg.Font.Name = "Arial"; $rg.Font.Size = [single]$size; $rg.Font.Bold = $bold; $rg.Font.Italic = $italic
+        $rg.ParagraphFormat.LineSpacingRule = 0; $rg.ParagraphFormat.Alignment = $align; $rg.ParagraphFormat.SpaceBefore = [single]6; $rg.ParagraphFormat.SpaceAfter = [single]$after }
+      $put = { param($txt) $r = $doc.Range($script:pm, $script:pm); $r.InsertBefore($txt + "`r"); $script:pm = $r.End; $r }
+      $r = & $put "Analysis results - pictures"; & $fmt $r 13 1 0 0 6; $r.Font.Color = 0x3F2A1F
+      $k2 = 0
+      foreach ($im in $K.images) { $k2++
+        $r = & $put ""; $sh = $doc.InlineShapes.AddPicture([string]$im.path, $false, $true, $doc.Range($r.Start, $r.Start)); $sh.LockAspectRatio = -1; $sh.Width = $tw
+        $pr = $sh.Range.Paragraphs.Item(1).Range; & $fmt $pr 8.5 0 0 1 0; $pr.ParagraphFormat.KeepWithNext = -1; $script:pm = $pr.End
+        $r = & $put ("Figure " + $k2 + "  " + [string]$im.caption); & $fmt $r 8.5 0 1 1 10
+        if ($k2 % 2 -eq 0 -or $k2 -eq $K.images.Count) { $r = $doc.Range($script:pm, $script:pm); $r.InsertBefore([string][char]12); $script:pm = $r.End } }
+      $log += "pictures inserted: $k2 (shapes in document: $($doc.InlineShapes.Count))" }
     $wd.Options.Pagination = $true; $doc.Repaginate()
     if ($K.out_docx) { $doc.SaveAs2($K.out_docx, 16) }
     $doc.ExportAsFixedFormat($K.out_pdf, 17); $log += "pdf pages: " + $doc.ComputeStatistics(2); $doc.Close($false) }

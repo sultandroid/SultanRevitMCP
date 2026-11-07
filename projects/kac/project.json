@@ -1,0 +1,30 @@
+{
+  "_about": "Project data for SultanRevitMCP tools (BEP, sheets, BCF). Project data comes from the user; never guess it.",
+  "code": "KAC",
+  "number": "SIC-004-MUM-MMH",
+  "name_ar": "مشروع تصميم وتنفيذ أعمال المعرض المتحفي بمقر مؤسسة الملك عبدالله",
+  "name_en": "King Abdullah Center - Museum Exhibition Works (KAHF Permanent Museum Exhibition, PME)",
+  "client": "مؤسسة الملك عبدالله الإنسانية",
+  "client_en": "King Abdullah Humanitarian Foundation (KAHF), Riyadh",
+  "contractor": "Samaya Investment Company (SIC) - Samaya Factory",
+  "people": {
+    "checker": "Mohamed Sultan",
+    "approver": "Eng. Ahmed Salah - Project Manager (SIC)",
+    "client_approver": "Eng. Ahmed Abdullah Al-Ouairi - Acting Director of Engineering Affairs (KAHF)"
+  },
+  "coding": {
+    "source": "KAHF_PME_Submittal_Coding_System.pdf (client-approved, contractor signed 2 Nov 2026; project 00_Source_Documents)",
+    "pattern": "KAHF-PME-SIC-<type>-<discipline>-<serial 4 digits>",
+    "serial": "restarts at 0001 for each type + discipline",
+    "sheet_suffix": "-01, -02 ... for the sheets of one submittal (Samaya practice, 7 Nov 2026)",
+    "types": { "SD": "Shop Drawings", "MAR": "Material Approval Request", "PQ": "Pre-Qualification", "LET": "Letter", "RFI": "Request for Information", "MIR": "Material Inspection Request", "WIR": "Work Inspection Request", "SNA": "Snag List", "IR": "Inspection Request / Report", "DD": "Detailed Design Drawings", "DOC": "Document Submittal (plans, reports, calc notes)", "IFC": "Issued For Construction" },
+    "disciplines": { "CI": "Civil / Structural", "AR": "Architectural", "ME": "Mechanical", "EL": "Electrical", "MEP": "MEP coordination", "GEN": "General / PM", "ID": "Interior Design & Fit-Out", "AV": "Audio-Visual", "SUR": "Survey", "HSE": "Health, Safety & Environment" },
+    "revisions": "Rev.00 first issue, Rev.01 first resubmittal ...",
+    "action_codes": { "A": "Approved", "B": "Approved as Noted", "C": "Revise and Resubmit", "D": "Rejected" }
+  },
+  "issued": [
+    { "code": "KAHF-PME-SIC-SD-AR-0001", "rev": "00", "date": "07.11.2026", "title": "Site Hoarding Shop Drawings", "sheets": 6, "to": "Eng. Ahmed Salah - Project Manager" },
+    { "code": "KAHF-PME-SIC-DOC-CI-0001", "rev": "00", "date": "07.11.2026", "title": "Hoarding Structural Calculation Note" },
+    { "code": "KAHF-PME-SIC-DOC-CI-0002", "rev": "00", "date": "07.11.2026", "title": "Robot Calculation Note (appendix to DOC-CI-0001)" }
+  ]
+}

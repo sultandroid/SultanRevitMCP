@@ -78,6 +78,17 @@ Series, in the order of the set. Sorting by number gives this order, because DR-
 - Keep the map from any old number to the ISO number in one module, and have every script use it. On Madina 1 this is `sheetno.mjs`, with `sn()` for the full number and `ss()` for the short code. Renumbering then means editing the map, setting "Sheet Number" again, and running `replace_text` for any note that quotes an old number.
 - Ask whether the client or project requires its own numbering before using this.
 
+### When the client has its own coding system
+
+A client-approved submittal coding sheet overrides the ISO default above, for sheets and for every file we hand over. Example: King Abdullah Center (`projects/kac/project.json`, KAHF-PME coding signed 2 Nov 2026): `KAHF-PME-SIC-<type>-<discipline>-<0001>`, the serial restarting per type and discipline.
+
+- One submittal is one code; its sheets add a 2-digit suffix: `KAHF-PME-SIC-SD-AR-0001-01` to `-06`. Notes cite the short form (`SD-AR-0001-05`).
+- Revisions follow the client sheet. KAHF starts at **Rev.00** (first issue), then 01 for the first resubmittal. Internal revisions that never went to the client are deleted from the model before the first issue (their PDFs go to `_Superseded`), and the numbering sequence is reset with `set_revision_numbering start 0`. A revision's date can be read-only once it has been renumbered: make a new one with `create_revision` and delete the old.
+- Calculation notes, Robot models and load sheets take the document code (`DOC-CI-0001`), with the models named after the note they support (`KAHF-PME-SIC-DOC-CI-0001 Robot Model 1 Hoarding.rtd`).
+- Sheets kept for internal use (quantities, cut lists) get an internal number (`KAC-INTERNAL-QTY-01`) and no revision, and stay out of the issued PDF.
+- A long code does not fit the A0 title block's DRAWING NO. label at its 7 mm text: run `set_family_text_size` on the label (match "A101") at 4.5 mm, then render the title block and check it clears REV.
+- Fill Drawn/Checked/Approved and the Project Issue Date (Project Information) before export; the title block DATE reads the Project Issue Date, not the sheet's.
+
 ## Sheet groups (every project)
 
 **Every Samaya Factory model organises its sheets in groups, on every project.** The user set this as a general rule (Makkah, 4 Nov 2026).
