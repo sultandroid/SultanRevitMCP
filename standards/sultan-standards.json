@@ -306,13 +306,93 @@
     }
   },
   "coordination": {
-    "_note": "Colour by discipline in coordination views only (set_view_overrides color: lines plus solid surface and cut fill). Models keep their own materials. Put a one-line colour key on each coordination sheet.",
-    "disciplines": {
-      "mechanical": {
+    "_note": "Coordination views only; sheets stay black and white. Order of precedence, applied as view filters (top filter wins): 1 Existing work (SF_PhaseStatus begins with 'Existing') grey halftone; 2 Reservations and gross envelopes (SF_Maturity = Reservation or Gross) surface 60% transparent with dashed edges; 3 discipline colour by category. Host-view filters also act on linked models shown By Host View, so one set of filters colours a federated model; never colour or halftone the Revit Links category itself (that greys every link). Palette is Okabe-Ito, safe for colour-blind readers. Put colourKey() on every coordination sheet.",
+    "palette": "Okabe-Ito (colour-blind safe)",
+    "filters": {
+      "existing": {
+        "name": "SF COORD 1 Existing",
+        "parameter": "SF_PhaseStatus",
+        "rule": "begins_with",
+        "value": "Existing",
+        "halftone": true,
         "color": [
-          30,
-          110,
-          230
+          160,
+          160,
+          160
+        ]
+      },
+      "reservation": {
+        "name": "SF COORD 2 Reservation",
+        "parameter": "SF_Maturity",
+        "rule": "begins_with",
+        "value": "Res",
+        "transparency": 60,
+        "line_pattern": "Dash"
+      },
+      "gross": {
+        "name": "SF COORD 3 Gross",
+        "parameter": "SF_Maturity",
+        "rule": "equals",
+        "value": "Gross",
+        "transparency": 40
+      }
+    },
+    "disciplines": {
+      "architecture": {
+        "code": "A",
+        "color": [
+          215,
+          200,
+          165
+        ],
+        "categories": [
+          "OST_Walls",
+          "OST_Floors",
+          "OST_Ceilings",
+          "OST_Doors",
+          "OST_Windows",
+          "OST_CurtainWallPanels",
+          "OST_CurtainWallMullions",
+          "OST_Stairs",
+          "OST_Railings",
+          "OST_Roofs"
+        ]
+      },
+      "structure": {
+        "code": "S",
+        "color": [
+          240,
+          228,
+          66
+        ],
+        "categories": [
+          "OST_StructuralColumns",
+          "OST_StructuralFraming",
+          "OST_StructuralFoundation",
+          "OST_Columns"
+        ]
+      },
+      "exhibition_joinery": {
+        "code": "X",
+        "color": [
+          150,
+          105,
+          70
+        ],
+        "categories": [
+          "OST_Casework",
+          "OST_Furniture",
+          "OST_FurnitureSystems",
+          "OST_SpecialityEquipment",
+          "OST_GenericModel"
+        ]
+      },
+      "mechanical": {
+        "code": "M",
+        "color": [
+          0,
+          114,
+          178
         ],
         "categories": [
           "OST_MechanicalEquipment",
@@ -321,15 +401,41 @@
           "OST_DuctTerminal",
           "OST_DuctFitting",
           "OST_DuctAccessory",
+          "OST_DuctInsulations"
+        ]
+      },
+      "plumbing": {
+        "code": "P",
+        "color": [
+          0,
+          158,
+          115
+        ],
+        "categories": [
+          "OST_PlumbingFixtures",
           "OST_PipeCurves",
           "OST_PipeFitting",
-          "OST_FlexPipeCurves"
+          "OST_PipeAccessory",
+          "OST_FlexPipeCurves",
+          "OST_PipeInsulations"
+        ]
+      },
+      "fire_protection": {
+        "code": "F",
+        "color": [
+          213,
+          94,
+          0
+        ],
+        "categories": [
+          "OST_Sprinklers"
         ]
       },
       "electrical": {
+        "code": "E",
         "color": [
-          245,
-          140,
+          230,
+          159,
           0
         ],
         "categories": [
@@ -337,57 +443,58 @@
           "OST_LightingDevices",
           "OST_ElectricalFixtures",
           "OST_ElectricalEquipment",
-          "OST_FireAlarmDevices",
-          "OST_SecurityDevices",
-          "OST_CommunicationDevices",
-          "OST_DataDevices",
           "OST_Conduit",
           "OST_ConduitFitting",
           "OST_CableTray",
           "OST_CableTrayFitting"
         ]
       },
-      "plumbing": {
+      "elv_av_fire_alarm": {
+        "code": "T",
         "color": [
-          0,
-          160,
-          160
+          204,
+          121,
+          167
         ],
         "categories": [
-          "OST_PlumbingFixtures",
-          "OST_Sprinklers"
-        ]
-      },
-      "existing": {
-        "color": [
-          150,
-          150,
-          150
-        ],
-        "halftone": true,
-        "categories": [
-          "OST_RvtLinks"
+          "OST_FireAlarmDevices",
+          "OST_SecurityDevices",
+          "OST_CommunicationDevices",
+          "OST_DataDevices",
+          "OST_NurseCallDevices",
+          "OST_TelephoneDevices",
+          "OST_AudioVisualDevices"
         ]
       }
     },
     "clearance_flag_mm": 80
   },
   "mech_system_colours": {
-    "_note": "In MECH family materials, for shaded and 3D views; sheets stay black and white.",
+    "_note": "MEP system colours for MEP shaded/3D views only (not coordination views, which colour by discipline). Set them on the Revit duct/pipe system types (graphic overrides and material) so families inherit them; fall back to family materials. Sheets stay black and white.",
     "supply_air": [
-      40,
-      110,
-      220
+      0,
+      114,
+      178
     ],
     "return_air": [
-      40,
-      160,
-      80
+      0,
+      158,
+      115
+    ],
+    "outside_fresh_air": [
+      86,
+      180,
+      233
+    ],
+    "exhaust_air": [
+      120,
+      120,
+      40
     ],
     "equipment": [
       230,
-      160,
-      30
+      159,
+      0
     ],
     "refrigerant": [
       184,
@@ -398,6 +505,36 @@
       130,
       60,
       170
+    ],
+    "chilled_water_supply": [
+      0,
+      70,
+      140
+    ],
+    "chilled_water_return": [
+      110,
+      170,
+      220
+    ],
+    "domestic_cold_water": [
+      0,
+      158,
+      115
+    ],
+    "domestic_hot_water": [
+      200,
+      60,
+      60
+    ],
+    "drainage_waste_vent": [
+      110,
+      80,
+      50
+    ],
+    "fire_sprinkler": [
+      213,
+      94,
+      0
     ]
   },
   "circuit_colours_iec_60445": {
@@ -429,7 +566,44 @@
       "New Construction"
     ],
     "existing_graphics": "halftone",
-    "rule": "Every element and view has a phase; existing is always halftone through the phase graphics."
+    "rule": "Every element and view has a phase; existing is always halftone through the phase graphics. Each discipline file owns its own existing elements (existing ducts in MECH, existing sockets in ELEC); the EXT model holds the building shell (architecture and structure) only.",
+    "status_parameter": {
+      "name": "SF_PhaseStatus",
+      "type": "text, instance, all model categories",
+      "values": {
+        "Existing-Retain": "Existing, stays (Phase Created Existing)",
+        "Existing-Remove": "Existing, removed (Phase Created Existing, Phase Demolished New Construction)",
+        "Existing-Relocate": "Existing, taken out to be re-installed elsewhere (demolished in New Construction; the new position is a separate New-Relocated element)",
+        "New": "New work (Phase Created New Construction)",
+        "New-Relocated": "Existing item re-installed in a new position (Phase Created New Construction; Comments name the original)",
+        "Temporary": "Temporary phase, removed in New Construction"
+      },
+      "guid": "dffe7134-1feb-4f17-824d-e42054ac39e7"
+    },
+    "verification_parameter": {
+      "name": "SF_ExistingSource",
+      "values": [
+        "Survey",
+        "Site-Verified",
+        "Record-Drawing",
+        "Assumed"
+      ],
+      "rule": "Every existing element records how it is known. Phase says when; this says how sure.",
+      "guid": "2cef8088-ecce-4776-9424-5951d922cd92"
+    },
+    "maturity_parameter": {
+      "name": "SF_Maturity",
+      "values": [
+        "Reservation",
+        "Gross",
+        "Design",
+        "Fabrication",
+        "As-Built"
+      ],
+      "rule": "Reservation: space or position only, not a product. Gross: overall envelope, build-up not split. Design: sized design element. Fabrication: shop-ready. As-Built: verified installed.",
+      "guid": "f3e1f3c6-3315-4e24-a510-bdd1717f9bcf"
+    },
+    "audit_tool": "node tools/phase_audit.mjs <model.rvt> [--ext] : reports elements with no phase, New elements in an EXT model, Existing elements without SF_PhaseStatus/SF_ExistingSource, status/phase mismatches, and views without a phase filter."
   },
   "views_3d": {
     "_see": "skills/samaya-revit/references/3d-views.md, tools/view3d.mjs",
@@ -625,5 +799,9 @@
       "ISO 5456 (first angle), ISO 5457, ISO 7200, ISO 6433.",
       "Information: ISO 19650. Electrical: IEC 60617."
     ]
+  },
+  "multi_writer": {
+    "rule": "One writer per model file. Before any write: read the project's live-work file, claim the model there (agent, real time from the clock, scope, expected parent count), and check the RVT SHA256 equals the last released hash. After: save, read back, close, record the new SHA256 and counts, and release. Never write a model another writer holds; leave a note instead. Use the real clock for every time written.",
+    "live_work_file": "<project>/05_BIM/00_Management/<CODE>-Live-Agent-Work-<Pnn>.json"
   }
 }

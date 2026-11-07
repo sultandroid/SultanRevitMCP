@@ -159,6 +159,7 @@ namespace RevitMcp
             ["create_drafting_view"] = CreateDraftingView,
             ["create_swatch"] = CreateSwatch,
             ["set_phase_filter"] = SetPhaseFilter,
+            ["ensure_view_filter"] = EnsureViewFilter,
             ["load_family_types"] = LoadFamilyTypes,
             ["create_analytical_members"] = CreateAnalyticalMembers,
             ["create_point_supports"] = CreatePointSupports,

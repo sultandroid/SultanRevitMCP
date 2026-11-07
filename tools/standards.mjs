@@ -19,18 +19,44 @@ export async function ensureStyles(call) {
   return ids;
 }
 
-/** Colours one coordination view by discipline. Categories missing from the model are skipped. */
-export async function colourByDiscipline(call, viewId) {
-  const done = [];
+/**
+ * Colours coordination views. Precedence (sultan-standards.json coordination._note): 1 existing work grey halftone,
+ * 2 reservations / gross envelopes transparent, 3 discipline colour by category. Filters 1-3 need the SF_ parameters
+ * (ensurePhaseParameters); a model without them still gets discipline colours and the result says which filters were skipped.
+ * Never touches OST_RvtLinks: host filters and category overrides already reach links shown By Host View.
+ */
+export async function colourByDiscipline(call, viewIds) {
+  const views = [viewIds].flat().map(Number), done = [];
+  for (const [key, f] of Object.entries(S.coordination.filters)) {
+    const r = await call("ensure_view_filter", { view_ids: views, name: f.name, parameter: f.parameter, rule: f.rule, value: f.value,
+      ...(f.halftone ? { halftone: true } : {}), ...(f.color ? { color: rgb(f.color) } : {}), ...(f.transparency != null ? { transparency: f.transparency } : {}),
+      ...(f.line_pattern ? { line_pattern: f.line_pattern } : {}) }).catch((e) => ({ skipped: e.message.slice(0, 100) }));
+    done.push({ filter: key, ...r });
+  }
   for (const [name, d] of Object.entries(S.coordination.disciplines)) {
-    const r = await call("set_view_overrides", { view_id: viewId, categories: d.categories, ...(d.halftone ? { halftone: true } : { color: rgb(d.color) }) }).catch((e) => ({ error: e.message.slice(0, 80) }));
-    done.push({ discipline: name, ...r });
+    let changed = 0; const skipped = [];
+    for (const view_id of views) for (const c of d.categories) {
+      const r = await call("set_view_overrides", { view_id, categories: [c], color: rgb(d.color) }).catch(() => null);
+      if (r && r.changed) changed++; else skipped.push(c);
+    }
+    done.push({ discipline: name, changed, skipped: [...new Set(skipped)] });
   }
   return done;
 }
 
-/** The one-line colour key for a coordination sheet. */
-export const colourKey = () => Object.entries(S.coordination.disciplines).map(([n, d]) => `${n[0].toUpperCase()}${n.slice(1)}: ${d.halftone ? "grey halftone" : `RGB ${d.color.join(" ")}`}`).join("   ");
+/** Binds SF_PhaseStatus, SF_ExistingSource and SF_Maturity (fixed GUIDs) to every coordination category the model has. */
+export async function ensurePhaseParameters(call) {
+  const P = S.phases, all = [...new Set(Object.values(S.coordination.disciplines).flatMap((d) => d.categories))];
+  const parameters = [P.status_parameter, P.verification_parameter, P.maturity_parameter].map((x) => ({ name: x.name, guid: x.guid }));
+  const results = [];
+  for (const c of all) results.push({ c, r: await call("bind_shared_parameters", { parameters, categories: [c], expand_categories: true }).catch((e) => ({ error: e.message.slice(0, 80) })) });
+  return { bound: results.filter((x) => !x.r.error).map((x) => x.c), skipped: results.filter((x) => x.r.error).map((x) => `${x.c}: ${x.r.error}`) };
+}
+
+/** The colour key line for a coordination sheet. */
+export const colourKey = () => [
+  "Existing: grey halftone", "Reservation: transparent, dashed",
+  ...Object.entries(S.coordination.disciplines).map(([n, d]) => `${d.code} ${n.replace(/_/g, " ")}: RGB ${d.color.join(" ")}`)].join("   ");
 
 /** Smallest ISO 5455 scale (1:n) at which `size_mm` fits in `space_mm`; with `fill`, the whole-number scale that fills it (house rule). */
 export function isoScale(size_mm, space_mm, fill = false) {
@@ -46,6 +72,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const { call } = await import("./rvt.mjs");
   const [cmd, arg] = process.argv.slice(2);
   if (cmd === "styles") console.log(JSON.stringify(await ensureStyles(call)));
-  else if (cmd === "coord") console.log(JSON.stringify(await colourByDiscipline(call, Number(arg))), "\n" + colourKey());
-  else console.log("usage: node tools/standards.mjs styles | coord <view id>");
+  else if (cmd === "coord") console.log(JSON.stringify(await colourByDiscipline(call, arg.split(",").map(Number))), "\n" + colourKey());
+  else if (cmd === "phase-params") console.log(JSON.stringify(await ensurePhaseParameters(call)));
+  else console.log("usage: node tools/standards.mjs styles | coord <view id[,view id...]> | phase-params");
 }

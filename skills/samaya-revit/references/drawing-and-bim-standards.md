@@ -4,7 +4,39 @@ Samaya Factory work follows the ISO drawing and information standards below. Whe
 
 **The tools apply these from one file:** `standards/sultan-standards.json`, through `tools/standards.mjs`. It holds the ISO map, line widths and styles, text types, dimension style, scales, sheet grid and numbering, discipline colours for coordination, MECH system colours, IEC 60445 circuit colours, phases, 3D view settings and joinery defaults.
 - `ensureStyles(call)` puts every text type and line style in a model.
-- `colourByDiscipline(call, viewId)` colours a coordination view, and `colourKey()` gives the line for the sheet.
+- `colourByDiscipline(call, viewIds)` colours coordination views, and `colourKey()` gives the line for the sheet. See "Coordination colours" below.
+- `ensurePhaseParameters(call)` binds SF_PhaseStatus, SF_ExistingSource and SF_Maturity (see `phases.md`).
+
+## Coordination colours
+
+Colour is for coordination views only. Sheets stay black on white.
+
+**Precedence** (view filters, top wins):
+1. **Existing work:** grey halftone, by `SF_PhaseStatus` beginning with "Existing".
+2. **Reservations:** 60% transparent with dashed edges, by `SF_Maturity` Reservation.
+3. **Gross envelopes:** 40% transparent.
+4. **Discipline colour:** by category.
+
+Existing services are grey, not their discipline colour. A place-holder never looks like a final design.
+
+**Palette:** Okabe-Ito, which is safe for colour-blind readers.
+
+| Code | Discipline | Colour |
+|---|---|---|
+| A | architecture / fit-out | sand |
+| S | structure | yellow |
+| X | exhibition / joinery / furniture | brown |
+| M | mechanical | blue |
+| P | plumbing | bluish green |
+| F | fire protection | vermillion |
+| E | electrical | orange |
+| T | ELV / AV / fire alarm | reddish purple |
+
+RGB values are in `sultan-standards.json` (`coordination`).
+
+**Federated models:** host-view filters and category overrides also act on links shown By Host View, so one set colours a whole federation. **Never colour or halftone the Revit Links category.** It greys every link; the old "existing = OST_RvtLinks halftone" rule did exactly that and is withdrawn.
+
+**MEP system colours** (supply, return, outside air, exhaust, chilled water, domestic water, drainage, sprinkler) are for MEP shaded and 3D views, not coordination views. Set them on the Revit duct and pipe system types where possible.
 - `isoScale()` picks a scale; `sheetNumber()` builds an ISO 19650 sheet number.
 
 When a standard changes, change the JSON and this page together, and no tool keeps its own copy of a value.
