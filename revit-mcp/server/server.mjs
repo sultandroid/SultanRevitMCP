@@ -265,6 +265,25 @@ const tools = [
     view_id: id,
     location: point,
   }, additive],
+  ["view_crop_info", "Read a view's crop region in model millimetres with its scale.", { view_id: id }, read],
+  ["set_view_crop", "Set a view's crop region from model millimetres, so a plan is framed on the grids rather than on a link that spans the whole site.", {
+    view_id: id,
+    min_mm: point,
+    max_mm: point,
+  }, additive],
+  ["fit_view_crop_to_model", "Shrink the crop region to what is actually drawn in the view (host geometry plus every visible link), then a fit_view_to_sheet can fill the sheet.", {
+    view_id: id,
+    margin_mm: z.number().positive().optional().describe("Margin around the extents, default 100 mm"),
+    link_contains: z.string().optional().describe("Only measure links whose name contains this text, e.g. ELEC"),
+  }, additive],
+  ["fit_view_to_sheet", "One view sized to fill the sheet: sets the view scale until the viewport fits the drawing area inside the title block, then centres it on the sheet.", {
+    sheet_id: id,
+    view_id: id,
+    margin_mm: z.number().positive().optional().describe("Clear margin inside the drawing area, default 15"),
+  }, additive],
+  ["set_view_scale", "Set a view's scale denominator, e.g. 50 for 1:50.", { view_id: id, scale: z.number().int().min(1).max(5000) }, additive],
+  ["drawing_info", "Read what is on a sheet: sheet size, title block box and every viewport with its scale, size and centre in millimetres. Use it to check margins and placement.", { sheet_id: id }, read],
+
   ["duplicate_view", "Duplicate a view. The original view is not changed.", {
     view_id: id,
     name: z.string().optional(),

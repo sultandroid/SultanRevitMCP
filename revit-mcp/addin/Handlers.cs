@@ -69,6 +69,12 @@ namespace RevitMcp
             ["create_floor_plan"] = CreateFloorPlan,
             ["create_section"] = CreateSection,
             ["create_sheet"] = CreateSheet,
+            ["fit_view_to_sheet"] = FitViewToSheet,
+            ["fit_view_crop_to_model"] = FitViewCropToModel,
+            ["view_crop_info"] = ViewCropInfo,
+            ["set_view_crop"] = SetViewCrop,
+            ["set_view_scale"] = SetViewScale,
+            ["drawing_info"] = DrawingInfo,
             ["place_view_on_sheet"] = PlaceViewOnSheet,
             ["duplicate_view"] = DuplicateView,
             ["create_detail_lines"] = CreateDetailLines,
@@ -1712,9 +1718,42 @@ namespace RevitMcp
             };
             return InTransaction(doc, "Link model", () =>
             {
-                var type = RevitLinkType.Create(doc, modelPath, new RevitLinkOptions(false));
-                var instance = RevitLinkInstance.Create(doc, type.ElementId, placement);
-                return new JsonObject { ["type_id"] = type.ElementId.Value, ["id"] = instance.Id.Value, ["placement"] = placement.ToString(), ["source"] = source };
+                // A link already loaded keeps its own type; Revit refuses a second type for the same
+                // path, and a freshly created type is not usable until the document regenerates.
+                string Norm(string v) { return (v ?? string.Empty).Replace((char)47, (char)92); }
+                var wanted = Norm(ModelPathUtils.ConvertModelPathToUserVisiblePath(modelPath));
+                var existing = new FilteredElementCollector(doc)
+                    .OfClass(typeof(RevitLinkType)).Cast<RevitLinkType>()
+                    .FirstOrDefault(t => string.Equals(
+                        Norm(ModelPathUtils.ConvertModelPathToUserVisiblePath(t.GetExternalFileReference().GetAbsolutePath())),
+                        wanted, StringComparison.OrdinalIgnoreCase));
+                ElementId typeId;
+                if (existing != null) typeId = existing.Id;
+                else
+                {
+                    var loadResult = RevitLinkType.Create(doc, modelPath, new RevitLinkOptions(false));
+                    doc.Regenerate();
+                    // LinkLoadResult.ElementId is not always the live type id (it can come back
+                    // invalid when the link path is already registered), so resolve the type from
+                    // the document instead of trusting the load result.
+                    typeId = loadResult.ElementId;
+                    var created = doc.GetElement(typeId) as RevitLinkType;
+                    if (created == null)
+                    {
+                        var fileName = Path.GetFileName(Norm(Path.GetFullPath(ReqStr(p, "path")))) ?? string.Empty;
+                        var match = new FilteredElementCollector(doc)
+                            .OfClass(typeof(RevitLinkType)).Cast<RevitLinkType>()
+                            .FirstOrDefault(t => (t.Name ?? string.Empty).IndexOf(
+                                Path.GetFileNameWithoutExtension(fileName), StringComparison.OrdinalIgnoreCase) >= 0);
+                        if (match != null) typeId = match.Id;
+                    }
+                    if (doc.GetElement(typeId) as RevitLinkType == null)
+                        throw new InvalidOperationException(
+                            $"Revit created no usable link type for '{ModelPathUtils.ConvertModelPathToUserVisiblePath(modelPath)}'. " +
+                            "Check that the file is not open in another Revit session and that the path is on a local disk.");
+                }
+                var instance = RevitLinkInstance.Create(doc, typeId, placement);
+                return new JsonObject { ["type_id"] = typeId.Value, ["id"] = instance.Id.Value, ["placement"] = placement.ToString(), ["source"] = source };
             });
         }
 
