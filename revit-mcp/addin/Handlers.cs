@@ -56,6 +56,11 @@ namespace RevitMcp
             ["create_level"] = CreateLevel,
             ["create_grid"] = CreateGrid,
             ["create_wall"] = CreateWall,
+            ["ensure_basic_wall_type"] = EnsureBasicWallType,
+            ["set_wall_axis"] = SetWallAxis,
+            ["ensure_basic_surface_type"] = EnsureBasicSurfaceType,
+            ["create_ceiling"] = CreateCeilingSurface,
+            ["create_floor_surface"] = CreateFloorSurface,
             ["create_floor"] = CreateFloor,
             ["create_room"] = CreateRoom,
             ["place_family_instance"] = PlaceFamilyInstance,
@@ -107,6 +112,7 @@ namespace RevitMcp
             ["set_material_hatch"] = SetMaterialHatch,
             ["rename_materials"] = RenameMaterials,
             ["create_pipe_run"] = CreatePipeRun,
+            ["create_duct_run"] = CreateDuctRun,
             ["list_family_text"] = ListFamilyText,
             ["set_family_text"] = SetFamilyText,
             ["add_family_text"] = AddFamilyText,
@@ -114,6 +120,7 @@ namespace RevitMcp
             ["replace_family_image"] = ReplaceFamilyImage,
             ["list_family_parameters"] = ListFamilyParameters,
             ["bind_shared_parameters"] = BindSharedParameters,
+            ["inspect_project_parameter_bindings"] = InspectProjectParameterBindings,
             ["create_text_notes"] = CreateTextNotes,
             ["place_image"] = PlaceImage,
             ["set_family_text_size"] = SetFamilyTextSize,
@@ -1715,12 +1722,19 @@ namespace RevitMcp
             var top = Num(p, "top_mm");
             var cut = Num(p, "cut_mm");
             var bottom = Num(p, "bottom_mm");
+            var depth = Num(p, "view_depth_mm");
             return InTransaction(doc, "Set view range", () =>
             {
                 var range = view.GetViewRange();
+                if (Bool(p, "relative_to_view_level"))
+                    foreach (var plane in new[] { PlanViewPlane.TopClipPlane, PlanViewPlane.CutPlane, PlanViewPlane.BottomClipPlane, PlanViewPlane.ViewDepthPlane })
+                        range.SetLevelId(plane, view.GenLevel.Id);
                 if (top != null) range.SetOffset(PlanViewPlane.TopClipPlane, FromMm(top.Value));
                 if (cut != null) range.SetOffset(PlanViewPlane.CutPlane, FromMm(cut.Value));
                 if (bottom != null) range.SetOffset(PlanViewPlane.BottomClipPlane, FromMm(bottom.Value));
+                if (depth != null) range.SetOffset(PlanViewPlane.ViewDepthPlane, FromMm(depth.Value));
+                var errors = view.CheckPlanViewRangeValidity(range);
+                if (errors.Count > 0) throw new ArgumentException("Invalid " + view.ViewType + " range: " + string.Join(", ", errors));
                 view.SetViewRange(range);
                 return new JsonObject
                 {
@@ -1728,6 +1742,8 @@ namespace RevitMcp
                     ["top_mm"] = ToMm(range.GetOffset(PlanViewPlane.TopClipPlane)),
                     ["cut_mm"] = ToMm(range.GetOffset(PlanViewPlane.CutPlane)),
                     ["bottom_mm"] = ToMm(range.GetOffset(PlanViewPlane.BottomClipPlane)),
+                    ["view_depth_mm"] = ToMm(range.GetOffset(PlanViewPlane.ViewDepthPlane)),
+                    ["relative_to_view_level"] = Bool(p, "relative_to_view_level"),
                 };
             });
         }

@@ -176,6 +176,24 @@ namespace RevitMcp
                         var existing = SharedParameterElement.Lookup(doc, guid);
                         if (existing != null && doc.ParameterBindings.get_Item(existing.GetDefinition()) != null)
                         {
+                            if (p["expand_categories"]?.GetValue<bool>() == true)
+                            {
+                                var actual = existing.GetDefinition();
+                                if (existing.Name != name || actual.GetDataType() != SpecTypeId.String.Text)
+                                    throw new ArgumentException($"Shared parameter {guid} has a conflicting name or datatype.");
+                                var oldBinding = doc.ParameterBindings.get_Item(actual) as InstanceBinding
+                                    ?? throw new ArgumentException($"Shared parameter {name} is not instance bound.");
+                                var union = rvt.Create.NewCategorySet();
+                                foreach (Category c in oldBinding.Categories) union.Insert(c);
+                                foreach (Category c in catSet) if (!union.Contains(c)) union.Insert(c);
+                                if (union.Size != oldBinding.Categories.Size)
+                                {
+                                    if (!doc.ParameterBindings.ReInsert(actual, rvt.Create.NewInstanceBinding(union), GroupTypeId.IdentityData))
+                                        throw new InvalidOperationException($"Could not expand categories for {name}.");
+                                    result.Add(new JsonObject { ["name"] = name, ["status"] = "bound (categories expanded)", ["category_count"] = union.Size });
+                                    continue;
+                                }
+                            }
                             result.Add(new JsonObject { ["name"] = existing.Name, ["status"] = "already bound" });
                             continue;
                         }
