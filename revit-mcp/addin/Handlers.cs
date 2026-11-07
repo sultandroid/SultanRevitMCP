@@ -3681,13 +3681,20 @@ namespace RevitMcp
         {
             public readonly List<string> Warnings = new List<string>();
             public readonly List<string> Errors = new List<string>();
+            private static readonly string[] FatalWarnings = { "must be attached" };
 
             public FailureProcessingResult PreprocessFailures(FailuresAccessor accessor)
             {
                 var hasError = false;
                 foreach (var message in accessor.GetFailureMessages())
                 {
-                    if (message.GetSeverity() == FailureSeverity.Warning)
+                    // Warnings that mean an MEP joint is not real are treated as errors, so the change rolls back.
+                    if (message.GetSeverity() == FailureSeverity.Warning && FatalWarnings.Any(f => message.GetDescriptionText().IndexOf(f, StringComparison.OrdinalIgnoreCase) >= 0))
+                    {
+                        Errors.Add(message.GetDescriptionText());
+                        hasError = true;
+                    }
+                    else if (message.GetSeverity() == FailureSeverity.Warning)
                     {
                         Warnings.Add(message.GetDescriptionText());
                         accessor.DeleteWarning(message);

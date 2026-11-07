@@ -68,6 +68,12 @@ namespace RevitMcp
                 else if (mode == "tap")
                 {
                     var x = PlanCrossing(la, lb) ?? throw new ArgumentException("Branch and main are parallel.");
+                    // the takeoff must land on the main: the crossing has to fall inside the main's length, clear of its ends
+                    var bStart = lb.GetEndPoint(0); var along = new XYZ(x.X - bStart.X, x.Y - bStart.Y, 0).DotProduct(new XYZ(lb.Direction.X, lb.Direction.Y, 0).Normalize());
+                    var flatLen = new XYZ(lb.Direction.X, lb.Direction.Y, 0).GetLength() * lb.Length;
+                    var branchHalf = (a.get_Parameter(BuiltInParameter.RBS_CURVE_WIDTH_PARAM)?.AsDouble() ?? 0) / 2;
+                    if (along < branchHalf || along > flatLen - branchHalf)
+                        throw new ArgumentException($"The branch meets the main's line {ToMm(along)} mm along a {ToMm(flatLen)} mm main: outside the main, so a takeoff cannot attach. Extend the main or use another joint.");
                     // stop the branch at the main's side face: back off half the main's width along the branch
                     var halfW = (b.get_Parameter(BuiltInParameter.RBS_CURVE_WIDTH_PARAM)?.AsDouble() ?? 0) / 2;
                     var near = la.GetEndPoint(0).DistanceTo(x) < la.GetEndPoint(1).DistanceTo(x) ? la.GetEndPoint(0) : la.GetEndPoint(1);
@@ -81,6 +87,10 @@ namespace RevitMcp
                 }
                 else throw new ArgumentException("mode must be elbow, transition or tap.");
                 doc.Regenerate();
+                // Revit can place a fitting that is not really joined (e.g. "The Tap must be attached to duct"): refuse it.
+                var loose = fitting.MEPModel?.ConnectorManager?.Connectors.Cast<Connector>().Count(c => !c.IsConnected) ?? 0;
+                if (loose > 0)
+                    throw new InvalidOperationException($"The {mode} fitting was placed with {loose} unconnected end(s), so the joint is not real (for a tap: the branch must be smaller than the main's side face). Rolled back.");
                 report["fitting_id"] = fitting.Id.Value;
                 report["fitting_family"] = fitting.Symbol?.FamilyName;
                 report["fitting_type"] = fitting.Symbol?.Name;
