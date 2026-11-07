@@ -91,6 +91,7 @@ Set these once in Phasing > Graphic Overrides, not per view:
 - `set_phase_filter` sets a view's phase filter by name.
 - No command creates phases or edits Phasing > Graphic Overrides (the API does not expose them). Set those once in the template.
 - `ensure_view_filter` builds rule filters on text parameters, for example the SF_ ones.
+- `colourByDiscipline` in `tools/standards.mjs` applies the three SF_ filters (`Existing` grey halftone, `Reservation` 60% transparent dashed, `Gross` 40% transparent) above the per-category `sub_colours` for all 8 disciplines (`A`, `S`, `X`, `M`, `P`, `F`, `E`, `T`).
 - Check values with `phase_audit.mjs` and render the view.
 
 ## Sources

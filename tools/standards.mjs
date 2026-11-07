@@ -21,8 +21,9 @@ export async function ensureStyles(call) {
 
 /**
  * Colours coordination views. Precedence (sultan-standards.json coordination._note): 1 existing work grey halftone,
- * 2 reservations / gross envelopes transparent, 3 discipline colour by category. Filters 1-3 need the SF_ parameters
- * (ensurePhaseParameters); a model without them still gets discipline colours and the result says which filters were skipped.
+ * 2 reservations / gross envelopes transparent, 3 sub-discipline colour by category (each category in a discipline gets
+ * its specific sub_colours[c].color and optional transparency, falling back to d.color). Filters 1-3 need the SF_ parameters
+ * (ensurePhaseParameters); a model without them still gets sub-discipline colours and the result says which filters were skipped.
  * Never touches OST_RvtLinks: host filters and category overrides already reach links shown By Host View.
  */
 export async function colourByDiscipline(call, viewIds) {
@@ -36,8 +37,28 @@ export async function colourByDiscipline(call, viewIds) {
   for (const [name, d] of Object.entries(S.coordination.disciplines)) {
     let changed = 0; const skipped = [];
     for (const view_id of views) for (const c of d.categories) {
-      const r = await call("set_view_overrides", { view_id, categories: [c], color: rgb(d.color) }).catch(() => null);
+      const sub = d.sub_colours?.[c];
+      const col = Array.isArray(sub) ? sub : (sub?.color ?? d.color);
+      const transparency = !Array.isArray(sub) && sub?.transparency != null ? sub.transparency : undefined;
+      const r = await call("set_view_overrides", {
+        view_id,
+        categories: [c],
+        color: rgb(col),
+        ...(transparency != null ? { transparency } : {}),
+      }).catch(() => null);
       if (r && r.changed) changed++; else skipped.push(c);
+    }
+    if (d.sub_filters) {
+      for (const [fkey, sf] of Object.entries(d.sub_filters)) {
+        const rf = await call("ensure_view_filter", {
+          view_ids: views, name: sf.name, parameter: sf.parameter, rule: sf.rule, value: sf.value,
+          ...(sf.categories ? { categories: sf.categories } : {}),
+          ...(sf.color ? { color: rgb(sf.color) } : {}),
+          ...(sf.transparency != null ? { transparency: sf.transparency } : {}),
+          ...(sf.line_pattern ? { line_pattern: sf.line_pattern } : {}),
+        }).catch((e) => ({ skipped: e.message.slice(0, 100) }));
+        done.push({ sub_filter: `${name}.${fkey}`, ...rf });
+      }
     }
     done.push({ discipline: name, changed, skipped: [...new Set(skipped)] });
   }
@@ -53,10 +74,25 @@ export async function ensurePhaseParameters(call) {
   return { bound: results.filter((x) => !x.r.error).map((x) => x.c), skipped: results.filter((x) => x.r.error).map((x) => `${x.c}: ${x.r.error}`) };
 }
 
-/** The colour key line for a coordination sheet. */
+/** The colour key line for a coordination sheet (discipline summary). */
 export const colourKey = () => [
   "Existing: grey halftone", "Reservation: transparent, dashed",
   ...Object.entries(S.coordination.disciplines).map(([n, d]) => `${d.code} ${n.replace(/_/g, " ")}: RGB ${d.color.join(" ")}`)].join("   ");
+
+/** Detailed sub-discipline colour key (all disciplines, or filtered by discipline code/name). */
+export const subColourKey = (filterDiscipline) => {
+  const lines = [];
+  for (const [name, d] of Object.entries(S.coordination.disciplines)) {
+    if (filterDiscipline && d.code !== filterDiscipline && name !== filterDiscipline) continue;
+    const subs = Object.entries(d.sub_colours ?? {}).map(([cat, sc]) => {
+      const col = Array.isArray(sc) ? sc : sc.color;
+      const lbl = Array.isArray(sc) ? cat.replace(/^OST_/, "") : (sc.label ?? cat.replace(/^OST_/, ""));
+      return `${lbl}: RGB ${col.join(" ")}`;
+    });
+    lines.push(`${d.code} ${name.replace(/_/g, " ")} -> ` + subs.join(" | "));
+  }
+  return lines.join("\n");
+};
 
 /** Smallest ISO 5455 scale (1:n) at which `size_mm` fits in `space_mm`; with `fill`, the whole-number scale that fills it (house rule). */
 export function isoScale(size_mm, space_mm, fill = false) {
@@ -73,6 +109,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const [cmd, arg] = process.argv.slice(2);
   if (cmd === "styles") console.log(JSON.stringify(await ensureStyles(call)));
   else if (cmd === "coord") console.log(JSON.stringify(await colourByDiscipline(call, arg.split(",").map(Number))), "\n" + colourKey());
+  else if (cmd === "sub-colours") console.log(subColourKey(arg));
   else if (cmd === "phase-params") console.log(JSON.stringify(await ensurePhaseParameters(call)));
-  else console.log("usage: node tools/standards.mjs styles | coord <view id[,view id...]> | phase-params");
+  else console.log("usage: node tools/standards.mjs styles | coord <view id[,view id...]> | sub-colours [code] | phase-params");
 }

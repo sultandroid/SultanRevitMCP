@@ -306,8 +306,8 @@
     }
   },
   "coordination": {
-    "_note": "Coordination views only; sheets stay black and white. Order of precedence, applied as view filters (top filter wins): 1 Existing work (SF_PhaseStatus begins with 'Existing') grey halftone; 2 Reservations and gross envelopes (SF_Maturity = Reservation or Gross) surface 60% transparent with dashed edges; 3 discipline colour by category. Host-view filters also act on linked models shown By Host View, so one set of filters colours a federated model; never colour or halftone the Revit Links category itself (that greys every link). Palette is Okabe-Ito, safe for colour-blind readers. Put colourKey() on every coordination sheet.",
-    "palette": "Okabe-Ito (colour-blind safe)",
+    "_note": "Coordination views only; sheets stay black and white. Order of precedence, applied as view filters (top filter wins): 1 Existing work (SF_PhaseStatus begins with 'Existing') grey halftone; 2 Reservations and gross envelopes (SF_Maturity = Reservation or Gross) surface 60% / 40% transparent with dashed edges; 3 sub-discipline colour by category (each discipline has a base Okabe-Ito family hue plus distinct sub_colours per category so floors, ceilings, walls, doors, joinery, furniture, ducts, terminals, panels, trays, lighting, power, AV, fire alarm and security never blend together). Host-view filters and category overrides also act on linked models shown By Host View, so one set colours a federated model; never colour or halftone the Revit Links category itself (that greys every link). Put colourKey() or subColourKey() on coordination sheets.",
+    "palette": "Okabe-Ito family hues with sub-discipline shades (colour-blind safe)",
     "filters": {
       "existing": {
         "name": "SF COORD 1 Existing",
@@ -356,7 +356,91 @@
           "OST_Stairs",
           "OST_Railings",
           "OST_Roofs"
-        ]
+        ],
+        "sub_colours": {
+          "OST_Floors": {
+            "label": "flooring / slabs",
+            "color": [
+              230,
+              215,
+              185
+            ]
+          },
+          "OST_Walls": {
+            "label": "walls / partitions",
+            "color": [
+              195,
+              175,
+              135
+            ]
+          },
+          "OST_Ceilings": {
+            "label": "ceilings / soffits / bulkheads",
+            "color": [
+              175,
+              195,
+              210
+            ]
+          },
+          "OST_Doors": {
+            "label": "doors / frames",
+            "color": [
+              155,
+              115,
+              65
+            ]
+          },
+          "OST_Windows": {
+            "label": "windows / internal glazing",
+            "color": [
+              150,
+              210,
+              225
+            ],
+            "transparency": 35
+          },
+          "OST_CurtainWallPanels": {
+            "label": "curtain panels / glazed screens",
+            "color": [
+              165,
+              215,
+              230
+            ],
+            "transparency": 35
+          },
+          "OST_CurtainWallMullions": {
+            "label": "curtain mullions / transoms",
+            "color": [
+              115,
+              100,
+              80
+            ]
+          },
+          "OST_Stairs": {
+            "label": "stairs / steps / ramps",
+            "color": [
+              180,
+              150,
+              110
+            ]
+          },
+          "OST_Railings": {
+            "label": "railings / balustrades",
+            "color": [
+              130,
+              115,
+              95
+            ]
+          },
+          "OST_Roofs": {
+            "label": "roofs / canopies",
+            "color": [
+              175,
+              160,
+              135
+            ]
+          }
+        }
       },
       "structure": {
         "code": "S",
@@ -370,7 +454,41 @@
           "OST_StructuralFraming",
           "OST_StructuralFoundation",
           "OST_Columns"
-        ]
+        ],
+        "sub_colours": {
+          "OST_StructuralColumns": {
+            "label": "structural columns",
+            "color": [
+              240,
+              228,
+              66
+            ]
+          },
+          "OST_Columns": {
+            "label": "architectural / secondary columns",
+            "color": [
+              225,
+              205,
+              55
+            ]
+          },
+          "OST_StructuralFraming": {
+            "label": "beams / trusses / framing",
+            "color": [
+              205,
+              175,
+              30
+            ]
+          },
+          "OST_StructuralFoundation": {
+            "label": "foundations / footings / bases",
+            "color": [
+              165,
+              145,
+              35
+            ]
+          }
+        }
       },
       "exhibition_joinery": {
         "code": "X",
@@ -385,7 +503,49 @@
           "OST_FurnitureSystems",
           "OST_SpecialityEquipment",
           "OST_GenericModel"
-        ]
+        ],
+        "sub_colours": {
+          "OST_Casework": {
+            "label": "joinery / showcases / counters / cladding",
+            "color": [
+              135,
+              80,
+              45
+            ]
+          },
+          "OST_Furniture": {
+            "label": "freestanding furniture / seating / tables",
+            "color": [
+              190,
+              140,
+              85
+            ]
+          },
+          "OST_FurnitureSystems": {
+            "label": "workstations / modular furniture systems",
+            "color": [
+              165,
+              110,
+              65
+            ]
+          },
+          "OST_SpecialityEquipment": {
+            "label": "feature exhibition rigs / specialty structures",
+            "color": [
+              105,
+              55,
+              30
+            ]
+          },
+          "OST_GenericModel": {
+            "label": "plinths / graphic panels / bespoke volumes",
+            "color": [
+              210,
+              160,
+              115
+            ]
+          }
+        }
       },
       "mechanical": {
         "code": "M",
@@ -402,7 +562,66 @@
           "OST_DuctFitting",
           "OST_DuctAccessory",
           "OST_DuctInsulations"
-        ]
+        ],
+        "sub_colours": {
+          "OST_MechanicalEquipment": {
+            "label": "HVAC equipment (FCU / AHU / VAV / fans)",
+            "color": [
+              0,
+              75,
+              135
+            ]
+          },
+          "OST_DuctCurves": {
+            "label": "rigid ductwork",
+            "color": [
+              0,
+              114,
+              178
+            ]
+          },
+          "OST_FlexDuctCurves": {
+            "label": "flexible ducts",
+            "color": [
+              55,
+              155,
+              215
+            ]
+          },
+          "OST_DuctFitting": {
+            "label": "duct fittings (elbows / tees / transitions)",
+            "color": [
+              25,
+              135,
+              200
+            ]
+          },
+          "OST_DuctAccessory": {
+            "label": "duct accessories (dampers / attenuators)",
+            "color": [
+              0,
+              95,
+              155
+            ]
+          },
+          "OST_DuctTerminal": {
+            "label": "air terminals (diffusers / grilles / slots)",
+            "color": [
+              86,
+              180,
+              233
+            ]
+          },
+          "OST_DuctInsulations": {
+            "label": "duct insulation",
+            "color": [
+              145,
+              205,
+              240
+            ],
+            "transparency": 30
+          }
+        }
       },
       "plumbing": {
         "code": "P",
@@ -418,7 +637,58 @@
           "OST_PipeAccessory",
           "OST_FlexPipeCurves",
           "OST_PipeInsulations"
-        ]
+        ],
+        "sub_colours": {
+          "OST_PlumbingFixtures": {
+            "label": "sanitary fixtures / floor drains / cleanouts",
+            "color": [
+              0,
+              115,
+              80
+            ]
+          },
+          "OST_PipeCurves": {
+            "label": "rigid pipework",
+            "color": [
+              0,
+              158,
+              115
+            ]
+          },
+          "OST_FlexPipeCurves": {
+            "label": "flexible pipes",
+            "color": [
+              65,
+              195,
+              155
+            ]
+          },
+          "OST_PipeFitting": {
+            "label": "pipe fittings (elbows / tees / reducers)",
+            "color": [
+              30,
+              175,
+              130
+            ]
+          },
+          "OST_PipeAccessory": {
+            "label": "pipe accessories (valves / strainers / meters)",
+            "color": [
+              0,
+              95,
+              65
+            ]
+          },
+          "OST_PipeInsulations": {
+            "label": "pipe insulation",
+            "color": [
+              130,
+              215,
+              185
+            ],
+            "transparency": 30
+          }
+        }
       },
       "fire_protection": {
         "code": "F",
@@ -429,7 +699,34 @@
         ],
         "categories": [
           "OST_Sprinklers"
-        ]
+        ],
+        "sub_colours": {
+          "OST_Sprinklers": {
+            "label": "sprinkler heads / nozzles",
+            "color": [
+              213,
+              94,
+              0
+            ]
+          }
+        },
+        "sub_systems": {
+          "sprinklers": [
+            213,
+            94,
+            0
+          ],
+          "fire_pipework": [
+            235,
+            120,
+            30
+          ],
+          "fire_cabinets_extinguishers": [
+            175,
+            65,
+            0
+          ]
+        }
       },
       "electrical": {
         "code": "E",
@@ -447,7 +744,73 @@
           "OST_ConduitFitting",
           "OST_CableTray",
           "OST_CableTrayFitting"
-        ]
+        ],
+        "sub_colours": {
+          "OST_ElectricalEquipment": {
+            "label": "distribution boards / panels / switchgear",
+            "color": [
+              190,
+              105,
+              0
+            ]
+          },
+          "OST_CableTray": {
+            "label": "cable trays",
+            "color": [
+              215,
+              135,
+              10
+            ]
+          },
+          "OST_CableTrayFitting": {
+            "label": "cable tray fittings",
+            "color": [
+              195,
+              120,
+              15
+            ]
+          },
+          "OST_Conduit": {
+            "label": "conduits",
+            "color": [
+              205,
+              145,
+              35
+            ]
+          },
+          "OST_ConduitFitting": {
+            "label": "conduit fittings / boxes",
+            "color": [
+              180,
+              125,
+              25
+            ]
+          },
+          "OST_ElectricalFixtures": {
+            "label": "power sockets / floor boxes / outlets",
+            "color": [
+              230,
+              159,
+              0
+            ]
+          },
+          "OST_LightingFixtures": {
+            "label": "luminaires / linear lights / exit signs",
+            "color": [
+              250,
+              195,
+              45
+            ]
+          },
+          "OST_LightingDevices": {
+            "label": "lighting switches / dimmers / sensors",
+            "color": [
+              255,
+              215,
+              95
+            ]
+          }
+        }
       },
       "elv_av_fire_alarm": {
         "code": "T",
@@ -464,7 +827,65 @@
           "OST_NurseCallDevices",
           "OST_TelephoneDevices",
           "OST_AudioVisualDevices"
-        ]
+        ],
+        "sub_colours": {
+          "OST_FireAlarmDevices": {
+            "label": "fire alarm detectors / sounders / call points",
+            "color": [
+              215,
+              70,
+              115
+            ]
+          },
+          "OST_SecurityDevices": {
+            "label": "CCTV cameras / access control",
+            "color": [
+              145,
+              70,
+              140
+            ]
+          },
+          "OST_AudioVisualDevices": {
+            "label": "projectors / LED walls / AV displays",
+            "color": [
+              185,
+              75,
+              150
+            ]
+          },
+          "OST_CommunicationDevices": {
+            "label": "PA speakers / intercoms / communication",
+            "color": [
+              204,
+              121,
+              167
+            ]
+          },
+          "OST_DataDevices": {
+            "label": "data outlets / Wi-Fi APs / patch points",
+            "color": [
+              190,
+              140,
+              210
+            ]
+          },
+          "OST_TelephoneDevices": {
+            "label": "telephone outlets",
+            "color": [
+              175,
+              125,
+              185
+            ]
+          },
+          "OST_NurseCallDevices": {
+            "label": "call points / assistance alarms",
+            "color": [
+              225,
+              155,
+              190
+            ]
+          }
+        }
       }
     },
     "clearance_flag_mm": 80

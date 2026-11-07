@@ -4,35 +4,43 @@ Samaya Factory work follows the ISO drawing and information standards below. Whe
 
 **The tools apply these from one file:** `standards/sultan-standards.json`, through `tools/standards.mjs`. It holds the ISO map, line widths and styles, text types, dimension style, scales, sheet grid and numbering, discipline colours for coordination, MECH system colours, IEC 60445 circuit colours, phases, 3D view settings and joinery defaults.
 - `ensureStyles(call)` puts every text type and line style in a model.
-- `colourByDiscipline(call, viewIds)` colours coordination views, and `colourKey()` gives the line for the sheet. See "Coordination colours" below.
+- `colourByDiscipline(call, viewIds)` colours coordination views with the discipline and sub-discipline colour system, and `colourKey()` / `subColourKey()` give the legend lines for the sheet. See "Coordination colours" below.
 - `ensurePhaseParameters(call)` binds SF_PhaseStatus, SF_ExistingSource and SF_Maturity (see `phases.md`).
 
-## Coordination colours
+## Coordination colours and sub-colour system
 
 Colour is for coordination views only. Sheets stay black on white.
 
 **Precedence** (view filters, top wins):
-1. **Existing work:** grey halftone, by `SF_PhaseStatus` beginning with "Existing".
-2. **Reservations:** 60% transparent with dashed edges, by `SF_Maturity` Reservation.
-3. **Gross envelopes:** 40% transparent.
-4. **Discipline colour:** by category.
+1. **Existing work:** grey `[160, 160, 160]` halftone, by `SF_PhaseStatus` beginning with "Existing".
+2. **Reservations:** 60% transparent with dashed edges, by `SF_Maturity` beginning with "Res".
+3. **Gross envelopes:** 40% transparent, by `SF_Maturity` = "Gross".
+4. **Sub-discipline colour by category:** each discipline has a base Okabe-Ito family hue plus distinct `sub_colours` per Revit category (`OST_*`) so elements within the same discipline never blend together.
 
 Existing services are grey, not their discipline colour. A place-holder never looks like a final design.
 
-**Palette:** Okabe-Ito, which is safe for colour-blind readers.
+**Base discipline palette:** Okabe-Ito, safe for colour-blind readers.
 
-| Code | Discipline | Colour |
-|---|---|---|
-| A | architecture / fit-out | sand |
-| S | structure | yellow |
-| X | exhibition / joinery / furniture | brown |
-| M | mechanical | blue |
-| P | plumbing | bluish green |
-| F | fire protection | vermillion |
-| E | electrical | orange |
-| T | ELV / AV / fire alarm | reddish purple |
+| Code | Discipline | Base family | Base RGB |
+|---|---|---|---|
+| A | architecture / fit-out | warm sand | `215, 200, 165` |
+| S | structure | yellow / gold | `240, 228, 66` |
+| X | exhibition / joinery / furniture | wood / brown | `150, 105, 70` |
+| M | mechanical (HVAC) | blue / sky blue | `0, 114, 178` |
+| P | plumbing | bluish green / teal | `0, 158, 115` |
+| F | fire protection | vermillion | `213, 94, 0` |
+| E | electrical | orange / amber | `230, 159, 0` |
+| T | ELV / AV / fire alarm | reddish purple / violet | `204, 121, 167` |
 
-RGB values are in `sultan-standards.json` (`coordination`).
+**Sub-colour rules across all disciplines** (`coordination.disciplines.<name>.sub_colours` in `sultan-standards.json`, applied automatically by `colourByDiscipline`):
+- **Ceiling colours are always different from flooring:** in Architecture (`A`), flooring (`OST_Floors`) is light warm sand (`230, 215, 185`), walls (`OST_Walls`) are medium stone (`195, 175, 135`), ceilings (`OST_Ceilings`) are cool slate-blue (`175, 195, 210`), doors (`OST_Doors`) are bronze-oak (`155, 115, 65`), windows/curtain panels (`OST_Windows` `150, 210, 225`, `OST_CurtainWallPanels` `165, 215, 230`) are 35% transparent aqua glass, mullions (`OST_CurtainWallMullions`) are dark bronze (`115, 100, 80`), stairs (`OST_Stairs`) are `180, 150, 110`, railings (`OST_Railings`) are `130, 115, 95`, and roofs (`OST_Roofs`) are `175, 160, 135`.
+- **Structure (`S`):** structural columns (`OST_StructuralColumns`) `240, 228, 66`, secondary columns (`OST_Columns`) `225, 205, 55`, beams/framing (`OST_StructuralFraming`) `205, 175, 30`, foundations (`OST_StructuralFoundation`) `165, 145, 35`.
+- **Exhibition / Joinery (`X`):** joinery/casework (`OST_Casework`) walnut `135, 80, 45`, freestanding furniture (`OST_Furniture`) warm camel `190, 140, 85`, furniture systems (`OST_FurnitureSystems`) teak `165, 110, 65`, specialty rigs (`OST_SpecialityEquipment`) espresso `105, 55, 30`, plinths/graphic volumes (`OST_GenericModel`) terracotta `210, 160, 115`.
+- **Mechanical (`M`):** HVAC equipment (`OST_MechanicalEquipment`) deep navy `0, 75, 135`, rigid ducts (`OST_DuctCurves`) `0, 114, 178`, flex ducts (`OST_FlexDuctCurves`) `55, 155, 215`, fittings (`OST_DuctFitting`) `25, 135, 200`, accessories (`OST_DuctAccessory`) `0, 95, 155`, air terminals/diffusers (`OST_DuctTerminal`) bright sky blue `86, 180, 233`, insulation (`OST_DuctInsulations`) `145, 205, 240` (30% transparent).
+- **Plumbing (`P`):** fixtures/drains (`OST_PlumbingFixtures`) deep emerald `0, 115, 80`, rigid pipes (`OST_PipeCurves`) `0, 158, 115`, flex pipes (`OST_FlexPipeCurves`) `65, 195, 155`, fittings (`OST_PipeFitting`) `30, 175, 130`, valves/accessories (`OST_PipeAccessory`) `0, 95, 65`, insulation (`OST_PipeInsulations`) `130, 215, 185` (30% transparent).
+- **Fire protection (`F`):** sprinklers (`OST_Sprinklers`) vermillion `213, 94, 0` (with fire pipework `235, 120, 30` and cabinets/extinguishers `175, 65, 0` when separated).
+- **Electrical (`E`):** DBs/panels (`OST_ElectricalEquipment`) burnt orange `190, 105, 0`, cable trays (`OST_CableTray`) `215, 135, 10`, tray fittings (`OST_CableTrayFitting`) `195, 120, 15`, conduits (`OST_Conduit`) `205, 145, 35`, conduit fittings (`OST_ConduitFitting`) `180, 125, 25`, power sockets/floor boxes (`OST_ElectricalFixtures`) `230, 159, 0`, luminaires (`OST_LightingFixtures`) bright gold `250, 195, 45`, switches/sensors (`OST_LightingDevices`) pale gold `255, 215, 95`.
+- **ELV / AV / Fire Alarm (`T`):** fire alarm devices (`OST_FireAlarmDevices`) crimson-rose `215, 70, 115`, security/CCTV (`OST_SecurityDevices`) deep plum `145, 70, 140`, AV/projectors/displays (`OST_AudioVisualDevices`) magenta `185, 75, 150`, PA/communication (`OST_CommunicationDevices`) `204, 121, 167`, data/Wi-Fi (`OST_DataDevices`) lavender `190, 140, 210`, telephone (`OST_TelephoneDevices`) `175, 125, 185`, call points (`OST_NurseCallDevices`) `225, 155, 190`.
 
 **Federated models:** host-view filters and category overrides also act on links shown By Host View, so one set colours a whole federation. **Never colour or halftone the Revit Links category.** It greys every link; the old "existing = OST_RvtLinks halftone" rule did exactly that and is withdrawn.
 
