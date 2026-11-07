@@ -113,6 +113,7 @@ namespace RevitMcp
             ["rename_materials"] = RenameMaterials,
             ["create_pipe_run"] = CreatePipeRun,
             ["create_duct_run"] = CreateDuctRun,
+            ["connect_ducts"] = ConnectDucts,
             ["list_family_text"] = ListFamilyText,
             ["set_family_text"] = SetFamilyText,
             ["add_family_text"] = AddFamilyText,

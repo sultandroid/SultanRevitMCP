@@ -61,6 +61,12 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 ## Compiling and document control
 
 - **Never ask the user to close Revit to compile.** Revit locks the live DLL, so compile-check into a throwaway folder, which works with Revit open: `dotnet build addin/RevitMcp.csproj -c Release -p:OutDir="$TEMP/revitmcp_check/"`. Only a real install needs Revit closed: do it once, at the end, when the user agrees.
+- **Native MEP ducts and fittings.** `create_duct_run` makes one straight rectangular duct (system type, duct type, level, width, height, two points at the centreline). `connect_ducts` joins two of them with the duct type's routing-preference fitting:
+  - `elbow`: centrelines crossing at the same height;
+  - `transition`: in line, with `max_offset_mm` for off-centre reducers;
+  - `tap`: a takeoff from a branch end into a main.
+
+  Both need the model's full path. A failure rolls back. Elbow mode refuses a height difference: model the rise or confirm the levels first. RCRC east wing, 7 Nov 2026: 8 reducers and 1 takeoff placed first time.
 - **Handlers install without a restart.** With Revit open, `install-sultan.ps1` builds the handlers and calls `reload_handlers`. Check the result with `handlers_info`.
 - **Build for Revit's own .NET.** Revit 2026 update 26.5 (5 Nov 2026) runs on .NET 10. A .NET 8 build then fails with CS1705 (RevitAPI needs System.Runtime 10). `install-sultan.ps1` reads the framework from Revit's runtimeconfig and uses the .NET 10 SDK in `%LOCALAPPDATA%\RevitMcp\dotnet-sdk10`. Install that SDK once with Microsoft's `dotnet-install.ps1 -Channel 10.0 -InstallDir <that folder> -NoPath`.
 - **If `reload_handlers` keeps loading an old folder** (seen on the Samaya PC, 7 Nov 2026: always `handlers\20261104-075232`), copy the new build's DLL and PDB into that folder, keep the old DLL as `.bak-<date>`, then call `reload_handlers` again. Confirm with a new command name, not only with `handlers_info`.
