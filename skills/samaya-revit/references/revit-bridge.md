@@ -36,6 +36,8 @@ Compile check while Revit is open: build with `-p:OutDir="$TEMP/revitmcp_check/"
 | A multi-line note lost all but one line | `set_text_note` replaces the whole text. Read the note first and send every line back, not only the one that changed. |
 | Timeout on the first rename in a new model | Template `Level 1` plan and level share a name, so renaming either one opens the rename dialog (DAS, 5 Nov 2026: the level got renamed too, and Revit was then closed). In a new model never rename `Level 1` / `Level 2`: create the named levels, make and open a new plan, then delete the template levels (their views and the Site plan go with them). |
 | Comments on a grid: "no such parameter" | Grids have no Comments parameter. Put a grid's source and ASSUMED status in a note on the plan sheet instead. |
+| New wall came out "Generic - 200mm" | `get_element` returns the type **name** in `type`, not a `type_id`. Passing `wall_type_id: undefined` silently uses the default wall type. Look the id up with `list_element_types` by name and family, and read the new element's `type` back before saving. |
+| A saved batch is missing when the model is reopened | Another writer opened the same released file and saved after you (RCRC EXT, 7 Nov 2026: 13 s apart). Write your claim in the shared ledger before opening, check the file SHA256 and the claim again **right before** `save_document`, and abort without saving if either changed. After a save, prove it by opening a copy of the saved file. |
 
 ## Scripting
 
