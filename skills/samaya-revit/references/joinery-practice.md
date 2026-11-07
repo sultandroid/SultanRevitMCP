@@ -15,6 +15,7 @@ Use this to detail how a unit is really built. Sizes here are normal shop practi
 - **Plinths are always painted softwood**, never EGGER or MDF.
 - **Every unit gets the project's default skirting.** Read it from the project's existing skirting and match it. Madina 1: black, 50 mm high, face 50 mm behind the unit's faces. Keep the unit's overall height: the skirting takes its 50 mm from the lowest part.
 - Painted work is FR MDF, sanded and sealed before paint. Prime cut edges twice, because MDF edges absorb paint.
+- **Model woodwork like the carpenter who builds it, with boards sold in the market** (user, 7 Nov 2026). Translate the designer's nominal material into a buildable one and keep the original in the element notes: "1 cm walnut panel" becomes 18 mm MDF with natural walnut veneer (or EGGER 18 walnut decor) on 40 x 20 FR battens, 38 deep; "fabric strip" becomes fabric stretched on 18 mm FR MDF on a batten. Stone and metal are other trades: stone 20 mm on mechanical fixings with a 30 mm cavity, curved metal sheet on brackets. Before placing wall cladding next to loose furniture, check the furniture clearance and report any clash.
 
 ## Cladding existing structure
 
