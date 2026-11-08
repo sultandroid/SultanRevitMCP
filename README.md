@@ -43,6 +43,19 @@ Project models and project data do not belong here.
 
 ## Third-party skills
 
+Revit add-in development skills from [Nice3point/revit-skills](https://github.com/Nice3point/revit-skills) (MIT, by the author of the Nice3point Revit templates) are installed as Claude Code plugins, not stored here. Install them on each computer:
+
+```
+claude plugin marketplace add Nice3point/revit-skills
+claude plugin install revit-api@revit-skills --scope user
+claude plugin install revit-ui@revit-skills --scope user
+claude plugin install revit-solution@revit-skills --scope user
+claude plugin install revit-testing@revit-skills --scope user
+claude plugin install revit-benchmarking@revit-skills --scope user
+```
+
+Update them with `claude plugin marketplace update revit-skills` and `claude plugin update <plugin>@revit-skills`. They cover the Revit API (collectors, parameters, extensible storage, failure handling), the UI API (external events, ribbon, dockable panes, selection filters), add-in solutions (SDK, multi-version builds, dependency isolation, publishing), TUnit testing and benchmarking.
+
 These add-in development skills are installed in `~/.claude/skills` and not stored here, because their source has no license: `revit-addin`, `revit-debug`, `revit-test`, `revit-wpf-mvvm` and `revit-xaml-styles`, from [revit-api-2027-with-claude](https://github.com/tony-hoang-ai-automation/revit-api-2027-with-claude/tree/main/.claude/skills). Copy those folders on another computer.
 
 `skills/technical-drafting-ksa/` is adapted from [`mechanical-drafting-gbt`](https://github.com/beiming183-cloud/AutoCAD-skills) (MIT, beiming183-cloud), with the Chinese GB/T baseline replaced by Saudi practice. Its licence is kept in `skills/technical-drafting-ksa/LICENSE-upstream`.
