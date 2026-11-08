@@ -5,6 +5,7 @@ Samaya Factory's Revit system for every factory project. It holds the bridge tha
 | Folder | Contents |
 |---|---|
 | `skills/samaya-revit/` | Claude skill: project questions, stakeholders, revisions, title blocks, modelling defaults, bridge lessons |
+| `skills/technical-drafting-ksa/` | Claude skill: AutoCAD/DWG/DXF drafting to Saudi practice (ISO via SASO/GSO, SBC 2024 checks, bilingual title blocks, Hijri dates, release DRC) and the AutoCAD-to-Revit handover through the bridge |
 | `title-blocks/` | Title block families and logos |
 | `tools/` | Bridge client and build scripts |
 | `revit-mcp/` | **SultanRevitMCP**: our Revit add-in and MCP server source (code and files still named RevitMcp until the loader rework) |
@@ -14,6 +15,7 @@ Samaya Factory's Revit system for every factory project. It holds the bridge tha
 ```
 git clone https://github.com/sultandroid/SultanRevitMCP.git C:\Users\<you>\samaya-revit-standards
 cmd /c mklink /J "%USERPROFILE%\.claude\skills\samaya-revit" "%USERPROFILE%\samaya-revit-standards\skills\samaya-revit"
+cmd /c mklink /J "%USERPROFILE%\.claude\skills	echnical-drafting-ksa" "%USERPROFILE%\samaya-revit-standards\skills	echnical-drafting-ksa"
 ```
 
 The repository was renamed from `samaya-revit-standards`; the local folder keeps the old name so existing links and paths still work. Old clones keep working through GitHub's redirect, but you can point them at the new name with `git remote set-url origin https://github.com/sultandroid/SultanRevitMCP.git`.
@@ -42,3 +44,5 @@ Project models and project data do not belong here.
 ## Third-party skills
 
 These add-in development skills are installed in `~/.claude/skills` and not stored here, because their source has no license: `revit-addin`, `revit-debug`, `revit-test`, `revit-wpf-mvvm` and `revit-xaml-styles`, from [revit-api-2027-with-claude](https://github.com/tony-hoang-ai-automation/revit-api-2027-with-claude/tree/main/.claude/skills). Copy those folders on another computer.
+
+`skills/technical-drafting-ksa/` is adapted from [`mechanical-drafting-gbt`](https://github.com/beiming183-cloud/AutoCAD-skills) (MIT, beiming183-cloud), with the Chinese GB/T baseline replaced by Saudi practice. Its licence is kept in `skills/technical-drafting-ksa/LICENSE-upstream`.
