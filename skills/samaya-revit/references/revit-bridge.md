@@ -309,7 +309,7 @@ The Claude app is an MSIX package: files its shells write under %LOCALAPPDATA% g
 
 **Measure existing structure by rays, not by bounding box (Makkah FS-1, 10 Nov 2026).** The EXT "Front Pier" box was 1310 wide because it took in the lintels; rays along its shop face (`probe_ray`, 25 mm steps, then halving to the edge) gave the real column, 721. Size joinery to the measured face.
 
-**Writing JS from PowerShell breaks** (`node -e` with quotes and `\n`, regex replace through `-replace`): use the Edit tool, or `[IO.File]::ReadAllText` / `.Replace()` / `WriteAllText` with literal strings. Check new names against the whole file first (`SIDE` already existed in `fab_sheet.mjs` as the figure outline).
+**Writing JS from PowerShell breaks** (`node -e` with quotes and `\n`, regex replace through `-replace`): use the Edit tool, or `[IO.File]::ReadAllText` / `.Replace()` / `WriteAllText` with literal strings. Check new names against the whole file first (`SIDE` already existed in `fab_sheet.mjs` as the figure outline). Never round-trip a script through Windows PowerShell `Get-Content` / `Set-Content`: it reads UTF-8 as ANSI and writes it back double-encoded, which breaks the Arabic order-folder paths (Makkah `pkg.mjs`, 10 Nov 2026). Use `[IO.File]::ReadAllText($f, [Text.Encoding]::UTF8)` and write with UTF-8 without BOM.
 
 ## Sheet sets for export
 

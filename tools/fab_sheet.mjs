@@ -58,6 +58,9 @@ if (FACE) {
   for (const f of parts) [f.x0, f.x1, f.y0, f.y1] = box(f.x0, f.x1, f.y0, f.y1);
 }
 const dx = b.x1 - b.x0, dy = b.y1 - b.y0, xc = (b.x0 + b.x1) / 2, yc = (b.y0 + b.y1) / 2;
+// yL: where Section B, the location section and the space probes cut. Mid-depth by default; t.locDepth (mm behind the
+// front face) for a unit whose back half wraps existing structure, so they cut through the shop part (Makkah FS-1).
+const yL = t.locDepth != null ? b.y0 + t.locDepth : yc;
 // Factory standard: joinery stops at least 20 mm under the ceiling (shadow gap). config.ceiling = ceiling height (mm, FFL).
 const GAP = C.shadowGap ?? 20;
 if (C.ceiling && b.z1 > C.ceiling - GAP + 0.5) throw new Error(`${t.ref} top +${r(b.z1)} is less than ${GAP} mm under the ceiling +${C.ceiling}: fix the family first (shadow gap rule)`);
@@ -94,7 +97,7 @@ const vFront = await sec("Front Elevation", "Front Elevation", P(b.x0 - M, yf), 
 const vSide = await sec("Side Elevation", "Side Elevation", P(xs, b.y1 + 240), P(xs, b.y0 - F), P(1, 0, 0), dx + 300, s, zTop, zBot);
 const za = b.z0 - 150, zb = b.z1 + 150, xA = t.sectionAt ?? xc;
 const vA = await sec("Section A", "Section A", P(xA, b.y1 + M), P(xA, b.y0 - M), P(1, 0, 0), 40, s, zb, za);
-const vB = await sec("Section B", "Section B", P(b.x0 - M, yc), P(b.x1 + M, yc), P(0, 1, 0), 40, s, zb, za);
+const vB = await sec("Section B", "Section B", P(b.x0 - M, yL), P(b.x1 + M, yL), P(0, 1, 0), 40, s, zb, za);
 const planId = (await call("list_views", {})).views.find((x) => x.name === C.planView)?.id; if (!planId) throw new Error("no plan view " + C.planView);
 const dp = await call("duplicate_view", { view_id: planId, name: P_ + "Top View", option: "Duplicate" });
 const vTop = dp.id ?? dp.view_id;
@@ -130,8 +133,8 @@ await dim(vSide, floorDim.map((z) => P(xs, b.y1 + off, z)));
 await dim(vSide, [0, 1700].map((z) => P(xs, b.y0 - F + 30, z)));
 await dim(vA, [P(xA, b.y1, za + off), P(xA, b.y0, za + off)]);
 await dim(vA, levels.map((z) => P(xA, b.y0 - off, z)));
-await dim(vB, [P(b.x0, yc, za + off), P(b.x1, yc, za + off)]);
-await dim(vB, levels.map((z) => P(b.x1 + off, yc, z)));
+await dim(vB, [P(b.x0, yL, za + off), P(b.x1, yL, za + off)]);
+await dim(vB, levels.map((z) => P(b.x1 + off, yL, z)));
 await dim(vTop, [P(b.x0, b.y0 - off), P(b.x1, b.y0 - off)]);
 await dim(vTop, [P(b.x0 - off, b.y0), P(b.x0 - off, b.y1)]);
 if (big) {
@@ -279,8 +282,8 @@ const v3d = (await call("list_views", {})).views.find((v) => v.name === "{3D}")?
 const boxOn = v3d ? (await call("get_element", { element_id: v3d })).parameters.find((p) => p.name === "Section Box")?.value === "Yes" : false;
 if (boxOn) await setv(v3d, "Section Box", 0);
 const NB = {
-  left: await probe(P(b.x0 + 1, yc, zm), { x: -1, y: 0 }), right: await probe(P(b.x1 - 1, yc, zm), { x: 1, y: 0 }),
-  up: await probe(P(xc, yc, b.z1 - 1), { x: 0, y: 0, z: 1 }, 2000), back: await probe(P(xc, b.y1 - 1, zm), { x: 0, y: 1 }, 3000),
+  left: await probe(P(b.x0 + 1, yL, zm), { x: -1, y: 0 }), right: await probe(P(b.x1 - 1, yL, zm), { x: 1, y: 0 }),
+  up: await probe(P(xc, yL, b.z1 - 1), { x: 0, y: 0, z: 1 }, 2000), back: await probe(P(xc, b.y1 - 1, zm), { x: 0, y: 1 }, 3000),
   front: await probe(P(xc, b.y0 + 1, Math.min(zm, 900)), { x: 0, y: -1 }, 6000),
 };
 if (boxOn) await setv(v3d, "Section Box", 1);
@@ -308,7 +311,7 @@ const BAND = sBand != null && (sStack == null || sBand < sStack);
 const sL = BAND ? sBand : sStack;
 let locNote = "";
 if (sL) {
-  const vLS = await sec("Location Section", "Location Section", P(LX0, yc), P(LX1, yc), P(0, 1, 0), (yB ?? b.y1 + 300) - yc + 80, sL, LZ1, -150);
+  const vLS = await sec("Location Section", "Location Section", P(LX0, yL), P(LX1, yL), P(0, 1, 0), (yB ?? b.y1 + 300) - yL + 80, sL, LZ1, -150);
   await call("set_view_categories", { view_id: vLS, hide: ["OST_Sections", "OST_Elev", "OST_Callouts", "OST_Levels", "OST_Grids", "OST_CLines"] }).catch(() => {});
   const lp = await call("duplicate_view", { view_id: planId, name: P_ + "Location Plan", option: "Duplicate" }), vLP = lp.id ?? lp.view_id;
   for (const [n, x] of [["View Template", -1], ["View Scale", sL], ["Detail Level", 2], ["Title on Sheet", "Location Plan"], ["Crop View", 1], ["Annotation Crop", 1]]) await setv(vLP, n, x);
@@ -324,10 +327,10 @@ if (sL) {
   // drop the inner point of such a segment; the SPACE note still gives every gap.
   const thin = (v) => { const out = []; for (const a of v) { if (out.length && Math.abs(a - out[out.length - 1]) < 8 * sL) { if (a === v[v.length - 1]) out[out.length - 1] = a; continue; } out.push(a); } return out; };
   const wx = thin([xL, b.x0, b.x1, xR].filter((x) => x != null));
-  await dim(vLS, wx.map((x) => P(x, yc, -90)));
-  if (xL != null && xR != null) await dim(vLS, [P(xL, yc, LZ1 - 90), P(xR, yc, LZ1 - 90)]);
+  await dim(vLS, wx.map((x) => P(x, yL, -90)));
+  if (xL != null && xR != null) await dim(vLS, [P(xL, yL, LZ1 - 90), P(xR, yL, LZ1 - 90)]);
   const hz = [...new Set([0, r(b.z0), r(b.z1), zU != null ? r(zU) : null, C.ceiling && (zU == null || Math.abs(zU - C.ceiling) > 5) ? C.ceiling : null].filter((z) => z != null))].sort((a, c) => a - c);
-  await dim(vLS, hz.map((z) => P(LX1 - 150, yc, z)));
+  await dim(vLS, hz.map((z) => P(LX1 - 150, yL, z)));
   await dim(vLP, wx.map((x) => P(x, b.y0 - 150, 0)));
   const dyz = thin([yB, b.y1, b.y0, yFs].filter((y) => y != null));
   if (dyz.length > 2) await dim(vLP, dyz.map((y) => P(xc, y, 0)));
