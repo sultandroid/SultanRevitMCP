@@ -305,6 +305,12 @@ Use `inspect_cad_geometry` on an ImportInstance to read source layer counts and 
 
 The Claude app is an MSIX package: files its shells write under %LOCALAPPDATA% go to its private copy (`%LOCALAPPDATA%\Packages\Claude_<id>\LocalCache\Local\SultanRevitMCP\handlers`), so `install-sultan.ps1` builds there and Revit keeps loading the older build it can see. Copy the new version folder to the real `%LOCALAPPDATA%\SultanRevitMCP\handlers` with a process started outside the package (`Invoke-CimMethod Win32_Process Create` running robocopy), then call `reload_handlers` and check that `version` is the new folder.
 
+**`rotate_elements`** (10 Nov 2026): turns elements about a vertical axis, each about its own point or about `center`. Use it to turn a placed device (a DB, a panel) instead of placing a new turned copy, which would lose its circuits.
+
+**Measure existing structure by rays, not by bounding box (Makkah FS-1, 10 Nov 2026).** The EXT "Front Pier" box was 1310 wide because it took in the lintels; rays along its shop face (`probe_ray`, 25 mm steps, then halving to the edge) gave the real column, 721. Size joinery to the measured face.
+
+**Writing JS from PowerShell breaks** (`node -e` with quotes and `\n`, regex replace through `-replace`): use the Edit tool, or `[IO.File]::ReadAllText` / `.Replace()` / `WriteAllText` with literal strings. Check new names against the whole file first (`SIDE` already existed in `fab_sheet.mjs` as the figure outline).
+
 ## Sheet sets for export
 
 `save_sheet_set` saves a named sheet set (Print / Export PDF / DWG > Selected views/sheets). `tools/sheet_sets.mjs <model>` makes `<CODE> 00 ALL`, one set per Sheet Package and one per fabrication item group; run it after `sheet_groups.mjs`.

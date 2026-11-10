@@ -67,6 +67,7 @@ namespace RevitMcp
             ["create_room"] = CreateRoom,
             ["place_family_instance"] = PlaceFamilyInstance,
             ["move_elements"] = MoveElements,
+            ["rotate_elements"] = RotateElements,
             ["delete_elements"] = DeleteElements,
             ["create_floor_plan"] = CreateFloorPlan,
             ["create_section"] = CreateSection,
@@ -889,6 +890,29 @@ namespace RevitMcp
             {
                 ElementTransformUtils.MoveElements(doc, ids, delta);
                 return new JsonObject { ["moved"] = ids.Count };
+            });
+        }
+
+        /// <summary>Turns elements about a vertical axis: through "center" {x,y} (mm) when given, else each about its own
+        /// location point. Keeps the element itself (circuits, tags and hosts stay), unlike placing a new turned copy.</summary>
+        private static JsonNode RotateElements(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var ids = ReqIds(p, "element_ids");
+            var angle = (Num(p, "angle_deg") ?? throw new ArgumentException("angle_deg is required.")) * Math.PI / 180;
+            XYZ center = p["center"] is JsonObject ? ReqPoint(p, "center") : null;
+            return InTransaction(doc, "Rotate elements", () =>
+            {
+                var done = new JsonArray();
+                foreach (var id in ids)
+                {
+                    var e = RequireElement(doc, id);
+                    var at = center ?? (e.Location as LocationPoint)?.Point ?? (e.Location as LocationCurve)?.Curve.Evaluate(0.5, true)
+                             ?? throw new ArgumentException($"{id.Value} has no location point; pass center.");
+                    ElementTransformUtils.RotateElement(doc, id, Line.CreateBound(at, at + XYZ.BasisZ), angle);
+                    done.Add(id.Value);
+                }
+                return new JsonObject { ["rotated"] = done };
             });
         }
 

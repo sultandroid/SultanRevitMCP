@@ -45,10 +45,13 @@ const turn = ([x, y]) => instRot === 90 ? [-y, x] : instRot === 180 ? [-x, -y] :
 const parts = raw.map((f) => { const [a, c] = [turn([f.min.x, f.min.y]), turn([f.max.x, f.max.y])]; return { m: f.material ?? "Unassigned", x0: Math.min(a[0], c[0]) + o.x, x1: Math.max(a[0], c[0]) + o.x, y0: Math.min(a[1], c[1]) + o.y, y1: Math.max(a[1], c[1]) + o.y, z0: f.min.z + o.z, z1: f.max.z + o.z }; });
 const b = { x0: Math.min(...parts.map((f) => f.x0)), x1: Math.max(...parts.map((f) => f.x1)), y0: Math.min(...parts.map((f) => f.y0)), y1: Math.max(...parts.map((f) => f.y1)), z0: Math.min(...parts.map((f) => f.z0)), z1: Math.max(...parts.map((f) => f.z1)) };
 // A rear-wall unit placed at rotation 0 (Makkah OSB-1, AR-B1, SC-C1) needs "rot": 270 in its config, or front and side swap.
-const FACE = rot === 0 ? "+x" : rot === 180 ? "-x" : null, Bw = { ...b };
+// rot 90 = faces +y (a free-standing unit whose working face looks away from the front wall, Makkah FS-1): the unit frame is
+// the world turned 180, so the front elevation looks at the +y face (without this it looked through the open back).
+const FACE = rot === 0 ? "+x" : rot === 180 ? "-x" : rot === 90 ? "+y" : null, Bw = { ...b };
+const SIDEW = FACE === "+x" || FACE === "-x"; // side-wall units: their plan is drawn north-up, so it stands turned on paper
 if (FACE) {
-  const rr = FACE === "+x" ? ([x, y]) => [-y, x] : ([x, y]) => [y, -x];  // unit frame -> world
-  const ri = FACE === "+x" ? ([x, y]) => [y, -x] : ([x, y]) => [-y, x];  // world -> unit frame
+  const rr = FACE === "+x" ? ([x, y]) => [-y, x] : FACE === "+y" ? ([x, y]) => [-x, -y] : ([x, y]) => [y, -x];  // unit frame -> world
+  const ri = FACE === "+x" ? ([x, y]) => [y, -x] : FACE === "+y" ? ([x, y]) => [-x, -y] : ([x, y]) => [-y, x];  // world -> unit frame
   ROT = (p) => { const [x, y] = rr([p.x, p.y]); return { x, y }; };
   const box = (x0, x1, y0, y1) => { const c = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(ri); return [Math.min(...c.map((q) => q[0])), Math.max(...c.map((q) => q[0])), Math.min(...c.map((q) => q[1])), Math.max(...c.map((q) => q[1]))]; };
   [b.x0, b.x1, b.y0, b.y1] = box(b.x0, b.x1, b.y0, b.y1);
@@ -66,11 +69,14 @@ const W = dx + 2 * M, H = zTop - zBot, D = dy + F + 240, PH = dy + 2 * M;
 const fitsRow1 = (q) => 45 + (W + D + dy + 2 * M + W) / q + 40 <= 685;
 const s = t.scale ?? [5, 8, 10, 15, 20, 25].find((q) => H / q + PH / q + 60 <= 790 && (W + D) / q <= 740 && (fitsRow1(q) || (2 * H) / q + 110 <= 765)) ?? 25;
 const yf = b.y0 - 100, xs = b.x0 - 100;
+// A unit built from more than one material shows each material in its own colour (shaded with edges), so the parts are easy
+// to tell apart (user, Makkah FS-1, 10 Nov 2026). A one-material unit stays black-and-white hidden line. t.style overrides.
+const STYLE = t.style ?? (new Set(parts.map((f) => f.m)).size > 1 ? "ShadingWithEdges" : "HLR");
 const sec = async (name, title, start, end, look, depth, scale, top, bottom) => {
   const v = await call("create_section", { start, end, look_direction: look, bottom_mm: bottom, top_mm: top, depth_mm: depth });
   const vid = v.id ?? v.view_id;
   await setv(vid, "View Name", P_ + name); await setv(vid, "Hide at scales coarser than", 2); await setv(vid, "View Scale", scale); await setv(vid, "Detail Level", 3); await setv(vid, "Title on Sheet", title);
-  await call("set_view_display", { view_id: vid, style: "HLR" }).catch(() => {});
+  await call("set_view_display", { view_id: vid, style: STYLE }).catch(() => {});
   return vid;
 };
 const vFront = await sec("Front Elevation", "Front Elevation", P(b.x0 - M, yf), P(b.x1 + M, yf), P(0, 1, 0), dy + 300, s, zTop, zBot);
@@ -82,9 +88,10 @@ const planId = (await call("list_views", {})).views.find((x) => x.name === C.pla
 const dp = await call("duplicate_view", { view_id: planId, name: P_ + "Top View", option: "Duplicate" });
 const vTop = dp.id ?? dp.view_id;
 await setv(vTop, "View Scale", s); await setv(vTop, "Detail Level", 3); await setv(vTop, "Title on Sheet", "Top View"); await setv(vTop, "View Template", -1);
+await call("set_view_display", { view_id: vTop, style: STYLE }).catch(() => {});
 await setv(vTop, "Crop View", 1); await setv(vTop, "Annotation Crop", 1);
 const pb = (await call("get_element", { element_id: vTop })).bounding_box;
-const m_ = M + (FACE ? 150 : 0), B0 = FACE ? Bw : b;
+const m_ = M + (SIDEW ? 150 : 0), B0 = FACE ? Bw : b;
 await call("extend_view_crop", { view_id: vTop, left_mm: pb.min.x - (B0.x0 - m_), right_mm: B0.x1 + m_ - pb.max.x, bottom_mm: pb.min.y - (B0.y0 - m_), top_mm: B0.y1 + m_ - pb.max.y });
 await call("set_view_range", { view_id: vTop, top_mm: b.z1 + 300, cut_mm: b.z1 + 200, bottom_mm: 0 }).catch((e) => console.log("range", e.message.slice(0, 90)));
 const big = t.details !== false && s >= 8 && W / 5 <= 360 ? 5 : 0; // 1:5 details when the unit is no wider than 360 mm on paper at 1:5
@@ -169,8 +176,8 @@ await call("set_sheet_revisions", { sheet_ids: [sheet], revision_ids: C.revision
 const wF = W / s, hF = H / s, wS = D / s, hP = PH / s, wA = (dy + 2 * M) / s, wB = W / s, hC = (zb - za) / s;
 // The Top View of a side unit is drawn north-up (its crop cannot be turned), so on paper it is as tall as the unit is long:
 // size it from the world box, or it runs up into the front elevation (counter D-02, Makkah Rev 07). Details keep their own row.
-const wTop = ((FACE ? Bw : b).x1 - (FACE ? Bw : b).x0 + 2 * (M + (FACE ? 150 : 0))) / s; // top view width on paper
-const hTop = FACE ? (Bw.y1 - Bw.y0 + 2 * (M + 150)) / s : hP;                         // top view height on paper
+const wTop = ((FACE ? Bw : b).x1 - (FACE ? Bw : b).x0 + 2 * (M + (SIDEW ? 150 : 0))) / s; // top view width on paper
+const hTop = SIDEW ? (Bw.y1 - Bw.y0 + 2 * (M + 150)) / s : hP;                         // top view height on paper
 const TOP = 810, LEFT = 45, fx = LEFT + wF / 2, fy = TOP - hF / 2, sx = LEFT + wF + 10 + wS / 2, pyD = TOP - hF - 25 - hP / 2, py = Math.max(TOP - hF - 30 - hTop / 2, 45 + hTop / 2);
 const place = (v, x, y) => call("place_view_on_sheet", { sheet_id: sheet, view_id: v, location: P(x, y) });
 const NOTES = 815, levelY = fy + ((za + zb) / 2 - (zBot + zTop) / 2) / s;
@@ -180,7 +187,7 @@ const L = {};
 if (free >= 30) {
   const gp = free / 3; let x = LEFT;
   for (const [k, [v, w, y]] of blocks.entries()) { const cxv = x + w / 2; await place(v, cxv, y); L[["front", "side", "A", "B"][k]] = cxv; x += w + gp; }
-  await place(vTop, Math.max(L.front + (FACE ? 15 : 0), LEFT + wTop / 2 + 10), py);
+  await place(vTop, Math.max(L.front + (SIDEW ? 15 : 0), LEFT + wTop / 2 + 10), py);
   if (big) { await place(vDT, L.side, pyD); await place(vDB, L.A, pyD); }
 } else {
   await place(vFront, fx, fy); await place(vSide, sx, fy); await place(vTop, Math.max(fx, LEFT + wTop / 2 + 10), py);
@@ -224,7 +231,7 @@ const [X0, X1, Y0, Ytop] = box3d ? box3d.split(",").map(Number) : [NOTES - 20, 1
 const wb = { min: [Bw.x0, Bw.y0, Bw.z0], max: [Bw.x1, Bw.y1, Bw.z1] };
 // View direction (eye = centre - dir): eye in front of the unit and to its left. Rot 0 faces +x, 180 faces -x, 270 faces -y, 90 faces +y.
 const dirW = FACE === "+x" ? [-1, 1, -1] : FACE === "-x" ? [1, -1, -1] : rot === 90 ? [-1, -1, -1] : [1, 1, -1];
-const r3 = await unit3d(call, { name: P_ + "3D View", ids: [id], sheet, area: [X0, X1, Y0, Ytop], dir: dirW, style: "HLR", box: wb });
+const r3 = await unit3d(call, { name: P_ + "3D View", ids: [id], sheet, area: [X0, X1, Y0, Ytop], dir: dirW, style: STYLE, box: wb });
 const v3 = r3.view, s3 = r3.scale;
 // Location: every item drawn in its place, not alone (user, 6 Nov 2026). A section through the unit's bay and a plan, NOT
 // isolated, with the unit in red, its neighbours, wall, floor and ceiling, and dimensions of the space it has: width between
@@ -256,16 +263,25 @@ if (boxOn) await setv(v3d, "Section Box", 1);
 const xL = NB.left ? b.x0 - NB.left.d : null, xR = NB.right ? b.x1 + NB.right.d : null;
 const zU = NB.up ? b.z1 + NB.up.d : C.ceiling ?? null, yB = NB.back ? b.y1 + NB.back.d : null, yF = NB.front ? b.y0 - NB.front.d : null;
 // context: 700 beyond the neighbours each side; in plan the walkway in front is shown up to 1500 (its full length is in the note)
-const LX0 = Math.min(xL ?? b.x0, b.x0) - 700, LX1 = Math.max(xR ?? b.x1, b.x1) + 700, LZ1 = Math.max(C.ceiling ?? 0, zU ?? 0, b.z1 + 300) + 250;
+const LX0 = Math.min(xL ?? b.x0, b.x0) - 400, LX1 = Math.max(xR ?? b.x1, b.x1) + 400, LZ1 = Math.max(C.ceiling ?? 0, zU ?? 0, b.z1 + 300) + 250;
 const yFs = yF != null && b.y0 - yF <= 1500 ? yF : null;
 const PY1 = (yB ?? b.y1 + 300) + 250, PY0 = (yFs ?? b.y0 - 1500) - 250;
 // the plan is drawn north-up: for a side unit its width runs up the paper
-const wPl = (FACE ? PY1 - PY0 : LX1 - LX0), hPlan = (FACE ? LX1 - LX0 : PY1 - PY0);
+const wPl = (SIDEW ? PY1 - PY0 : LX1 - LX0), hPlan = (SIDEW ? LX1 - LX0 : PY1 - PY0);
 // free area for the two views: under Section B (or beside the top view), above the bottom margin, left of the 3D view
 // Row two holds the top view (and in the second layout a dropped section): the location views go to the right of what is there.
 const rx0 = free >= 30 ? (big ? L.A + 75 : Math.max(L.side, LEFT + wTop + 25)) : Math.max(LEFT + wTop + 25, (L.row2Right ?? 0) + 15) + (big ? 0 : 0), rx1 = NOTES - 35;
 const ry1 = TOP - hF - 40, ry0 = 50;
-const sL = [20, 25, 30, 40, 50, 75, 100, 150, 200].find((q) => Math.max(LX1 - LX0, wPl) / q <= rx1 - rx0 && (LZ1 + 150) / q + hPlan / q + 90 <= ry1 - ry0);
+const SCALES = [10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200];
+const sStack = SCALES.find((q) => Math.max(LX1 - LX0, wPl) / q <= rx1 - rx0 && (LZ1 + 150) / q + hPlan / q + 90 <= ry1 - ry0);
+// Second place: the empty band under row two, full width (left margin to the text column), section and plan side by side
+// with the SPACE note on their right. Used when it draws them bigger (user, Makkah FS-1, 10 Nov 2026: "location views
+// bigger in the free space").
+const row2Bot = Math.min(py - hTop / 2, big ? pyD - 520 / big / 2 : Infinity) - 30;
+const gx0 = LEFT, gx1 = NOTES - 35 - 125, gy1 = row2Bot - 10, gy0 = 50;
+const sBand = SCALES.find((q) => (LX1 - LX0) / q + wPl / q + 30 <= gx1 - gx0 && Math.max(LZ1 + 150, hPlan) / q + 40 <= gy1 - gy0);
+const BAND = sBand != null && (sStack == null || sBand < sStack);
+const sL = BAND ? sBand : sStack;
 let locNote = "";
 if (sL) {
   const vLS = await sec("Location Section", "Location Section", P(LX0, yc), P(LX1, yc), P(0, 1, 0), (yB ?? b.y1 + 300) - yc + 80, sL, LZ1, -150);
@@ -292,12 +308,21 @@ if (sL) {
   const dyz = thin([yB, b.y1, b.y0, yFs].filter((y) => y != null));
   if (dyz.length > 2) await dim(vLP, dyz.map((y) => P(xc, y, 0)));
   const hS = (LZ1 + 150) / sL, hPl = hPlan / sL, cxL = (rx0 + rx1) / 2;
-  await place(vLS, cxL, ry1 - hS / 2 - 2);
-  await place(vLP, cxL, ry1 - hS - 25 - hPl / 2);
+  let noteXY = null;
+  if (BAND) { // side by side, both standing on one line at the bottom of the band
+    const wS = (LX1 - LX0) / sL, gapB = (gx1 - gx0 - wS - wPl / sL) / 3, base = gy0 + 25;
+    await place(vLS, gx0 + gapB + wS / 2, base + hS / 2);
+    await place(vLP, gx0 + 2 * gapB + wS + wPl / sL / 2, base + hPl / 2);
+    noteXY = [gx1 + 10, base + Math.max(hS, hPl)];
+  } else {
+    await place(vLS, cxL, ry1 - hS / 2 - 2);
+    await place(vLP, cxL, ry1 - hS - 25 - hPl / 2);
+  }
   const w = (k, n) => (NB[k] ? `${n} ${NB[k].label} at ${r(NB[k].d)}` : `${n} nothing within reach`);
   locNote = [`SPACE: ${xL != null && xR != null ? r(xR - xL) : "-"} wide x ${yB != null ? r(yB - b.y0) : "-"} deep x ${zU != null ? r(zU) : "-"} high`, `(floor to ${NB.up?.label ?? "ceiling"})`,
     w("left", "Left:"), w("right", "Right:"), w("up", "Above:"), w("back", "Behind:"), w("front", "In front (walkway):")].join("\n");
-  await txt(rx0, Math.max(ry1 - hS - 30 - hPl - 22, 95), locNote);
+  if (noteXY) await txt(noteXY[0], noteXY[1], locNote.replace(/ \(floor/, "\n(floor").replace(/ wide x /, " wide x\n"));
+  else await txt(rx0, Math.max(ry1 - hS - 30 - hPl - 22, 95), locNote);
 } else console.log("location views: no room on the sheet, scale not found");
 log[key_] = { sheet, sheetNumber: SN, scale: s, scale3d: s3, keyPlanMarks: marks, location: { scale: sL, NB }, views: { vFront, vSide, vA, vB, vTop, vDT, vDB, kp, v3 } };
 writeFileSync(LOG, JSON.stringify(log, null, 1));
