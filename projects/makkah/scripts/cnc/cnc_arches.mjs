@@ -2,7 +2,8 @@
 // arcs (factory CNC standard, joinery-practice.md "CNC files"). Geometry = the scripts that built the families (A-2101 set-out):
 //   AR   side arches (6): two-centred, centres 60 past the axis, Ri 500 / Ro 620, springing +2.200, capital +2.050, band 101 deep.
 //   AR-R rear arches (2): Ri 570 / Ro 690, springing +2.185, capital +2.035, band 105 deep.
-//   AR-B1 gate ring (1): semicircle R 680 / 800 about +2.040, 80 deep.
+//   AR-B1 gate ring (1): KEEL (user, 10 Nov 2026), two centres 93 past the axis at the springing +2.037, Ri 773 / Ro 893,
+//   83 deep, 9 voussoirs (dark U968 / light U775), keystone across the apex joint.
 //   SC-A / SC-B / SC-C spandrel panels: FR MDF 18, cut 20 inside the band (R 600 / 670 / 780), springing to +2.980 (20 shadow gap).
 // Bands are built as FR MDF 18 ribs (front and back flush with the band faces, plus a middle rib where the band is deeper than 80),
 // inset 5 on the curved and leg faces for a 5 mm bending-ply wrap, filled and painted (as the Madina 1 arch ribs).
@@ -39,13 +40,13 @@ savePart("arch", "AR-BAND-RIB", "FR MDF", 18, 3 * 6, pointedRing({ ...AR, k: PLY
   "Band 120 x 101: 3 ribs per arch (front, middle, back), glue blocks between, 5 mm bending ply on the curves and legs, painted to U775 ST9 White Grey. Bottom edge = capital +2.050.");
 savePart("arch", "AR-R-BAND-RIB", "FR MDF", 18, 3 * 2, pointedRing({ ...ARR, k: PLY }),
   "Band 120 x 105: 3 ribs per arch (front, middle, back), glue blocks between, 5 mm bending ply on the curves and legs, painted to U775 ST9 White Grey. Bottom edge = capital +2.035.");
-savePart("arch", "AR-B1-RING-RIB", "FR MDF", 18, 2, roundRing({ Ro: 800, Ri: 680, zc: 2040, k: PLY }),
-  "Gate ring 120 x 80: 2 ribs (front and back), glue blocks between, 5 mm bending ply on both curves, painted to U775 ST9 White Grey. Bottom edge = springing +2.040. Voussoir lines as A-2104.");
+savePart("arch", "AR-B1-RING-RIB", "FR MDF", 18, 2, pointedRing({ Ro: 893, Ri: 773, e: 93, zc: 2037, zs: 2037, k: PLY }),
+  "Keel gate ring 120 x 83: 2 ribs (front and back), glue blocks between, 5 mm bending ply on both curves. Bottom edge = springing +2.037, apex +2.925. Mark the 9 voussoir lines (4.5 per side) from A-2104; V-groove at each line, dark U968 / light U775.");
 // Spandrel cladding panels
 savePart("sc", "SC-A-PANEL", "FR MDF", 18, 6, spandrelPanel({ hw: 560, zc: 2200, zTop: ZTOP, R: 600, e: 60 }),
   "Behind the AR band, cut 20 inside the band (R 600, centres 60 past the axis). Bottom = springing +2.200, top +2.980. Painted to U775 ST9 White Grey.");
 savePart("sc", "SC-B-PANEL", "FR MDF", 18, 2, spandrelPanel({ hw: 630, zc: 2185, zTop: ZTOP, R: 670, e: 60 }),
   "Behind the AR-R band, cut 20 inside the band (R 670, centres 60 past the axis). Bottom = springing +2.185, top +2.980. Painted to U775 ST9 White Grey.");
-savePart("sc", "SC-C-PANEL", "FR MDF", 18, 1, spandrelPanel({ hw: 800, zc: 2040, zTop: ZTOP, R: 780 }),
-  "Behind the gate ring, cut 20 inside the ring (R 780 about the springing +2.040), top +2.980. AR-B1 spandrel ornaments fix on it. Painted to U775 ST9 White Grey.");
+savePart("sc", "SC-C-PANEL", "FR MDF", 18, 1, spandrelPanel({ hw: 800, zc: 2037, zTop: ZTOP, R: 873, e: 93 }),
+  "Behind the keel gate ring, cut 20 inside the ring (R 873, centres 93 past the axis, springing +2.037), top +2.980. AR-B1 spandrel ornaments fix on it. Painted to U775 ST9 White Grey.");
 for (const [k, r] of Object.entries(rows)) writeFileSync(`${OUT}/${ITEMS[k]}/_CUT-LIST.csv`, "file,part,material,thickness_mm,qty,width_mm,height_mm,note\n" + r.join("\n") + "\n");

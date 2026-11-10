@@ -43,6 +43,19 @@ const instRot = ((g.location?.rotation_deg ?? 0) % 360 + 360) % 360, o = g.locat
 const rot = t.rot ?? instRot; // t.rot: the face direction when it differs from the instance rotation (a family built in place on a rear wall has rotation 0)
 const turn = ([x, y]) => instRot === 90 ? [-y, x] : instRot === 180 ? [-x, -y] : instRot === 270 ? [y, -x] : [x, y];
 const parts = raw.map((f) => { const [a, c] = [turn([f.min.x, f.min.y]), turn([f.max.x, f.max.y])]; return { m: f.material ?? "Unassigned", x0: Math.min(a[0], c[0]) + o.x, x1: Math.max(a[0], c[0]) + o.x, y0: Math.min(a[1], c[1]) + o.y, y1: Math.max(a[1], c[1]) + o.y, z0: f.min.z + o.z, z1: f.max.z + o.z }; });
+// t.with: marks of separate families that belong to this item (Makkah AR-B1 ring, rebuilt smooth as its own family): they
+// are drawn, isolated and counted with it.
+const IDS = [id];
+for (const mk of t.with ?? []) {
+  const g2 = await byMark(mk); if (!g2) { console.log("with: no", mk); continue; }
+  IDS.push(g2.id);
+  const r2 = ((g2.location?.rotation_deg ?? 0) % 360 + 360) % 360, o2 = g2.location.point;
+  const tn = ([x, y]) => r2 === 90 ? [-y, x] : r2 === 180 ? [-x, -y] : r2 === 270 ? [y, -x] : [x, y];
+  for (const f of (await call("inspect_family", { element_id: g2.id })).items.filter((f) => (f.class === "FreeFormElement" || f.class === "Extrusion") && f.min)) {
+    const [a, c] = [tn([f.min.x, f.min.y]), tn([f.max.x, f.max.y])];
+    parts.push({ m: f.material ?? "Unassigned", x0: Math.min(a[0], c[0]) + o2.x, x1: Math.max(a[0], c[0]) + o2.x, y0: Math.min(a[1], c[1]) + o2.y, y1: Math.max(a[1], c[1]) + o2.y, z0: f.min.z + o2.z, z1: f.max.z + o2.z });
+  }
+}
 const b = { x0: Math.min(...parts.map((f) => f.x0)), x1: Math.max(...parts.map((f) => f.x1)), y0: Math.min(...parts.map((f) => f.y0)), y1: Math.max(...parts.map((f) => f.y1)), z0: Math.min(...parts.map((f) => f.z0)), z1: Math.max(...parts.map((f) => f.z1)) };
 // A rear-wall unit placed at rotation 0 (Makkah OSB-1, AR-B1, SC-C1) needs "rot": 270 in its config, or front and side swap.
 // rot 90 = faces +y (a free-standing unit whose working face looks away from the front wall, Makkah FS-1): the unit frame is
@@ -114,7 +127,7 @@ const dx0 = Math.max(b.x0 - 100, b.x1 - 350);
 const vDT = big ? await sec("Detail Top", "Detail: Top", P(dx0, yc), P(b.x1 + 100, yc), P(0, 1, 0), 40, big, b.z1 + 60, b.z1 - 460) : null;
 const vDB = big ? await sec("Detail Base", "Detail: Base", P(dx0, yc), P(b.x1 + 100, yc), P(0, 1, 0), 40, big, b.z0 + 360, b.z0 - 60) : null;
 for (const v of [vFront, vSide, vA, vB, vTop, vDT, vDB].filter(Boolean)) {
-  await call("isolate_in_view", { view_id: v, element_ids: [id] });
+  await call("isolate_in_view", { view_id: v, element_ids: IDS });
   await call("set_view_categories", { view_id: v, hide: ["OST_Sections", "OST_Elev", "OST_Callouts", "OST_Levels", "OST_Grids", "OST_CLines", "OST_RvtLinks"] }).catch(() => {});
 }
 
@@ -258,7 +271,7 @@ const [X0, X1, Y0, Ytop] = box3d ? box3d.split(",").map(Number) : [NOTES - 20, 1
 const wb = { min: [Bw.x0, Bw.y0, Bw.z0], max: [Bw.x1, Bw.y1, Bw.z1] };
 // View direction (eye = centre - dir): eye in front of the unit and to its left. Rot 0 faces +x, 180 faces -x, 270 faces -y, 90 faces +y.
 const dirW = FACE === "+x" ? [-1, 1, -1] : FACE === "-x" ? [1, -1, -1] : rot === 90 ? [-1, -1, -1] : [1, 1, -1];
-const r3 = await unit3d(call, { name: P_ + "3D View", ids: [id], sheet, area: [X0, X1, Y0, Ytop], dir: dirW, style: STYLE, box: wb });
+const r3 = await unit3d(call, { name: P_ + "3D View", ids: IDS, sheet, area: [X0, X1, Y0, Ytop], dir: dirW, style: STYLE, box: wb });
 const v3 = r3.view, s3 = r3.scale;
 // Location: every item drawn in its place, not alone (user, 6 Nov 2026). A section through the unit's bay and a plan, NOT
 // isolated, with the unit in red, its neighbours, wall, floor and ceiling, and dimensions of the space it has: width between
@@ -321,7 +334,7 @@ if (sL) {
   const c1 = toW(P(LX0, PY0)), c2 = toW(P(LX1, PY1)), qb = (await call("get_element", { element_id: vLP })).bounding_box;
   const bx0 = Math.min(c1.x, c2.x), bx1 = Math.max(c1.x, c2.x), by0 = Math.min(c1.y, c2.y), by1 = Math.max(c1.y, c2.y);
   await call("extend_view_crop", { view_id: vLP, left_mm: qb.min.x - bx0, right_mm: bx1 - qb.max.x, bottom_mm: qb.min.y - by0, top_mm: by1 - qb.max.y }).catch((e) => console.log("loc crop", e.message.slice(0, 80)));
-  for (const v of [vLS, vLP]) await call("set_element_overrides", { view_id: v, element_ids: [id], line_color: { r: 210, g: 20, b: 20 }, line_weight: 6 }).catch(() => {});
+  for (const v of [vLS, vLP]) await call("set_element_overrides", { view_id: v, element_ids: IDS, line_color: { r: 210, g: 20, b: 20 }, line_weight: 6 }).catch(() => {});
   // dimensions: width chain under the floor line, height chain on the right, depth chain in plan through the unit centre
   // A chain segment under 8 mm on paper has no room for its figure (CC-1 Makkah: 0, 2 and 112 printed over each other):
   // drop the inner point of such a segment; the SPACE note still gives every gap.
