@@ -9,6 +9,16 @@ The brand is **Samaya Factory** (samaya-factory.com). Never write "Samaya" alone
 
 For a fabrication model or family, start with [fabrication modeling](references/fabrication-modeling.md), then read the trade reference. Use those rules before drawing geometry or laying out sheets.
 
+
+## Fabrication trade skills
+
+Use the skill for the work at hand. A model can use more than one.
+
+- [Carpentry](../samaya-carpentry/SKILL.md) for wood parts, joinery and assembly.
+- [Welded fabrication](../samaya-welded-fabrication/SKILL.md) for steel parts, connections and fit-up.
+- [CNC](../samaya-cnc/SKILL.md) for machine-cut part geometry and DXF checks.
+- [Factory handoff](../samaya-factory-handoff/SKILL.md) for packaging and checking the workshop issue.
+
 Read these when relevant:
 
 - [references/project-setup.md](references/project-setup.md): questions to ask and stakeholders. Read before any new project or sheet set.
