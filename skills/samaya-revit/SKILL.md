@@ -1,11 +1,13 @@
 ---
 name: samaya-revit
-description: Samaya Factory Revit standards and working method. Use for any Revit modelling, view, sheet, schedule, title block, phase, revision or family work, including through the SultanRevitMCP bridge (RevitMcp add-in). Covers the questions to ask before starting a project, stakeholders and sign-off, phases, revisions, view templates, scales, sheet arrangement, title blocks, file organisation and bridge lessons. Trigger on Revit, RVT, RFA, views, sheets, schedules, scale, title block, phase, revision, or a Samaya Factory shopfit project, metal hoarding or site fence.
+description: Model buildable Samaya Factory assemblies in Revit for workshop fabrication and site installation. Use for shopfit joinery, cladding, hoarding, fabrication families and shop drawings, including work through SultanRevitMCP. Also covers Samaya Factory project setup, views, sheets, schedules, title blocks, phases and revisions.
 ---
 
-# Samaya Factory Revit standards
+# Samaya Factory fabrication modeling in Revit
 
 The brand is **Samaya Factory** (samaya-factory.com). Never write "Samaya" alone or "Samaya Investment" on drawings.
+
+For a fabrication model or family, start with [fabrication modeling](references/fabrication-modeling.md), then read the trade reference. Use those rules before drawing geometry or laying out sheets.
 
 Read these when relevant:
 
