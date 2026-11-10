@@ -65,6 +65,7 @@ Series, in the order of the set. Sorting by number gives this order, because DR-
 | A-1101 to 1199 | 1 Arch GA | General sections |
 | A-1201 to 1299 | 1 Arch GA | Sections through units |
 | A-1301 to 1399 | 1 Arch GA | General details |
+| A-1401 to 1499 | 1 Site Civil | Site engineer sheets, civil works (joinery as reference only) |
 | A-1901 to 1999 | 1 Arch GA | Schedules |
 | A-2000 to 2999 | 2 Fab: (item) | Fabrication, one block of 100 per item family. Each block opens with the item's general arrangement (x00), then each unit, its exploded view, parts and details (x01 onwards). Madina 1: 2000 base cabinets, 2100 arch units, 2200 low bays, 2300 rear centre and Mihrab, 2400 free-standing units. |
 | E-1001 to 1099 | 3 Electrical | Layouts: lighting, power, data, fire alarm, PA, CCTV |
@@ -99,6 +100,16 @@ A client-approved submittal coding sheet overrides the ISO default above, for sh
 - The Project Browser grouping cannot be made through the API (BrowserOrganization is read-only; `sheet_browser_info` only reads it). The user sets it once per model: Sheets (all) > Browser Organization > New "Samaya Packages" > Folders: Sheet Package, then Sheet Group > Sort: Sheet Number ascending. Set it once in `template/Samaya Factory.rte` and the template .rvt so every new project starts grouped.
 - Never leave a sheet with no group or a non-ISO number; the tool flags both.
 - **Packages on top (user, Makkah, 10 Nov 2026):** the browser shows each issue package as its own folder, and the fabrication package split by item inside it. A second parameter "Sheet Package" is set from the group: `00 GENERAL`, `01 ARCH`, `02 FAB`, `03 ELEC`, `04 MECH`, `05 PLUMB`, `06 STRUCT`, `07 COORD`. The browser rule groups by Sheet Package, then by Sheet Group. `sheet_groups.mjs` sets both.
+
+## Site engineer sheets: civil and MEP (every project)
+
+**The site team gets its own sheets, separate from the set-out and joinery (fabrication) sheets** (user, Makkah, 10 Nov 2026). Joinery shows on them as indicative reference only.
+
+- **Civil works, in ARCH, series A-1401 to 1499, group `1 Site Civil` (package 01 ARCH):** A-1401 Setting-out Plan (grids, existing walls, key levels, the joinery zones the site must keep clear), A-1402 Walls and Partitions (new walls, openings, wall finishes and prep behind joinery), A-1403 Floor Finishes (finish, levels, joints, thresholds), A-1404 Ceiling Plan, Civil Works (gypsum and other ceilings, bulkheads, levels, access panels).
+- **MEP works, in their own packages:** E-1001 Lighting Layout, E-1002 Power and Data Layout, E-1003 Fire Alarm and Life Safety (package 03 ELEC); M-1001 HVAC Layout (04 MECH); P-1001 Plumbing and Fire Fighting when the job has any (05 PLUMB). Each device tagged, mounting heights given, joinery power feeds shown where they land.
+- **Joinery = indicative reference only:** halftone grey, thin lines, no tags or dimensions on joinery parts, and a note on every site sheet: "Joinery shown for reference only. Do not build or set out from these sheets. See the fabrication package (02 FAB)." Dimension civil and MEP items to grids and finished walls, never to joinery.
+- **Never invent site data.** What the model and the design do not give (floor finish, plumbing, a missing level) goes in red under "INPUT REQUIRED FROM THE DESIGNER" on that sheet. A sheet with nothing to show for a trade says so in one line ("No plumbing in this shop") instead of being left out silently.
+- The sheets follow every rule in this file: the grid, one view per sheet sized to fill it, 5 mm text, blue ISO dimensions, key plan, revision and sign-off. Run `tools/sheet_groups.mjs` after making them.
 
 ## Sheet arrangement
 

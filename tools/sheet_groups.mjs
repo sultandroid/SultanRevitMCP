@@ -19,6 +19,7 @@ export function groupFor(code, existing = "") {
   const [, role, digits] = m, n = Number(digits);
   if (role === "A") {
     if (n < 1000) return "0 General";
+    if (n >= 1400 && n < 1500) return "1 Site Civil";
     if (n < 2000) return "1 Arch GA";
     if (n < 3000) return /^2 Fab/.test(existing) ? existing : "2 Fab";
     return "1 Arch GA";
