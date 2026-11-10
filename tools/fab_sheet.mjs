@@ -351,6 +351,24 @@ if (sL) {
   if (noteXY) await txt(noteXY[0], noteXY[1], locNote.replace(/ \(floor/, "\n(floor").replace(/ wide x /, " wide x\n"));
   else await txt(rx0, Math.max(ry1 - hS - 30 - hPl - 22, 95), locNote);
 } else console.log("location views: no room on the sheet, scale not found");
+// Cut plan through a unit that wraps existing structure (user, Makkah FS-1, 10 Nov 2026: "a plan showing where the existing
+// column touches the unit from inside"). Config t.cutPlan = { z, at: [x, y] on the sheet, scale, title, margin,
+// dims: [[[x, y], ...], ...] chains in WORLD mm, labels: [{ at: [x, y], text }] in world mm }. The existing structure shows
+// through the link in halftone; the unit is cut at z. World points go straight to Revit (no unit-frame turn).
+let vCP = null;
+if (t.cutPlan) {
+  const cp = t.cutPlan, cs = cp.scale ?? 8, mg = cp.margin ?? 250;
+  const d = await call("duplicate_view", { view_id: planId, name: P_ + "Cut Plan", option: "Duplicate" }); vCP = d.id ?? d.view_id;
+  for (const [n, x] of [["View Template", -1], ["View Scale", cs], ["Detail Level", 3], ["Title on Sheet", cp.title ?? `Plan at +${(cp.z / 1000).toFixed(3)}`], ["Crop View", 1], ["Annotation Crop", 1]]) await setv(vCP, n, x);
+  await call("set_view_categories", { view_id: vCP, hide: ["OST_Sections", "OST_Elev", "OST_Callouts", "OST_CLines", "OST_Grids"] }).catch(() => {});
+  await call("set_view_range", { view_id: vCP, top_mm: cp.z + 300, cut_mm: cp.z, bottom_mm: 0 }).catch(() => {});
+  await call("set_view_display", { view_id: vCP, style: STYLE }).catch(() => {});
+  const g0 = await call("get_element", { element_id: id }), wb2 = g0.bounding_box, qb = (await call("get_element", { element_id: vCP })).bounding_box;
+  await call("extend_view_crop", { view_id: vCP, left_mm: qb.min.x - (wb2.min.x - mg), right_mm: wb2.max.x + mg - qb.max.x, bottom_mm: qb.min.y - (wb2.min.y - mg), top_mm: wb2.max.y + mg - qb.max.y }).catch((e) => console.log("cut plan crop", e.message.slice(0, 80)));
+  for (const ch of cp.dims ?? []) await rawC("create_dimension_string", { document: C.doc, view_id: vCP, points: ch.map(([x, y]) => ({ x, y, z: 0 })), tick_mm: 25 }).catch((e) => console.log("cut dim", e.message.slice(0, 80)));
+  for (const lb of cp.labels ?? []) await rawC("create_text_note", { document: C.doc, view_id: vCP, location: { x: lb.at[0], y: lb.at[1], z: 0 }, text: lb.text, text_type_id: note }).catch((e) => console.log("cut label", e.message.slice(0, 80)));
+  await place(vCP, cp.at[0], cp.at[1]);
+}
 log[key_] = { sheet, sheetNumber: SN, scale: s, scale3d: s3, keyPlanMarks: marks, location: { scale: sL, NB }, views: { vFront, vSide, vA, vB, vTop, vDT, vDB, kp, v3 } };
 writeFileSync(LOG, JSON.stringify(log, null, 1));
 await call("save_document", { title: C.doc });
