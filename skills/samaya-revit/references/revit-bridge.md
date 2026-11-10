@@ -300,3 +300,11 @@ Use `inspect_cad_geometry` on an ImportInstance to read source layer counts and 
 ### CAD filled regions and surfaces
 
 `inspect_cad_geometry` also reports non-curve object kinds by layer. With `include_surfaces: true`, upward planar faces of CAD solids return closed tessellated loops in host mm; their areas are explicitly source-symbol areas. With `include_meshes: true`, hatch meshes return boundary edges with shared triangle edges removed. These flags default to false to keep ordinary curve responses small. CAD fills can be wall hatches or existing-context shading: do not treat every large fill as a floor plate. Match its layer, source label and plan context first.
+
+## Builds from the Claude desktop app do not reach Revit (10 Nov 2026)
+
+The Claude app is an MSIX package: files its shells write under %LOCALAPPDATA% go to its private copy (`%LOCALAPPDATA%\Packages\Claude_<id>\LocalCache\Local\SultanRevitMCP\handlers`), so `install-sultan.ps1` builds there and Revit keeps loading the older build it can see. Copy the new version folder to the real `%LOCALAPPDATA%\SultanRevitMCP\handlers` with a process started outside the package (`Invoke-CimMethod Win32_Process Create` running robocopy), then call `reload_handlers` and check that `version` is the new folder.
+
+## Sheet sets for export
+
+`save_sheet_set` saves a named sheet set (Print / Export PDF / DWG > Selected views/sheets). `tools/sheet_sets.mjs <model>` makes `<CODE> 00 ALL`, one set per Sheet Package and one per fabrication item group; run it after `sheet_groups.mjs`.

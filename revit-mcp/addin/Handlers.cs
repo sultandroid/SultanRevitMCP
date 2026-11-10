@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,6 +28,7 @@ namespace RevitMcp
             ["get_project_info"] = GetProjectInfo,
             ["set_view_display"] = SetViewDisplay,
             ["create_3d_view"] = Create3DView,
+            ["set_3d_orientation"] = Set3DOrientation,
             ["create_revision_cloud"] = CreateRevisionCloud,
             ["edit_family_solids"] = EditFamilySolids,
             ["list_documents"] = ListDocuments,
@@ -57,6 +58,7 @@ namespace RevitMcp
             ["create_grid"] = CreateGrid,
             ["create_wall"] = CreateWall,
             ["ensure_basic_wall_type"] = EnsureBasicWallType,
+            ["ensure_slab_type"] = EnsureSlabType,
             ["set_wall_axis"] = SetWallAxis,
             ["ensure_basic_surface_type"] = EnsureBasicSurfaceType,
             ["create_ceiling"] = CreateCeilingSurface,
@@ -72,6 +74,7 @@ namespace RevitMcp
             ["fit_view_to_sheet"] = FitViewToSheet,
             ["fit_view_crop_to_model"] = FitViewCropToModel,
             ["view_crop_info"] = ViewCropInfo,
+            ["list_view_annotations"] = ListViewAnnotations,
             ["set_view_crop"] = SetViewCrop,
             ["set_view_scale"] = SetViewScale,
             ["drawing_info"] = DrawingInfo,
@@ -83,6 +86,9 @@ namespace RevitMcp
             ["rotate_view_crop"] = RotateViewCrop,
             ["create_direct_shape"] = CreateDirectShape,
             ["ensure_line_style"] = EnsureLineStyle,
+            ["set_curtain_grid"] = SetCurtainGrid,
+            ["curtain_grid_probe"] = CurtainGridProbe,
+            ["reset_view_isolation"] = ResetViewIsolation,
             ["ensure_text_type"] = EnsureTextType,
             ["load_family"] = LoadFamily,
             ["place_on_face"] = PlaceOnFace,
@@ -119,6 +125,8 @@ namespace RevitMcp
             ["rename_materials"] = RenameMaterials,
             ["create_pipe_run"] = CreatePipeRun,
             ["create_duct_run"] = CreateDuctRun,
+            ["create_flex_duct"] = CreateFlexDuct,
+            ["set_element_type"] = SetElementType,
             ["create_opening"] = CreateOpening,
             ["connect_ducts"] = ConnectDucts,
             ["list_family_text"] = ListFamilyText,
@@ -164,6 +172,7 @@ namespace RevitMcp
             ["export_view_dwg"] = ExportViewDwg,
             ["create_dimension_string"] = CreateDimensionString,
             ["tag_elements"] = TagElements,
+            ["save_sheet_set"] = SaveSheetSet,
             ["create_drafting_view"] = CreateDraftingView,
             ["create_swatch"] = CreateSwatch,
             ["set_phase_filter"] = SetPhaseFilter,
@@ -182,8 +191,17 @@ namespace RevitMcp
             ["sheet_browser_info"] = SheetBrowserInfo,
             ["remap_shapes"] = RemapShapes,
             ["acquire_coordinates"] = AcquireCoordinates,
+            ["get_shared_coordinates"] = GetSharedCoordinates,
+            ["set_shared_coordinates"] = SetSharedCoordinates,
+            ["link_cad"] = LinkCad,
+            ["move_elements_by"] = MoveElementsBy,
             // Device symbols (Handlers.Symbols.cs)
+            // Native rebar (Handlers.Rebar.cs)
+            ["create_rebar"] = CreateRebar,
+            ["rebar_report"] = RebarReport,
+            ["show_rebar_in_view"] = ShowRebarInView,
             ["duplicate_type"] = DuplicateType,
+            ["set_dimension_rounding"] = SetDimensionRounding,
             ["create_annotation_symbol"] = CreateAnnotationSymbol,
             ["nest_annotation_in_family"] = NestAnnotationInFamily,
         };
@@ -474,6 +492,13 @@ namespace RevitMcp
             var doc = Doc(app);
             var element = RequireElement(doc, ReqId(p, "element_id"));
             var result = Summary(doc, element);
+
+            var elementType = element.GetTypeId() == ElementId.InvalidElementId ? null : doc.GetElement(element.GetTypeId());
+            if (elementType != null)
+            {
+                result["type_id"] = elementType.Id.Value;
+                result["type_name"] = elementType.Name;
+            }
 
             result["parameters"] = ParametersOf(doc, element);
             if (element is ReferencePlane plane)
@@ -1208,6 +1233,20 @@ namespace RevitMcp
                     new SolidOptions(materialId, ElementId.InvalidElementId)));
             }
 
+            // union: fuse all the solids of this shape into ONE solid (Boolean union), so pieces that only exist because the
+            // bridge can only extrude (e.g. a glass pane with 45 deg mitred edges = body + wedges) become one part with no
+            // seams. Pieces that do not touch stay as separate lumps of the same solid.
+            if (p["union"] is JsonNode un && un.GetValue<bool>() && solids.Count > 1)
+            {
+                Solid acc = (Solid)solids[0];
+                for (var i = 1; i < solids.Count; i++)
+                {
+                    try { acc = BooleanOperationsUtils.ExecuteBooleanOperation(acc, (Solid)solids[i], BooleanOperationsType.Union); }
+                    catch (Exception ex) { throw new InvalidOperationException($"union failed at solid {i}: {ex.Message}"); }
+                }
+                solids = new List<GeometryObject> { acc };
+            }
+
             return InTransaction(doc, $"Create {name}", () =>
             {
                 var shape = DirectShape.CreateElement(doc, category.Id);
@@ -1722,11 +1761,16 @@ namespace RevitMcp
                 // path, and a freshly created type is not usable until the document regenerates.
                 string Norm(string v) { return (v ?? string.Empty).Replace((char)47, (char)92); }
                 var wanted = Norm(ModelPathUtils.ConvertModelPathToUserVisiblePath(modelPath));
+                // Nested link types (a link inside a link) are not external files: GetExternalFileReference()
+                // throws "This Element does not represent an external file" (Aseer ARCH, 9 Nov 2026), so skip them.
+                string PathOf(RevitLinkType t)
+                {
+                    try { return t.IsNestedLink ? null : ModelPathUtils.ConvertModelPathToUserVisiblePath(t.GetExternalFileReference().GetAbsolutePath()); }
+                    catch (Autodesk.Revit.Exceptions.InvalidOperationException) { return null; }
+                }
                 var existing = new FilteredElementCollector(doc)
                     .OfClass(typeof(RevitLinkType)).Cast<RevitLinkType>()
-                    .FirstOrDefault(t => string.Equals(
-                        Norm(ModelPathUtils.ConvertModelPathToUserVisiblePath(t.GetExternalFileReference().GetAbsolutePath())),
-                        wanted, StringComparison.OrdinalIgnoreCase));
+                    .FirstOrDefault(t => PathOf(t) is string pth && string.Equals(Norm(pth), wanted, StringComparison.OrdinalIgnoreCase));
                 ElementId typeId;
                 if (existing != null) typeId = existing.Id;
                 else
@@ -2195,6 +2239,15 @@ namespace RevitMcp
                         settings.SetCutForegroundPatternVisible(false);
                         settings.SetCutBackgroundPatternVisible(false);
                     }
+                    // cut_fill_pattern: drafting pattern name (e.g. "Hatch 45 4") drawn on the cut faces, thin grey (ISO 128)
+                    if (Str(p, "cut_fill_pattern") is string cfp)
+                    {
+                        var fpe = new FilteredElementCollector(doc).OfClass(typeof(FillPatternElement)).Cast<FillPatternElement>().FirstOrDefault(f => f.Name == cfp)
+                                  ?? throw new ArgumentException($"No fill pattern '{cfp}'.");
+                        settings.SetCutForegroundPatternId(fpe.Id);
+                        settings.SetCutForegroundPatternVisible(true);
+                        settings.SetCutForegroundPatternColor(fpe.GetFillPattern().IsSolidFill ? new Color(0, 0, 0) : new Color(128, 128, 128));
+                    }
                     if (transparency != null) settings.SetSurfaceTransparency(Math.Max(0, Math.Min(100, (int)transparency)));
                     if (surfaceFill != null)
                     {
@@ -2539,9 +2592,13 @@ namespace RevitMcp
             var color = ColorOf(p, "color");
             return InTransaction(doc, "Create swatch", () =>
             {
-                var solid = new FilteredElementCollector(doc).OfClass(typeof(FillPatternElement)).Cast<FillPatternElement>().First(f => f.GetFillPattern().IsSolidFill);
+                // fill_pattern: optional drafting pattern name (e.g. "Hatch 45 4" from set_material_hatch) for a hatched swatch
+                var patName = Str(p, "fill_pattern");
+                var pats = new FilteredElementCollector(doc).OfClass(typeof(FillPatternElement)).Cast<FillPatternElement>();
+                var solid = patName == null ? pats.First(f => f.GetFillPattern().IsSolidFill)
+                    : pats.FirstOrDefault(f => f.Name == patName) ?? throw new ArgumentException($"No fill pattern '{patName}'.");
                 var baseType = new FilteredElementCollector(doc).OfClass(typeof(FilledRegionType)).Cast<FilledRegionType>().First();
-                var typeName = $"Swatch {color.Red}-{color.Green}-{color.Blue}";
+                var typeName = patName == null ? $"Swatch {color.Red}-{color.Green}-{color.Blue}" : $"Swatch {patName} {color.Red}-{color.Green}-{color.Blue}";
                 var type = new FilteredElementCollector(doc).OfClass(typeof(FilledRegionType)).Cast<FilledRegionType>().FirstOrDefault(t => t.Name == typeName);
                 if (type == null)
                 {
@@ -2629,6 +2686,30 @@ namespace RevitMcp
         }
 
         /// <summary>Exports sheets to one vector PDF, or one per sheet.</summary>
+        /// <summary>Saves (or replaces) a named sheet set, the list Revit's Print and Export (PDF/DWG) dialogs offer
+        /// under "Selected views/sheets". Lists the sets when called with no name.</summary>
+        private static JsonNode SaveSheetSet(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var name = Str(p, "name");
+            var existing = new FilteredElementCollector(doc).OfClass(typeof(ViewSheetSet)).Cast<ViewSheetSet>().ToList();
+            if (name == null) return new JsonObject { ["sets"] = new JsonArray(existing.Select(s => (JsonNode)JsonValue.Create(s.Name)).ToArray()) };
+            var ids = ReqIds(p, "sheet_ids");
+            return InTransaction(doc, $"Sheet set {name}", () =>
+            {
+                var old = existing.FirstOrDefault(s => s.Name == name);
+                if (old != null) doc.Delete(old.Id);
+                var pm = doc.PrintManager;
+                pm.PrintRange = PrintRange.Select;
+                var vss = pm.ViewSheetSetting;
+                var set = new ViewSet();
+                foreach (var id in ids) if (doc.GetElement(id) is ViewSheet s) set.Insert(s);
+                vss.CurrentViewSheetSet.Views = set;
+                vss.SaveAs(name);
+                return new JsonObject { ["name"] = name, ["sheets"] = set.Size };
+            });
+        }
+
         private static JsonNode ExportSheetsPdf(UIApplication app, JsonObject p)
         {
             var doc = Doc(app);
@@ -2747,6 +2828,38 @@ namespace RevitMcp
                 }
                 if (Str(p, "style") is string s && Enum.TryParse<DisplayStyle>(s, true, out var style)) view.DisplayStyle = style;
                 return new JsonObject { ["id"] = view.Id.Value, ["name"] = view.Name };
+            });
+        }
+
+        /// <summary>Turns an existing 3D view in place (keeps its name, sheets, section box and settings).
+        /// eye_direction: plain vector from the target toward the camera, e.g. {x:-0.5,y:-0.86,z:0.58} (not mm);
+        /// target defaults to the section box centre. Only the orientation changes.</summary>
+        private static JsonNode Set3DOrientation(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var view = RequireElement(doc, ReqId(p, "view_id")) as View3D ?? throw new ArgumentException("view_id is not a 3D view.");
+            var d = p["eye_direction"] as JsonObject ?? throw new ArgumentException("eye_direction is required.");
+            var dir = new XYZ(d["x"]?.GetValue<double>() ?? 0, d["y"]?.GetValue<double>() ?? 0, d["z"]?.GetValue<double>() ?? 0);
+            if (dir.IsZeroLength()) throw new ArgumentException("eye_direction is zero.");
+            dir = dir.Normalize();
+            var o = view.GetOrientation();
+            XYZ target;
+            if (p["target"] != null) target = ReqPoint(p, "target");
+            else if (view.IsSectionBoxActive) { var b = view.GetSectionBox(); target = b.Transform.OfPoint((b.Min + b.Max) / 2); }
+            else target = o.EyePosition + o.ForwardDirection * 30;
+            var dist = (o.EyePosition - target).GetLength();
+            if (dist < 1) dist = 40;
+            var eye = target + dir * dist;
+            var forward = (target - eye).Normalize();
+            var right = forward.CrossProduct(XYZ.BasisZ);
+            var up = right.IsZeroLength() ? XYZ.BasisY : right.CrossProduct(forward).Normalize();
+            return InTransaction(doc, $"Turn 3D view {view.Name}", () =>
+            {
+                if (view.IsLocked) view.Unlock();
+                view.SetOrientation(new ViewOrientation3D(eye, up, forward));
+                var f = view.GetOrientation().ForwardDirection;
+                return new JsonObject { ["id"] = view.Id.Value, ["name"] = view.Name,
+                    ["view_direction"] = new JsonObject { ["x"] = -f.X, ["y"] = -f.Y, ["z"] = -f.Z } };
             });
         }
 
