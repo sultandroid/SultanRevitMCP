@@ -38,6 +38,7 @@ Use `tools/view3d.mjs` (`unit3d`). It does all of the steps below; do not build 
 ## Shading
 
 - Fabrication 3D and exploded views are shaded with edges (`ShadingWithEdges`), Detail Level Fine.
+- For a temporary material review, use `ShadingWithEdges` and change the material's Graphics shading color while preserving its render appearance asset. Use the same review color for matching materials across families. Check the view and read back the material colors after reloading the edited families.
 - Technical sheets elsewhere stay hidden line (see `drawing-and-bim-standards.md`).
 
 ## Sources
