@@ -27,17 +27,15 @@ export function groupFor(code, existing = "") {
   return { E: "3 Electrical", M: "4 Mechanical", P: "4 Plumbing", Z: "5 Coordination", S: "6 Structural" }[role] ?? null;
 }
 
-// Package = the top browser folder (one per discipline issue), Sheet Group = the folder inside it.
+// Package = the top browser folder, Sheet Group = the folder inside it. Three packages (user, Makkah, 10 Nov 2026: "categorise
+// the sheets by MEP, Arch, Joinery and fabrication"): ARCH (general, plans, site civil), JOINERY & FABRICATION (one folder
+// per item inside), MEP (electrical, mechanical, plumbing and the coordination sheets); STRUCTURE when a job has it.
 export function packageFor(group) {
   if (!group) return null;
-  if (group.startsWith("0")) return "00 GENERAL";
-  if (group.startsWith("1")) return "01 ARCH";
-  if (group.startsWith("2")) return "02 FAB";
-  if (group.startsWith("3")) return "03 ELEC";
-  if (group === "4 Plumbing") return "05 PLUMB";
-  if (group.startsWith("4")) return "04 MECH";
-  if (group.startsWith("5")) return "07 COORD";
-  if (group.startsWith("6")) return "06 STRUCT";
+  if (group.startsWith("0") || group.startsWith("1")) return "01 ARCH";
+  if (group.startsWith("2")) return "02 JOINERY & FABRICATION";
+  if (/^[345]/.test(group)) return "03 MEP";
+  if (group.startsWith("6")) return "04 STRUCTURE";
   return null;
 }
 
