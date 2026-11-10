@@ -320,7 +320,7 @@ The numbering, templates, spacing and placement here are Samaya defaults built f
 
 **Each discipline's sheets live in its own model.** The federated model holds only coordination.
 - **A sheets in ARCH, M in MECH, E in ELEC.** Tags, schedules and panel schedules then work on native elements; through a link some do not work at all (panel schedules) and others only partly. Each discipline issues and revises its own drawings (ISO 19650): a change in ELEC revises only E sheets. A broken or wrongly loaded link cannot spoil other disciplines' sheets. Each discipline can be open in its own Revit and session.
-- **Z sheets (coordination) in the model that links the others**, usually ARCH: the coordinated RCP, ceiling void, coordination sections, the clash list and its BCF.
+- **Z sheets (coordination) in the federated model** `Rvt/FED/<Project>_FED.rvt`, which links EXT, ARCH, MECH and ELEC (user, Makkah, 10 Nov 2026: "federated model and link all", then "move them"): the coordinated RCP, ceiling void, coordination sections, the clash list and its BCF. ARCH keeps only A sheets. Moving sheets between models means rebuilding them (Revit cannot copy a sheet with its views across models): read the views, crops, labels, notes and revisions first, rebuild, check by render, then delete the old copies (Makkah: `scratchpad mak/fed_coord.mjs`).
 - **One look everywhere:** every model has the same title block and the same styles (`tools/standards.mjs`), and one numbering for the whole project (A, M, E, Z).
 - **One issue set:** the drawing index and the issued PDF set are compiled by script from all models.
 
