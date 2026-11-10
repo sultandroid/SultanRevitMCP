@@ -206,7 +206,7 @@ await txt(NOTES, y2 - 12, "(per unit, net, no waste, approx.)");
 const shortQ = (m) => shortM(m).replace(/ Natural Carini Walnut/, " Walnut").replace(/\bPainted\b/, "ptd.").slice(0, 40);
 await txt(NOTES, y2 - 28, ["MATERIAL", ...mats.map(([m]) => shortQ(m))].join("\n"));
 await txt(975, y2 - 28, ["QTY", ...mats.map(([m, q]) => qty(m, q))].join("\n"));
-const notesTxt = `${t.note ? t.note + "\n" : ""}${nearCeiling ? `Top +${(b.z1 / 1000).toFixed(3)}: ${r(C.ceiling - b.z1)} shadow gap\nto the ceiling (${GAP} min.).\n` : ""}All dimensions in mm.\nCheck on site before cutting.\nCurved parts: cut from the CNC file.`;
+const notesTxt = `${t.note ? t.note + "\n" : ""}${nearCeiling ? `Top +${(b.z1 / 1000).toFixed(3)}: ${r(C.ceiling - b.z1)} shadow gap\nto the ceiling (${GAP} min.).\n` : ""}All dimensions in mm.\nCheck on site before cutting.${t.cnc === false ? "" : "\nCurved parts: cut from the CNC file."}`;
 await txt(NOTES, y2 - 28 - (mats.length + 2) * 7.8 - 8, notesTxt);
 const notesBottom = y2 - 28 - (mats.length + 2) * 7.8 - 8 - (notesTxt.split("\n").length + 1) * 7.8;
 // Key plan: every unit of this type in red.
@@ -280,13 +280,16 @@ if (sL) {
   await call("extend_view_crop", { view_id: vLP, left_mm: qb.min.x - bx0, right_mm: bx1 - qb.max.x, bottom_mm: qb.min.y - by0, top_mm: by1 - qb.max.y }).catch((e) => console.log("loc crop", e.message.slice(0, 80)));
   for (const v of [vLS, vLP]) await call("set_element_overrides", { view_id: v, element_ids: [id], line_color: { r: 210, g: 20, b: 20 }, line_weight: 6 }).catch(() => {});
   // dimensions: width chain under the floor line, height chain on the right, depth chain in plan through the unit centre
-  const wx = [xL, b.x0, b.x1, xR].filter((x) => x != null);
+  // A chain segment under 8 mm on paper has no room for its figure (CC-1 Makkah: 0, 2 and 112 printed over each other):
+  // drop the inner point of such a segment; the SPACE note still gives every gap.
+  const thin = (v) => { const out = []; for (const a of v) { if (out.length && Math.abs(a - out[out.length - 1]) < 8 * sL) { if (a === v[v.length - 1]) out[out.length - 1] = a; continue; } out.push(a); } return out; };
+  const wx = thin([xL, b.x0, b.x1, xR].filter((x) => x != null));
   await dim(vLS, wx.map((x) => P(x, yc, -90)));
   if (xL != null && xR != null) await dim(vLS, [P(xL, yc, LZ1 - 90), P(xR, yc, LZ1 - 90)]);
   const hz = [...new Set([0, r(b.z0), r(b.z1), zU != null ? r(zU) : null, C.ceiling && (zU == null || Math.abs(zU - C.ceiling) > 5) ? C.ceiling : null].filter((z) => z != null))].sort((a, c) => a - c);
   await dim(vLS, hz.map((z) => P(LX1 - 150, yc, z)));
   await dim(vLP, wx.map((x) => P(x, b.y0 - 150, 0)));
-  const dyz = [yB, b.y1, b.y0, yFs].filter((y) => y != null);
+  const dyz = thin([yB, b.y1, b.y0, yFs].filter((y) => y != null));
   if (dyz.length > 2) await dim(vLP, dyz.map((y) => P(xc, y, 0)));
   const hS = (LZ1 + 150) / sL, hPl = hPlan / sL, cxL = (rx0 + rx1) / 2;
   await place(vLS, cxL, ry1 - hS / 2 - 2);
