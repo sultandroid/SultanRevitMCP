@@ -26,7 +26,21 @@ export function groupFor(code, existing = "") {
   return { E: "3 Electrical", M: "4 Mechanical", P: "4 Plumbing", Z: "5 Coordination", S: "6 Structural" }[role] ?? null;
 }
 
-if (!dry) await call("ensure_project_parameters", { category: "OST_Sheets", parameters: [{ name: "Sheet Group" }] }).catch((e) => console.log("param:", e.message));
+// Package = the top browser folder (one per discipline issue), Sheet Group = the folder inside it.
+export function packageFor(group) {
+  if (!group) return null;
+  if (group.startsWith("0")) return "00 GENERAL";
+  if (group.startsWith("1")) return "01 ARCH";
+  if (group.startsWith("2")) return "02 FAB";
+  if (group.startsWith("3")) return "03 ELEC";
+  if (group === "4 Plumbing") return "05 PLUMB";
+  if (group.startsWith("4")) return "04 MECH";
+  if (group.startsWith("5")) return "07 COORD";
+  if (group.startsWith("6")) return "06 STRUCT";
+  return null;
+}
+
+if (!dry) await call("ensure_project_parameters", { category: "OST_Sheets", parameters: [{ name: "Sheet Group" }, { name: "Sheet Package" }] }).catch((e) => console.log("param:", e.message));
 const sheets = (await call("query_elements", { category: "OST_Sheets", limit: 1000 })).elements;
 const rows = [];
 for (const s of sheets) {
@@ -40,12 +54,17 @@ for (const s of sheets) {
     status = dry ? `would set (was "${current}")` : `set (was "${current}")`;
     if (!dry) await call("set_parameter", { element_id: s.id, parameter_name: "Sheet Group", value: group });
   }
-  rows.push([number, s.name, group ?? "-", status]);
+  const pkg = packageFor(group), curPkg = val("Sheet Package");
+  if (pkg && pkg !== curPkg) {
+    status += dry ? `; package would be ${pkg}` : `; package ${pkg}`;
+    if (!dry) await call("set_parameter", { element_id: s.id, parameter_name: "Sheet Package", value: pkg });
+  }
+  rows.push([number, s.name, pkg ?? "-", group ?? "-", status]);
 }
 rows.sort((a, b) => a[0].localeCompare(b[0]));
 for (const r of rows) console.log(r.join("  |  "));
 const b = await call("sheet_browser_info", {});
 console.log(`\nProject Browser (sheets): "${b.organisation}", folders: ${b.folders.map((f) => f.parameter).join(" > ") || "none"}`);
-if (!b.groups_by_sheet_group) console.log(
-  "ACTION FOR THE USER (once per model; the API cannot do it): Project Browser > right-click Sheets (all) > Browser Organization > New \"Samaya Sheet Groups\" > Folders: Sheet Group > Sorting: Sheet Number ascending > select it and OK.");
-if (!dry && rows.some((r) => r[3].startsWith("set"))) console.log(JSON.stringify(await call("save_document", { title })).slice(-30));
+if (!b.folders.some((f) => f.parameter === "Sheet Package")) console.log(
+  "ACTION FOR THE USER (once per model; the API cannot do it): Project Browser > right-click Sheets (all) > Browser Organization > New \"Samaya Packages\" > Folders: Group by Sheet Package, then by Sheet Group > Sorting: Sheet Number ascending > select it and OK.");
+if (!dry && rows.some((r) => /set|package/.test(r[4])))console.log(JSON.stringify(await call("save_document", { title })).slice(-30));
