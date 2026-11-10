@@ -22,6 +22,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1 -Dotnet "$env:LO
 
 Compile check while Revit is open: build with `-p:OutDir="$TEMP/revitmcp_check/"`.
 
+- If the Robot 2026.1 integration reports an external-tool load failure in Revit 2026, check the installed Revit build first. The extension requires Revit 2026.5 or later in the 2026 series. Update an older Revit build, restart, and confirm that the Robot link loads before retrying the bridge. If pyRevit also fails, check its `.addin` manifest separately for a missing loader path and verify the compatible loader after repair. [Autodesk 2026.1 integration release notes](https://up1.autodesk.com/prd/2026/RVT/B0C86336-07D8-5096-BC36-5CD1D0B1CCF8/Structural_Analysis_Extension_for_Revit_2026_1_ReleaseNotes.html)
+
 ## Known failures
 
 | Symptom | Cause and action |
@@ -43,6 +45,7 @@ Compile check while Revit is open: build with `-p:OutDir="$TEMP/revitmcp_check/"
 ## Scripting
 
 Bash heredocs with backslash paths are unreliable. Use forward slashes or write the file directly.
+- **Combining selected parts under one mark.** Read back the selected IDs and part names before grouping. Create Parts does not make a Revit assembly and can clear the selection. If the user approves a single replacement family, `make_unit_family` replaces the source elements. Verify that the new instance has the intended Mark, the intended parts and the correct opening size. Check that nearby components outside the selection are still present.
 - query_elements returns at most 1000 per call: page with offset, or later elements are silently missed.
 - A rebuild script that fails midway leaves its views behind, and the next run cannot reuse their names. Clear views by name prefix at the start of the script.
 - Rotating a viewport on a sheet (Rotation on Sheet) also throws it far from its place and turns its title and text. Rotate the crop with rotate_view_crop instead.
@@ -88,6 +91,7 @@ Bash heredocs with backslash paths are unreliable. Use forward slashes or write 
 - **Panel schedule views cannot be exported on their own,** but they can go on a sheet: `place_view_on_sheet` takes a panel schedule view, and the sheet exports.
 - **A panel schedule has no view scale.** Its size comes from the template's text, row heights and column widths, about 2 mm text by default, which is tiny on A1. Use `scale_panel_schedule` with a factor (2.4 fills A1) and `slots_from_panel: true` so the slot count follows the panel's Max Number of Single Pole Breakers. An existing view keeps the old look: delete it, `create_panel_schedule` again, and place it again.
 - **Ceiling plan view range cannot be raised** with `set_view_range` ("Plan view range is not valid"). Lights recessed above the top of the range do not draw in hidden line, so draw their symbols with detail lines and check every light against the legend.
+- **Adding coordination placeholders to an existing electrical model.** Compare the architectural placeholders against the native ELEC devices and circuits before adding anything. When asked to keep existing circuits, add only missing devices in the agreed scope. Verify category, Mark, location and extents, then recheck the circuit inventory. Geometry-only placeholders have no connectors or circuit membership.
 - **Device connectors must be Power - Balanced to carry load.** A Power - Circuit connector has no load field, so its circuit reads 0 VA. Pass `system: "PowerBalanced"` in the `connector` option. The field is named "Apparent Power" on the family connector, not "Apparent Load".
 - **Read a panel schedule with `read_panel_schedule`,** since the view cannot be exported. Check breaker ratings, because new circuits default to 20 A and the panel's MCB rating to 1 A. Set "Rating" on each circuit and "Mains" and "MCB Rating" on the panel.
 - **Restarting Revit for an install:** save every open model through the bridge, close with `taskkill` without `/F`, install, start `Revit.exe` with the model path, then wait for port 48884. It can take over four minutes. Clean test types with `clean_electrical_types` and link models with `link_revit_model`.
