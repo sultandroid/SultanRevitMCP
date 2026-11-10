@@ -3722,7 +3722,9 @@ namespace RevitMcp
                     }
                 }
                 material.CutForegroundPatternId = pattern.Id;
-                material.CutForegroundPatternColor = solid ? new Color(0, 0, 0) : new Color(128, 128, 128);
+                // optional "color" {r,g,b}: a coloured hatch to tell materials apart on workshop sheets (user, 10 Nov 2026);
+                // default mid grey (solid: black) per material-hatching.md
+                material.CutForegroundPatternColor = p["color"] is JsonObject ? ColorOf(p, "color") : solid ? new Color(0, 0, 0) : new Color(128, 128, 128);
                 return new JsonObject { ["id"] = material.Id.Value, ["pattern"] = pattern.Name };
             });
         }

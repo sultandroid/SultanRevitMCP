@@ -12,7 +12,8 @@ Every material shows its own hatch where it is cut in a section or detail, so th
 - Hatch lines are thin and mid grey (128), so they never compete with the cut outline, which stays heavy and black.
 - Spacing is in paper millimetres. A layer thinner than about 2 mm on paper is drawn solid or as a single heavy line, as a hatch would not read.
 - Each layer of a build-up is a separate solid with its own material, so an 18 + 8 + 18 build shows three layers. Hatch direction alternates between neighbouring boards of the same kind where needed to read the joint.
-- The material legend sheet shows each material's hatch next to its name and finish code.
+- The material legend sheet shows each material's hatch next to its name and finish code. Every fabrication sheet also carries its own small legend (hatch swatch, keynote number, material and code), made by `fab_sheet.mjs`, which also sets each material's hatch from this table.
+- Hatches may be coloured to help the workshop tell materials apart (user, 10 Nov 2026): `set_material_hatch` takes `color`. The view itself stays hidden line, never shaded.
 
 ## Standard
 

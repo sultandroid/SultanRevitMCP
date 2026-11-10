@@ -69,9 +69,20 @@ const W = dx + 2 * M, H = zTop - zBot, D = dy + F + 240, PH = dy + 2 * M;
 const fitsRow1 = (q) => 45 + (W + D + dy + 2 * M + W) / q + 40 <= 685;
 const s = t.scale ?? [5, 8, 10, 15, 20, 25].find((q) => H / q + PH / q + 60 <= 790 && (W + D) / q <= 740 && (fitsRow1(q) || (2 * H) / q + 110 <= 765)) ?? 25;
 const yf = b.y0 - 100, xs = b.x0 - 100;
-// A unit built from more than one material shows each material in its own colour (shaded with edges), so the parts are easy
-// to tell apart (user, Makkah FS-1, 10 Nov 2026). A one-material unit stays black-and-white hidden line. t.style overrides.
-const STYLE = t.style ?? (new Set(parts.map((f) => f.m)).size > 1 ? "ShadingWithEdges" : "HLR");
+// Workshop drawings follow ISO 128 (user, Makkah FS-1, 10 Nov 2026: "ISO 128 hatches, not colouring"): hidden line, each
+// material told apart by its cut hatch (material-hatching.md), with a materials legend of hatch swatches. t.style overrides.
+const STYLE = t.style ?? "HLR";
+// Cut hatch per material, the Samaya table in material-hatching.md; applied to every material of the unit before the views.
+const HATCH = (m) => /Steel|Metal|Alumin|LED|Profile|Rail\b/i.test(m) ? { solid: true }
+  : /Veneer\b|HPL|PVC|ABS|Edge/i.test(m) && !/Softwood/i.test(m) ? { solid: true }
+  : /Softwood|Plinth|Skirting|Frame/i.test(m) ? { cross: true, angle_degrees: 45, spacing_mm: 2.5 }
+  : /Ply/i.test(m) ? { angle_degrees: 0, spacing_mm: 1 }
+  : /Marble|Stone|Corian|Solid Surface|Granite/i.test(m) ? { angle_degrees: 45, spacing_mm: 4 }
+  : /Glass/i.test(m) ? { angle_degrees: 60, spacing_mm: 1 }
+  : /MDF|Display Bars|Slat/i.test(m) ? { angle_degrees: 135, spacing_mm: 1.5 }
+  : { angle_degrees: 45, spacing_mm: 1.5 };                                            // EGGER and other boards
+const hatchName = (h) => h.solid ? null : `Hatch ${h.cross ? "Cross " : ""}${h.angle_degrees} ${h.spacing_mm}`;
+for (const m of new Set(parts.map((f) => f.m))) await call("set_material_hatch", { material: m, ...HATCH(m) }).catch((e) => console.log("hatch", m, e.message.slice(0, 80)));
 const sec = async (name, title, start, end, look, depth, scale, top, bottom) => {
   const v = await call("create_section", { start, end, look_direction: look, bottom_mm: bottom, top_mm: top, depth_mm: depth });
   const vid = v.id ?? v.view_id;
@@ -203,9 +214,22 @@ const shortM = (m) => m.replace(/\s*\(.*?\)/, "").slice(0, 52);
 // A rail ring plus its posts is one welded set for the metal factory: count it as a set, not by area.
 const qty = (m, q) => /Rail\b/.test(m) ? "1 set" : /LED|PVC|Edge|Softwood|Angle|Peg\b|Hardwood Peg/.test(m) ? (/Peg/.test(m) ? `${q.n} no.` : `${q.len.toFixed(2)} m`) : /Handle|Support/.test(m) && q.n < 20 ? `${q.n} no.` : `${q.area.toFixed(2)} m2`;
 await txt(NOTES, 812, `${t.title.toUpperCase()}   QTY ${t.marks.length}\n${t.size ?? `${r(dx)} x ${r(dy)} x ${r(b.z1 - b.z0)}`}\nUnits: ${t.marks.join(", ")}`, bold);
-await txt(NOTES, 770, "KEYNOTES", bold);
-await txt(NOTES, 757, [...mats.map(([m], k) => `${k + 1}   ${shortM(m)}`), "Grey: 1700 mm figure, indicative"].join("\n"));
-const y2 = 757 - (mats.length + 1) * 7.8 - 20;
+// Materials legend: each keynote with its ISO 128 cut hatch swatch (the same hatch the sections show).
+await txt(NOTES, 770, "MATERIALS (KEYNOTE, CUT HATCH)", bold);
+// Filled regions cannot be drawn on a sheet, so the swatches live in a 1:1 drafting view placed beside the rows.
+const RW = 9;
+const lg = await call("create_drafting_view", { name: P_ + "Materials Legend", scale: 1 }), vLg = lg.id;
+for (const [k, [m]] of mats.entries()) {
+  const yk = -k * RW, h = HATCH(m);
+  await call("create_swatch", { view_id: vLg, min: P(0, yk - 6), max: P(16, yk), color: h.solid ? { r: 0, g: 0, b: 0 } : { r: 128, g: 128, b: 128 }, ...(h.solid ? {} : { fill_pattern: hatchName(h) }) }).catch((e) => console.log("swatch", e.message.slice(0, 80)));
+  // the legend rows start 20 mm right of the text column: keep them clear of the title block (about 46 characters)
+  const lab = shortM(m); if (lab.length > 46) console.log("LEGEND NAME TOO LONG, shorten the material name:", lab);
+  await txt(NOTES + 20, 757 - k * RW + 0.5, `${k + 1}   ${lab.slice(0, 46)}`);
+}
+const lgv = await call("place_view_on_sheet", { sheet_id: sheet, view_id: vLg, location: P(NOTES + 8, 757 - ((mats.length - 1) * RW + 6) / 2) }).catch((e) => console.log("legend", e.message.slice(0, 80)));
+if (lgv?.id) await call("set_viewport_no_title", { viewport_id: lgv.id }).catch(() => {});
+await txt(NOTES + 20, 757 - mats.length * RW + 0.5, "Grey: 1700 mm figure, indicative");
+const y2 = 757 - (mats.length + 1) * RW - 20;
 await txt(NOTES, y2, "MATERIAL QUANTITIES", bold);
 await txt(NOTES, y2 - 12, "(per unit, net, no waste, approx.)");
 // The quantity list has the QTY column at x 975, so its names are kept short (the code stays; the keynote list above gives
