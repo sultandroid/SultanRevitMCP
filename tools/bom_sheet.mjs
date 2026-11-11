@@ -86,9 +86,9 @@ for (const row of table) console.log(row.head ? `== ${row.head} (${row.n})` : ` 
 if (DRY) process.exit(0);
 
 // 2. Sheet: the table across the drawing area (5 mm text, 5.5 mm bold headings), in two blocks when it is long.
-const old = (await call("query_elements", { category: "OST_Sheets", parameter_name: "Sheet Number", parameter_value: SN, limit: 5 })).elements.map((e) => e.id);
+const old = (await call("query_elements", { category: "OST_Sheets", parameter_name: "Sheet Number", parameter_value: SN, limit: 5 })).elements.map((e) => e.id).concat((await call("query_elements", { category: "OST_Sheets", parameter_name: "Sheet Number", parameter_value: SN + "A", limit: 5 })).elements.map((e) => e.id));
 if (old.length) await call("delete_elements", { element_ids: old }).catch(() => {});
-const stale = (await call("list_views", {})).views.filter((x) => x.name === `KP-${NO}`).map((x) => x.id);
+const stale = (await call("list_views", {})).views.filter((x) => x.name === `KP-${NO}` || x.name === `KP-${NO}A`).map((x) => x.id);
 if (stale.length) await call("delete_elements", { element_ids: stale }).catch(() => {});
 const note = (await call("ensure_text_type", { name: "Sheet Note 5", size_mm: 5, color: { r: 0, g: 0, b: 0 } })).id;
 const bold = (await call("ensure_text_type", { name: "Sheet Heading 5.5", size_mm: 5.5, color: { r: 0, g: 0, b: 0 }, bold: true })).id;
@@ -121,39 +121,74 @@ for (const [i, row] of table.entries()) {
   await txt(bx + COL.wall, y, row.wall); await txt(bx + COL.sh, y, row.sh); await txt(bx + COL.mat, y, fitMat(row.mat)); y -= LH;
 }
 y -= 8;
-await txt(bx, y, `TOTAL: ${nU} units in ${nT} types, plus ${nHW} fixings.\nSizes are the family's own size (W along its wall, D out from it, H).\nWHERE: the wall it stands on (E/W/R/F when on more), or Free.\nMarks of every unit: see the wall section sheets A-1201 to A-1204.\nHardware, cores, formers and battens are listed on the detail sheets.`);
-// RAW MATERIALS (user: "add table for total per raw materials"): net take-off from every unit's solids. Boards and stone:
-// m2 of the two big faces' side (one face), thickness = the smallest size, sheets of 2440 x 1220 (net, no waste); linear
-// parts (battens, skirting, edging, LED, handles): m along the longest size; hardware and fittings: count. Curved parts
-// count their box, so arch skins and formers read a little high: the CNC nesting gives the exact sheets.
-const LIN = /Batten|Skirting|Edge|LED|Bar Handle|Softwood(?!.*Core)/i, CNT = /Hinge|Screw|Dowel|Plug|Grommet|Pin|Plate|Sink|Confirmat|Bolt/i;
+await txt(bx, y, `TOTAL: ${nU} units in ${nT} types, plus ${nHW} fixings.\nSizes are the family's own size (W along its wall, D out from it, H).\nWHERE: the wall it stands on (E/W/R/F when on more), or Free.\nMarks of every unit: see the wall section sheets A-1201 to A-1204.\nRaw materials as bought (sheets, m2, m3, lengths, rolls, litres,
+pieces): see sheet A-${NO}A.`);
+// RAW MATERIALS, as we buy them (user: "raw materials to be its UOM as we buy it and to be sum"): every solid of every unit
+// is classed by the purchase rules in standards/sultan-standards.json (purchase.rules; a project may override with bom.purchase):
+// boards in sheets of their stock size, stone and glass in m2, solid timber in m3, softwood and steel in stock lengths, edging
+// and LED in rolls, paint in litres (area x coats / coverage), hardware in pieces. One line per material and thickness, summed
+// over the whole shop; BUY = net + waste, rounded up to what is bought; totals per UOM at the end.
+const STD = JSON.parse(readFileSync(new URL("../standards/sultan-standards.json", import.meta.url), "utf8")).purchase ?? {};
+const PR = { ...STD, ...(B.purchase ?? {}) }, WASTE = 1 + (PR.waste_pct ?? 10) / 100, RULES = (PR.rules ?? []).map((q) => ({ ...q, re: new RegExp(q.match, "i") }));
+const PAINT = PR.paint ? { ...PR.paint, re: new RegExp(PR.paint.match, "i") } : null;
+// the item we buy: raw boards are bought raw and finished here, so painted, cut and drilled versions sum into one line
+const RAWM = (PR.raw?.map ?? []).map((q) => ({ ...q, re: new RegExp(q.match, "i") })), STRIP = PR.raw?.strip ? new RegExp(PR.raw.strip, "gi") : null;
+const rawName = (m) => RAWM.find((q) => q.re.test(m))?.item ?? (STRIP ? m.replace(STRIP, " ").replace(/\s+/g, " ").trim() || m : m);
+const ruleOf = (m) => RULES.find((q) => q.re.test(m)) ?? { uom: "m2", by: "area", round: 0.1, other: true };
 const raw = new Map();
+const line = (key, m, rule, th) => { const q = raw.get(key) ?? { m, rule, th, area: 0, vol: 0, len: 0, n: 0 }; raw.set(key, q); return q; };
+const mainTh = new Map();   // material -> thickness with the most area among its flat parts
+{ const acc = new Map(); for (const U of units) for (const it of U.F.items) { const m = rawName(short(it.m)); if (it.d[0] > 40) continue; const k = m + "|" + Math.round(it.d[0]); acc.set(k, (acc.get(k) ?? 0) + it.d[1] * it.d[2]); }
+  for (const [k, a] of acc) { const [m, th] = k.split("|"); if (!mainTh.has(m) || a > mainTh.get(m)[1]) mainTh.set(m, [Number(th), a]); } }
 for (const U of units) for (const it of U.F.items) {
-  const m = short(it.m), q = raw.get(m) ?? { m, area: 0, len: 0, n: 0, th: new Set() };
-  if (CNT.test(m) || U.cat === "HARDWARE AND FIXINGS") q.n += 1;
-  else if (LIN.test(m) && it.d[1] < 120) q.len += it.d[2] / 1000;
-  else { q.area += (it.d[1] * it.d[2]) / 1e6; q.th.add(Math.round(it.d[0])); }
-  raw.set(m, q);
+  const m0 = short(it.m), hw = U.cat === "HARDWARE AND FIXINGS", m = hw ? m0 : rawName(m0), [d0, d1, d2] = it.d;
+  const rule = hw ? { uom: "pcs", by: "count" } : RULES.find((q) => q.re.test(m0) && /Top/.test(q.match)) ?? ruleOf(m);
+  const th = rule.by === "area" && rule.stock ? (d0 <= 40 ? Math.round(d0) : mainTh.get(m)?.[0] ?? Math.round(Math.min(d0, 40))) : null;
+  const q = line(m + "|" + (th ?? ""), m, rule, th);
+  if (rule.by === "count") q.n += 1; else if (rule.by === "length") q.len += d2 / 1000; else if (rule.by === "volume") q.vol += (d0 * d1 * d2) / 1e9; else q.area += (d1 * d2) / 1e6;
+  if (!hw && PAINT && PAINT.re.test(m0)) { const pk = /\bRAL\b/i.test(m0) ? "RAL" : m0.replace(/^.*?\b(Paint|ptd\.)\s*/i, "").trim() || m0; line("PAINT|" + pk, "Paint " + pk + " (code to confirm)", { uom: PAINT.uom, by: "paint" }, null).area += (d1 * d2) / 1e6; }
 }
-const rawRows = [...raw.values()].sort((a, b) => (a.n ? 2 : a.len ? 1 : 0) - (b.n ? 2 : b.len ? 1 : 0) || b.area - a.area || b.len - a.len || b.n - a.n);
-const BOARD = /MDF|EGGER|Pegboard|Carcass|Plywood|Veneer|Top|Board/i;
+const up = (v, step) => Math.ceil(v / step - 1e-9) * step;
+const buyOf = (q) => {
+  const R = q.rule;
+  if (R.by === "count") return { net: String(q.n), buy: q.n };
+  if (R.by === "paint") { const l = (q.area * (PAINT.coats ?? 2)) / (PAINT.coverage_m2_per_l ?? 10); return { net: q.area.toFixed(1) + " m2", buy: Math.ceil(l * WASTE) }; }
+  if (R.by === "volume") return { net: q.vol.toFixed(3) + " m3", buy: up(q.vol * WASTE, R.round ?? 0.01).toFixed(2) };
+  if (R.by === "length") return { net: q.len.toFixed(1) + " m", buy: R.stock ? Math.ceil((q.len * WASTE) / R.stock) : up(q.len * WASTE, 1) };
+  return { net: q.area.toFixed(2) + " m2", buy: R.stock ? Math.ceil((q.area * WASTE) / R.stock) : up(q.area * WASTE, R.round ?? 0.1).toFixed(1) };
+};
+const ORDER = ["sheet", "m2", "m3", "pcs 4", "pcs 6", "roll", "L", "pcs"];
+const rank = (u) => { const i = ORDER.findIndex((o) => u.startsWith(o)); return i < 0 ? 99 : i; };
+const rawRows = [...raw.values()].filter((q) => q.area + q.vol + q.len + q.n > 1e-6).map((q) => ({ ...q, ...buyOf(q) }))
+  .sort((a, b) => rank(a.rule.uom) - rank(b.rule.uom) || a.rule.uom.localeCompare(b.rule.uom) || a.m.localeCompare(b.m) || (a.th ?? 0) - (b.th ?? 0));
+// totals per UOM (sheets of one size together, and so on)
+const totals = new Map(); for (const q of rawRows) totals.set(q.rule.uom, (totals.get(q.rule.uom) ?? 0) + Number(q.buy));
+// on its own continuation sheet (number + "A"): the whole purchase list needs more room than the BOM leaves
+const SNA = SN + "A";
+for (const e of (await call("query_elements", { category: "OST_Sheets", parameter_name: "Sheet Number", parameter_value: SNA, limit: 5 })).elements) await call("delete_elements", { element_ids: [e.id] }).catch(() => {});
+const sheetA = (await call("create_sheet", { number: SNA, name: (B.title ?? "Overall BOM - Carpentry").replace(/ - Carpentry$/, "") + " - Raw Materials", title_block_type_id: tb })).id;
+await setv(sheetA, "Sheet Group", B.group ?? "2 Fab: 0 Wall Sections");
+{ const ti = (await call("query_elements", { category: "OST_TitleBlocks", view_id: sheetA, limit: 5 })).elements[0]?.id; for (const [n, v] of C.signoff) { await setv(sheetA, n, v); if (ti) await setv(ti, n, v); } }
+await call("set_sheet_revisions", { sheet_ids: [sheetA], revision_ids: B.revisions ?? C.revisions });
+const txtA = (x, yy, s, ty = note) => (String(s ?? "").trim() ? call("create_text_note", { view_id: sheetA, location: P(x, yy), text: String(s), text_type_id: ty }) : null);
+await txtA(30, 818, `RAW MATERIALS AS BOUGHT, TOTAL FOR THE SHOP: summed over all ${units.length - units.filter((U) => U.cat === "HARDWARE AND FIXINGS").length} units and their fixings (BUY = net + ${PR.waste_pct ?? 10}% waste)`, bold);
 {
-  // fill the free space under the left block first, then under the right block
-  const spots = [[30, (yLeft ?? y) - 14], [30 + BW, y - 70]];
+  const txt = txtA;
+  const spots = [[30, 790], [30 + BW, 790]];
   let si = 0, [rx, ry] = spots[0];
-  const head = async (title) => { if (title) { await txt(rx, ry, "RAW MATERIALS, TOTAL FOR THE SHOP (net)", bold); ry -= LH + 4; }
-    for (const [x, h] of [[0, "MATERIAL"], [240, "THK"], [282, "QTY"], [318, "UNIT"], [345, "2440x1220"]]) await txt(rx + x, ry, h, bold); ry -= LH + 2; };
+  const head = async (title) => {
+    for (const [x, h] of [[0, "RAW MATERIAL"], [222, "THK"], [248, "NET"], [300, "BUY"], [330, "UOM"]]) await txt(rx + x, ry, h, bold); ry -= LH + 2; };
+  const next = async () => { if (ry < BOT + LH) { if (++si >= spots.length) return false; [rx, ry] = spots[si]; await head(false); } return true; };
   await head(true);
   for (const q of rawRows) {
-    if (ry < BOT + LH) { if (++si >= spots.length) { console.log("raw materials table too long for the sheet"); break; } [rx, ry] = spots[si]; await head(false); }
-    const ths = [...q.th].filter((v) => v > 0 && v < 100).sort((a, b) => a - b), th = ths.length > 2 ? `${ths[0]}-${ths[ths.length - 1]}` : ths.join("/");
-    const [qty, unit] = q.n ? [String(q.n), "no."] : q.len ? [q.len.toFixed(1), "m"] : [q.area.toFixed(2), "m2"];
-    await txt(rx, ry, q.m.slice(0, 66)); if (!q.n && !q.len && th) await txt(rx + 240, ry, th);
-    await txt(rx + 282, ry, qty); await txt(rx + 318, ry, unit);
-    if (!q.n && !q.len && BOARD.test(q.m) && q.area > 0.05) await txt(rx + 345, ry, String(Math.ceil(q.area / 2.977)));
-    ry -= LH;
+    if (!(await next())) { console.log("raw materials table too long for the sheet"); break; }
+    await txt(rx, ry, (q.rule.other ? q.m + " (no buy rule)" : q.m).slice(0, 62)); if (q.th) await txt(rx + 222, ry, String(q.th));
+    await txt(rx + 248, ry, q.net); await txt(rx + 300, ry, String(q.buy)); await txt(rx + 330, ry, q.rule.uom); ry -= LH;
   }
-  if (ry > BOT + 2 * LH) await txt(rx, ry - 4, "Net areas from the model (one face), no waste. Sheets: 2440 x 1220,\nnet; add the factory waste. Curved parts count their box.");
+  ry -= 4;
+  if (await next()) { await txt(rx, ry, "TOTALS TO BUY", bold); ry -= LH + 1; }
+  for (const [u, v] of [...totals].filter(([u]) => /^(sheet|pcs [0-9]|roll|L$|m3)/.test(u)).sort((a, b) => rank(a[0]) - rank(b[0]))) { if (!(await next())) break; await txt(rx, ry, u); await txt(rx + 300, ry, Number.isInteger(v) ? String(v) : v.toFixed(2)); ry -= LH; }
+  if (await next()) await txt(rx, ry - 4, "Net from the model (one face; curved parts by their box). Buy units\nand sheet sizes: standards purchase rules; confirm with purchasing.");
 }
 // key plan: every unit in red
 const planId = (await call("list_views", {})).views.find((x) => x.name === C.planView)?.id;
@@ -163,5 +198,7 @@ await call("set_view_categories", { view_id: kp, hide: ["OST_Sections", "OST_Ele
 for (const U of units.filter((U) => U.H > 300 && U.cat !== "HARDWARE AND FIXINGS")) await call("create_swatch", { view_id: kp, min: P(U.c.x - U.wx / 2, U.c.y - U.wy / 2), max: P(U.c.x + U.wx / 2, U.c.y + U.wy / 2), color: { r: 200, g: 30, b: 30 } }).catch(() => {});
 const kv = await call("place_view_on_sheet", { sheet_id: sheet, view_id: kp, location: P(1102, 430) });
 await call("set_viewport_no_title", { viewport_id: kv.id }).catch(() => {});
+{ const kpA = (await call("duplicate_view", { view_id: kp, name: `KP-${NO}A`, option: "WithDetailing" }).catch(() => null)) ?? null;
+  const ka = kpA?.id ?? kpA?.view_id; if (ka) { await setv(ka, "Title on Sheet", "Key Plan"); const kva = await call("place_view_on_sheet", { sheet_id: sheetA, view_id: ka, location: P(1102, 430) }); await call("set_viewport_no_title", { viewport_id: kva.id }).catch(() => {}); } }
 await call("save_document", {});
 console.log("done", SN, "units", units.length, "types", rows.size, "blocks", (bx - 30) / BW + 1);
