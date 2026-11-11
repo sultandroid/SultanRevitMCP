@@ -392,7 +392,9 @@ if (sL) {
   locNote = [`SPACE: ${xL != null && xR != null ? r(xR - xL) : "-"} wide x ${yB != null ? r(yB - b.y0) : "-"} deep x ${zU != null ? r(zU) : "-"} high`, `(floor to ${NB.up?.label ?? "ceiling"})`,
     w("left", "Left:"), w("right", "Right:"), w("up", "Above:"), w("back", "Behind:"), w("front", "In front (walkway):")].join("\n");
   if (noteXY) await txt(noteXY[0], noteXY[1], locNote.replace(/ \(floor/, "\n(floor").replace(/ wide x /, " wide x\n"));
-  else await txt(rx0, Math.max(ry1 - hS - 30 - hPl - 22, 95), locNote);
+  // the location column is about 110 mm wide at 5 mm text: wrap each line at 26 characters, or it runs into the notes column
+  // (Madina 2 D-02, 11 Nov 2026: "SPACE: 3796 wide x - deep x 3000 high" ran over the material quantities)
+  else await txt(rx0, Math.max(ry1 - hS - 30 - hPl - 22, 95), locNote.split("\n").map((ln) => ln.split(" ").reduce((o, wd) => { const last = o[o.length - 1]; if (last && (last + " " + wd).length <= 26) o[o.length - 1] = last + " " + wd; else o.push(wd); return o; }, []).join("\n  ")).join("\n"));
 } else console.log("location views: no room on the sheet, scale not found");
 // Cut plan through a unit that wraps existing structure (user, Makkah FS-1, 10 Nov 2026: "a plan showing where the existing
 // column touches the unit from inside"). Config t.cutPlan = { z, at: [x, y] on the sheet, scale, title, margin,

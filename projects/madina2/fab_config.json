@@ -253,9 +253,21 @@
       "revisions": [
         740290,
         1291619,
-        1409036
+        1409036,
+        1413312
       ],
-      "note": "Made as 2 units (user, 11 Nov 2026):\nD-02 cashier counter 700 x 1200, top +1.000,\nTuscany travertine 20 top, plinth 100,\nearth plaster finish, POS by others.\nD-02-F display fridge 700 x 900 beside it,\nfridge by others on a painted plinth\nwith vent grille; fixed to D-02 on site.\nPower and drain by MEP."
+      "note": "Made as 2 units: D-02 counter 700 x 1200\n+ D-02-F display fridge 700 x 900, top +1.000.\nD-02 as the back counter E-C1: SHS 40x40x2\nframe on 4 adjustable feet, stainless 304\nbrushed 1.2 on MR MDF 16 (customer face, south\nend, doors, drawer), MR 18 carcass, stainless\nkick, travertine 20 top on MR 18 sub-top.\nWire management: 60 grommet, PVC duct 80x40 to\nthe floor box, cable tray under the top,\nremovable access panel. Power + data by MEP.\nFridge by others, fixed to D-02 on site."
+    },
+    "CF-1": {
+      "no": 2702,
+      "title": "Ceiling Wood Frame CF-1",
+      "group": "2 Fab: Ceiling",
+      "ref": "CF-1",
+      "marks": [
+        "CF-1"
+      ],
+      "cnc": false,
+      "note": "Wood frame round the flower grid, in the\nC02 rattan tray. Underside +3.100.\nEach member: a box of 18 FR MDF, oak\nveneer to match EGGER H1145 ST10:\nsoffit, top and two sides (100 x 100).\nAll boards mitred 45 at the 4 corners.\nGlue blocks inside @ 600, pin and glue.\nDownlights GL-1 to GL-8 in the soffit,\n50 in from the edge: cut on site.\nHangers to the slab: to confirm."
     }
   },
   "sections": {
@@ -361,7 +373,8 @@
     "reach": 1400,
     "revisions": [
       1270447,
-      1409036
+      1409036,
+      1413312
     ]
   }
 }
