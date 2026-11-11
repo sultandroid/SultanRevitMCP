@@ -10,12 +10,14 @@
 // template lands 44.7 mm off), old instances deleted. An L part over several arches gives one pair per arch (-1, -2...).
 //
 // usage: node tools/fit_inside_arch.mjs --doc <title> --pairs <F id>:<S id>[,<F id>:<S id>...] --save-dir <folder>
-//        [--arch <regex for the arch element names, default "Arch Unit">] [--dry]
+//        [--arch <regex for the arch element names, default "Arch Unit">] [--source-doc <title>] [--dry]
+// --source-doc: read the old -F/-S parts from another open model (e.g. a backup) and build into --doc; the old parts are
+// then not deleted. Used to rebuild a piece that a bad run lost (Madina 2 LF-D drop boards, 11 Nov 2026).
 import { call } from "./rvt.mjs";
 import { setDoc, AX, xform, fitToSolids, fitInstance } from "./fitlib.mjs";
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i < 0 ? d : process.argv[i + 1]; };
-const DOC = arg("doc"), DIR = arg("save-dir"), DRY = process.argv.includes("--dry"), ARCH = new RegExp(arg("arch", "Arch Unit"));
+const DOC = arg("doc"), SRC = arg("source-doc", arg("doc")), DIR = arg("save-dir"), DRY = process.argv.includes("--dry"), ARCH = new RegExp(arg("arch", "Arch Unit"));
 const PAIRS = (arg("pairs") || "").split(",").filter(Boolean).map((p) => p.split(":").map(Number));
 if (!DOC || !PAIRS.length || (!DIR && !DRY)) { console.error("usage: --doc --pairs F:S[,F:S] --save-dir <dir> [--dry]"); process.exit(1); }
 setDoc(DOC);
@@ -27,10 +29,11 @@ const matId = async (n) => { if (!matIds.has(n)) matIds.set(n, (await call("quer
 
 // world boxes of an instance's boards, by ray fit of the instance (mirror-aware)
 async function boards(id) {
-  const e = await call("get_element", { ...D, element_id: id });
-  const items = (await call("inspect_family", { ...D, element_id: id })).items.filter((i) => i.material && /Extrusion|FreeForm/.test(i.class));
+  const DS = { document: SRC };
+  const e = await call("get_element", { ...DS, element_id: id });
+  const items = (await call("inspect_family", { ...DS, element_id: id })).items.filter((i) => i.material && /Extrusion|FreeForm/.test(i.class));
   const loc = items.map((i) => ({ profile: [[i.min.x, i.min.y], [i.max.x, i.min.y], [i.max.x, i.max.y], [i.min.x, i.max.y]].map(([x, y]) => ({ x, y, z: i.min.z })), direction: { x: 0, y: 0, z: 1 }, length_mm: i.max.z - i.min.z }));
-  const f = await fitInstance({ id, location: e.location }, loc);
+  setDoc(SRC); const f = await fitInstance({ id, location: e.location }, loc); setDoc(DOC);
   if (!f || f.res > 20) throw new Error(`cannot fit instance ${id} with rays (res ${f?.res})`);
   const W = xform(loc, f.T);
   const B = W.map((s, k) => {
@@ -76,7 +79,7 @@ for (const [fid, sid] of PAIRS) {
   console.log(`${base}: face ${n} ${nIn.toFixed(1)}..${nOut.toFixed(1)}, soffit z ${zb}..${zt}, ${ops.length} arch opening(s): ${ops.map((o) => o.arch + "@" + Math.round(o.c)).join(", ")}`);
   if (!ops.length) { console.log(`  SKIP ${base}: no arch opening found behind it`); continue; }
   const fTop = fb.hi.z;
-  const famF = (await call("get_element", { ...D, element_id: fid })).family, famS = (await call("get_element", { ...D, element_id: sid })).family;
+  const famF = F.e.family, famS = S.e.family;
   const made = [];
   for (const [k, op] of ops.entries()) {
     const tag = ops.length > 1 ? `${base}-${k + 1}` : base;
@@ -95,7 +98,9 @@ for (const [fid, sid] of PAIRS) {
     const solF = [prN(outline, nA, nB, mF), prW([[nOut, zb], [nOut, zt], [nIn, zt]], em[0], em[1], mF)];
     // inside part: every S board, clipped to the opening, mitre zones kept as wedges along w
     const solS = [];
-    const drop = S.B.find((b) => b.thin === n && b.hi.z <= zb + T);           // a drop board under the soffit (LF-D)
+    // a drop board hangs below the soffit (LF-D). Its top may already run up into the soffit band (mitred), so test its
+    // bottom, not its top: the old test (top at or under the soffit) missed it and the board was lost (11 Nov 2026).
+    const drop = S.B.find((b) => b.thin === n && b.lo.z < zb - T);
     for (const b of S.B) {
       const m = await matId(b.mat);
       if (b.thin === "z") {                                                  // soffit level board
@@ -111,7 +116,9 @@ for (const [fid, sid] of PAIRS) {
         const ww = [Math.max(b.lo[w], em[0]), Math.min(b.hi[w], em[1])];
         if (touchesFace) solS.push(prW([[nOut, zb], [nIn, zb], [nIn, zt]], ww[0], ww[1], m));
         if (dropBack) solS.push(prW([[dIn, zb], [back, zt], [dIn, zt]], ww[0], ww[1], m));
-      } else if (b === drop) {                                              // drop board: body below, top mitre wedge
+      } else if (b !== drop) {
+        console.log(`    WARNING ${tag}: board ${b.mat} ${AX.map((a) => Math.round(b.lo[a]) + ".." + Math.round(b.hi[a])).join(" ")} is neither a soffit board nor a drop board; NOT rebuilt, check by hand`);
+      } else {                                              // drop board: body below, top mitre wedge
         const nb = wallLow ? b.lo[n] : b.hi[n], ni = wallLow ? b.hi[n] : b.lo[n];
         const e0 = await edge(op.c, b.lo.z + 0.5), e1 = await edge(op.c, zb - 0.5);
         const lo0 = Math.max(b.lo[w], e0[0]), hi0 = Math.min(b.hi[w], e0[1]), lo1 = Math.max(b.lo[w], e1[0]), hi1 = Math.min(b.hi[w], e1[1]);
@@ -133,7 +140,7 @@ for (const [fid, sid] of PAIRS) {
       console.log(`    ${tag}-${part} ${fam}: ${r.id} ${ok ? "in place" : "VERIFY placement"} (moved ${f1 ? AX.map((a) => (-f1.drift[a]).toFixed(1)).join(",") : "?"})`);
     }
   }
-  if (!DRY && made.length) { await call("delete_elements", { ...D, element_ids: [fid, sid] }); console.log(`  old ${fid}, ${sid} deleted`); }
+  if (!DRY && made.length && SRC === DOC) { await call("delete_elements", { ...D, element_ids: [fid, sid] }); console.log(`  old ${fid}, ${sid} deleted`); }
 }
 function vol(b) { return AX.reduce((p, a) => p * (b.hi[a] - b.lo[a]), 1); }
 function area(b) { return (b.hi.x - b.lo.x) * (b.hi.y - b.lo.y); }
