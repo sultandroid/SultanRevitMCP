@@ -31,6 +31,7 @@ namespace RevitMcp
             ["set_3d_orientation"] = Set3DOrientation,
             ["create_revision_cloud"] = CreateRevisionCloud,
             ["edit_family_solids"] = EditFamilySolids,
+            ["trim_family_solids"] = TrimFamilySolids,
             ["list_documents"] = ListDocuments,
             ["open_document"] = OpenDocument,
             ["activate_document"] = ActivateDocument,
