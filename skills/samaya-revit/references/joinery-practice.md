@@ -91,6 +91,14 @@ Every open shelf unit with a pegboard back is built this way unless the user say
 - Every wooden unit type gets an arrangement sheet (here 114 base cabinets, 115 arch units, 116 low bays, 117 rear centre units) so fabrication can check sizes before cutting: per side, chains for grid to grid, each unit and gap, the type end to end, and wall to wall with the space either side; a size table of every unit by mark, read from the model.
 - The arrangement sheet: views scaled to fill the sheet; the units in question in full black, every other element halftone by element override; a width and quantity table (qty = available length / 1000 rounded up, width = length / qty); a storage table for the shop operator (net inside W x D x H, litres each and total, shelf area); and the marble top quantities (length, depth, thickness, pieces, area, front edge), since this is where the run lengths are.
 
+## Counters with a sink (Madina 2 E-C1, 11 Nov 2026)
+
+- Never all stainless on a display counter: it looks like a kitchen and costs far more. Use steel and stainless where the water is.
+- Sink bay: SHS 40x40x2 frame (4 posts, bottom and top rings, the top ring carries the stone top), 4 adjustable M10 legs behind the kick, stainless 304 brushed 1.2 folded tray with 40 upstands, a stainless back sheet and an end liner. Keep the front frame clear of the sink bowl and of the hinge plates. Leave the pipe void behind.
+- Top at the sink: the project stone with a cut-out, edges sealed. A wood top never touches a sink.
+- The rest of the run: carcasses and backs in moisture-resistant board (MR). Kick: stainless 304 brushed 1.2 on MR MDF.
+- When the user picks stainless fronts (E-C1): SS 304 brushed 1.2 bonded to MR MDF 16, edges folded, grain vertical, 35 mm cup hinges in the core; handles stainless 304 brushed too.
+
 ## Hanging and loaded display
 
 - Any unit that carries goods (carpet hangers, rails, hooks) gets a study before fabrication: clear heights and drops dimensioned, a load check with stated assumptions (items x weight x 1.5 for customers pulling), rail deflection, and how the load reaches structure.

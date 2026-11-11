@@ -1293,6 +1293,7 @@
    "uom": "L"
   },
   "rules": [
+      { "match": "Stainless Steel 304", "uom": "sheet 2440x1220", "by": "area", "stock": 2.977 },
    {
     "match": "Travertine|Marble|Granite|Stone",
     "uom": "m2",
@@ -1312,7 +1313,7 @@
     "stock": 4
    },
    {
-    "match": "RHS|Angle|Steel Tube|Flat Bar",
+    "match": "RHS|\bSHS\b|Angle|Steel Tube|Flat Bar",
     "uom": "pcs 6.0 m",
     "by": "length",
     "stock": 6
@@ -1366,7 +1367,7 @@
     "round": 0.5
    },
    {
-    "match": "Hinge|Screw|Dowel|Plug|Grommet|Pin|Plate|Sink|Handle|Bolt|Confirmat|Peg",
+    "match": "Hinge|Screw|Dowel|Plug|Grommet|Pin|Plate|Sink|Handle|Bolt|Confirmat|Peg|Leg",
     "uom": "pcs",
     "by": "count"
    }
@@ -1374,6 +1375,9 @@
   "raw": {
    "_about": "We buy raw and finish in the factory (user, Madina 2, 11 Nov 2026: \"we didn't buy MDF painted, we buy raw and then we paint; sum all same kind and type\"). A model material is turned into the item we buy: first a map entry that matches, else the name without finish and use words. Thickness stays a separate line; paint is listed apart in litres.",
    "map": [
+        { "match": "Stainless Steel 304", "item": "Stainless Steel 304 Brushed" },
+        { "match": "\bMR MDF\b", "item": "MR MDF" },
+        { "match": "EGGER.*(White|U775).*\bMR\b", "item": "EGGER U775 ST9 White Grey MR" },
     {
      "match": "Marble|Travertine",
      "item": "Marble Tuscany Travertine"

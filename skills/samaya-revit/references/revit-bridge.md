@@ -341,3 +341,11 @@ Revit cannot copy a sheet across models, so `tools/move_sheets.mjs` rebuilds it.
 Order that works: open the source, open the target, `move_sheets.mjs`; read dimensions and types from the source; close the source; open the target alone, reload its links, add grids (copied from the source by name), apply types, create dimensions, fill Project Information, render every sheet; back up, delete the old copies, run `sheet_groups.mjs` and `sheet_sets.mjs`.
 
 Open-model rules met on the way: a model linked into an open model cannot be opened (open the linked one first); links of a model saved while their source was open stay Unloaded until `reload_link`; Revit will not close the last open model through the API (keep a small family open as a placeholder while switching); a new revision joins Revit's default Numeric sequence unless `set_revision_sequence` with `like_revision_id` moves it; the active view cannot be deleted (`open_view` another first); an empty view cannot be placed on a sheet.
+
+## Editing family parts in place (Madina 2 E-C1, 11 Nov 2026)
+
+- `edit_family_solids` deletes forms by id and adds boxes; `set_family_material` takes `form_ids`. Form ids change every time the family is reloaded, so run `inspect_family` again right before each call. With old ids the call reports changed 0 and does nothing.
+- `trim_family_solids` cuts free forms only, sink bowls included. Keep the box off parts that must stay.
+- `replace_text` without `view_id` changes every note in the model, shared detail views too (the hinge detail is on several cabinet sheets). Pass `view_id`, or set the one note with `set_text_note`.
+- Check which build the bridge runs (`reload_handlers` returns its version). If it is older than the source, newer commands (`trim_family_solids`, `save_family_copy`, `like_revision_id`) are missing. Do not add a revision that lands on the wrong numbering; wait for the current build.
+- The live Madina 2 model is `ARCH/Madina 2 (Lorich)/Madina2_ARCH_01.rvt` (the bridge instance file names it). Back up that file, not the old copy in ARCH.
