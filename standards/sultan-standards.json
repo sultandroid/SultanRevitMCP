@@ -1051,9 +1051,10 @@
    "rule": "Every outside corner between two painted parts is a 45 degree mitre (both boards cut on the diagonal from the outer to the inner corner), never a butt or overlap, so the paint does not crack along the joint. Small chamfer or arris at the outer edge.",
    "mitre_deg": 45,
    "applies_to": "painted MDF / FR MDF / any RAL or U-colour painted board",
-   "exceptions": "inside corners and T-joints; veneer and laminate boards keep their edge banding",
+   "exceptions": "inside corners and T-joints; laminate (EGGER U/H/F codes) keeps its edge banding; welded and ground metal (steel frames, hangers)",
    "tool": "tools/mitre_painted.mjs",
-   "since": "2026-11-11 (user)"
+   "since": "2026-11-11 (user)",
+   "check": "tools/ray_snapshot.mjs before and after: 0 changed extents"
   },
   "make_and_fit_separately": {
    "rule": "Split a part into the pieces a carpenter makes and fits separately: an L fascia is an OUTSIDE fascia (face board, -F) and an INSIDE part (soffit and drop boards, -S), each its own family and mark, meeting on the 45 degree mitre as a site joint. Model parts the way they are produced and installed, never as one block that cannot be fitted.",

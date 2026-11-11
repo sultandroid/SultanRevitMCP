@@ -24,7 +24,9 @@ const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i < 0 ?
 const DOC = arg("doc"), FAM = arg("family"), DIR = arg("save-dir"), DRY = process.argv.includes("--dry"), SPLIT = process.argv.includes("--split");
 if (!DOC || !FAM || (!DIR && !DRY)) { console.error("usage: --doc <title> --family <text> --save-dir <folder> [--dry]"); process.exit(1); }
 const D = { document: DOC }, TOL = 0.6, OFF = { x: 300000, y: 300000, z: 0 };
-const PAINT = /paint|RAL|lacquer|U\d{3}\s?ST9/i;
+const PAINT_RE = /paint|\bRAL\b|lacquer/i;   // painted finishes only; EGGER U/H/F codes are laminate, not paint
+const METAL = /steel|metal|alumin|iron|brass|stainless/i;   // welded and ground, not glued: the rule is for wood and MDF
+const PAINT = { test: (m) => PAINT_RE.test(m) && !METAL.test(m) };
 const AX = ["x", "y", "z"];
 const eq = (a, b) => Math.abs(a - b) < TOL;
 const TEMPLATES = {
@@ -61,11 +63,11 @@ const solidMin = (items) => {
 };
 for (const [family, insts] of fams) {
   const ref = insts[0];
-  const inf = await call("inspect_family", { ...D, element_id: ref.id });
+  let inf; try { inf = await call("inspect_family", { ...D, element_id: ref.id }); } catch { continue; }
   const solids = inf.items.filter((i) => i.material && /Extrusion|FreeForm|Blend|Sweep|Revolution/.test(i.class));
   if (solids.some((i) => /Blend|Sweep|Revolution/.test(i.class))) { console.log(`SKIP ${family}: has sweeps/revolves/blends, not a flat-board family`); continue; }
   const B = solids.map((i, k) => ({ k, mat: i.material, lo: { ...i.min }, hi: { ...i.max }, cuts: [] }));
-  for (const b of B) { const d = AX.map((a) => b.hi[a] - b.lo[a]); b.thin = AX[d.indexOf(Math.min(...d))]; b.t = Math.min(...d); }
+  for (const b of B) { const d = AX.map((a) => b.hi[a] - b.lo[a]); b.thin = AX[d.indexOf(Math.min(...d))]; b.t = Math.min(...d); b.lo0 = { ...b.lo }; b.hi0 = { ...b.hi }; }
   const done = new Set(); let n = 0;
   for (const A of B) for (const Bb of B) {
     if (A === Bb || A.thin === Bb.thin || !PAINT.test(A.mat) || !PAINT.test(Bb.mat)) continue;
@@ -90,6 +92,13 @@ for (const [family, insts] of fams) {
     console.log(`${family}: mitre ${A.k}/${Bb.k} along ${w} ${Math.round(w0)}..${Math.round(w1)}, outer corner ${u}=${Math.round(O[u])} ${v}=${Math.round(O[v])}${A.extended ? " (butt joint: board extended into the other)" : ""}`);
   }
   if (!n) { console.log(`${family}: no painted outside corners, unchanged`); continue; }
+  // Guard: the boards are read as bounding boxes, so prove they ARE boxes before touching the family. One instance is
+  // fitted with rays (also near the board edges) against the boxes as they stand (before the mitre); a curved part such
+  // as an arch lunette does not fit and the family is refused.
+  const boxSols = B.map((b) => ({ profile: [[b.lo0.x, b.lo0.y], [b.hi0.x, b.lo0.y], [b.hi0.x, b.hi0.y], [b.lo0.x, b.hi0.y]].map(([x, y]) => ({ x, y, z: b.lo0.z })), direction: { x: 0, y: 0, z: 1 }, length_mm: b.hi0.z - b.lo0.z }));
+  const chk = await fitInstance(ref, boxSols, true);
+  if (!chk) { console.log(`SKIP ${family}: rays cannot see an instance (hidden in {3D}); check by hand`); continue; }
+  if (chk.res > 1) { console.log(`SKIP ${family}: not flat boards (fit off by ${chk.res.toFixed(1)} mm, curved or shaped parts); mitre by hand`); continue; }
   if (DRY) continue;
 
   // ---- 3. solids: each board split along its cut axis where cuts start/stop ----------------------------------------
@@ -222,24 +231,47 @@ function lineExtent(sols, a, p) {                // exact extent of the solids a
   }
   return lo <= hi ? { lo, hi } : null;
 }
-async function fitToSolids(id, sols) {           // drift of instance id from where sols say it should be
-  const lines = sols.map(solidInfo).sort((p, q) => q.vol - p.vol).slice(0, 6).flatMap((S) => AX.map((a) => ({ a, c: S.c })));
+async function fitToSolids(id, sols, dense = false) {   // drift of instance id from where sols say it should be
+  const big = sols.map((s) => ({ s, S: solidInfo(s) })).sort((p, q) => q.S.vol - p.S.vol).slice(0, dense ? 10 : 6);
+  const lines = big.flatMap(({ s, S }) => {
+    const out = AX.map((a) => ({ a, c: S.c }));
+    if (dense) {                                  // guard: a 5 x 5 grid across each board's face, through its thickness,
+      const ext = Object.fromEntries(AX.map((o) => [o, o === S.dax ? [S.wlo, S.whi] : [Math.min(...s.profile.map((p) => p[o])), Math.max(...s.profile.map((p) => p[o]))]]));
+      const th = AX.reduce((m, a) => (ext[a][1] - ext[a][0] < ext[m][1] - ext[m][0] ? a : m));   // so a notch or a curve shows
+      const [u, v] = AX.filter((x) => x !== th), F = [0.1, 0.3, 0.5, 0.7, 0.9];
+      for (const fu of F) for (const fv of F) out.push({ a: th, c: { ...S.c, [u]: ext[u][0] + fu * (ext[u][1] - ext[u][0]), [v]: ext[v][0] + fv * (ext[v][1] - ext[v][0]) } });
+    }
+    return out;
+  });
   let drift = { x: 0, y: 0, z: 0 }, res = Infinity;
   for (let pass = 0; pass < 3; pass++) {
-    const vals = { x: [], y: [], z: [] };
+    const vals = { x: [], y: [], z: [] }; let miss = 0;
     for (const { a, c } of lines) {
       const ex = lineExtent(sols, a, c); if (!ex) continue;
       const q = Object.fromEntries(AX.map((x) => [x, c[x] + (x === a ? 0 : drift[x])]));
-      const h = await hitsAlong(id, q, a); if (!h) continue;
+      const h = await hitsAlong(id, q, a); if (!h) { miss++; continue; }
       vals[a].push(h.lo - ex.lo, h.hi - ex.hi);
     }
     if (!AX.some((a) => vals[a].length)) return null;
     const nd = Object.fromEntries(AX.map((a) => { const v = vals[a].slice().sort((p, q) => p - q); return [a, v.length ? v[Math.floor(v.length / 2)] : drift[a]]; }));
     res = Math.max(...AX.flatMap((a) => vals[a].map((v) => Math.abs(v - nd[a]))));
+    if (dense && miss) res = Math.max(res, 999);   // a ray through a board that hits nothing: a hole, notch or curve
     const moved = AX.some((a) => Math.abs(nd[a] - drift[a]) > 0.05); drift = nd;
     if (!moved && pass) break;
   }
   return { drift, res };
+}
+async function fitInstance(e, sols, dense = false) {    // best of: as placed, mirrored in x, in y, in both
+  let best = null;
+  for (const [mx, my] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) {
+    const T = { L: e.location.point, rd: e.location.rotation_deg ?? 0, mx, my, off: { x: 0, y: 0, z: 0 } };
+    const f1 = await fitToSolids(e.id, xform(sols, T), dense); if (!f1) continue;
+    T.off = f1.drift;
+    const f2 = await fitToSolids(e.id, xform(sols, T), dense);
+    if (f2 && (!best || f2.res < best.res - 0.01)) best = { T, res: f2.res };
+    if (best && best.res < 0.5 && mx === 1 && my === 1) break;
+  }
+  return best;
 }
 async function splitFamily(family, insts, B) {
   const H = Math.max(...B.map((b) => b.hi.z)) - Math.min(...B.map((b) => b.lo.z));
@@ -250,15 +282,7 @@ async function splitFamily(family, insts, B) {
   for (const e of insts) {
     const g = await call("get_element", { ...D, element_id: e.id });
     const par = (n) => g.parameters.find((p) => p.name === n)?.value ?? null;
-    let best = null;
-    for (const [mx, my] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) {
-      const T = { L: e.location.point, rd: e.location.rotation_deg ?? 0, mx, my, off: { x: 0, y: 0, z: 0 } };
-      const f1 = await fitToSolids(e.id, xform(ALL, T)); if (!f1) continue;
-      T.off = f1.drift;
-      const f2 = await fitToSolids(e.id, xform(ALL, T));             // check the fitted transform once more
-      if (f2 && (!best || f2.res < best.res - 0.01)) best = { T, res: f2.res };
-      if (best && best.res < 0.5 && mx === 1 && my === 1) break;
-    }
+    const best = await fitInstance(e, ALL);
     if (!best || best.res > 1) { skip.push(e.id); console.log(`  VERIFY ${e.id}: could not fit it with rays (hidden in {3D}, or not this family's shape); left unsplit`); continue; }
     info.set(e.id, { ...best.T, mark: par("Mark") ?? "", comments: par("Comments") ?? "", sf: ["SF_Maturity", "SF_PhaseStatus", "SF_ExistingSource"].map((n) => [n, par(n)]).filter(([, v]) => v) });
     if (best.T.mx !== 1 || best.T.my !== 1) console.log(`  ${e.id}: mirrored instance (${best.T.mx < 0 ? "x" : "y"}), gets a Handed family`);
