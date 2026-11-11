@@ -329,5 +329,20 @@
       "name": "Arch paint\nFR MDF",
       "rgb": null
     }
-  ]
+  ],
+  "bom": {
+    "no": 1200,
+    "title": "Overall BOM - Carpentry",
+    "group": "2 Fab: 0 Wall Sections",
+    "walls": {
+      "west": 280,
+      "east": 6360,
+      "rear": 5660,
+      "front": 190
+    },
+    "reach": 1400,
+    "revisions": [
+      1270447
+    ]
+  }
 }
