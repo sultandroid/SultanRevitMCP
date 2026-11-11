@@ -3464,7 +3464,11 @@ namespace RevitMcp
                         if (o["color"] != null) material.Color = ColorOf(o, "color");
                         var loop = new CurveArray();
                         var c = new[] { new XYZ(min.X, min.Y, min.Z), new XYZ(max.X, min.Y, min.Z), new XYZ(max.X, max.Y, min.Z), new XYZ(min.X, max.Y, min.Z) };
-                        for (var k = 0; k < 4; k++) loop.Append(Line.CreateBound(c[k], c[(k + 1) % 4]));
+                        // profile: optional plan outline [{x,y},...] in mm, extruded from min.z to max.z (e.g. a mitred
+                        // plinth rail, a trapezoid); min/max x,y are then ignored.
+                        if (o["profile"] is JsonArray prof && prof.Count >= 3)
+                            c = prof.Select(n => { var q = ToPoint(n); return new XYZ(q.X, q.Y, min.Z); }).ToArray();
+                        for (var k = 0; k < c.Length; k++) loop.Append(Line.CreateBound(c[k], c[(k + 1) % c.Length]));
                         var profile = new CurveArrArray();
                         profile.Append(loop);
                         var plane = SketchPlane.Create(familyDoc, Plane.CreateByNormalAndOrigin(XYZ.BasisZ, new XYZ(0, 0, min.Z)));

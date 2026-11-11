@@ -17,7 +17,13 @@
 // "<family>-S Inside"; they meet on the same 45 degree mitre as a site joint. Each new pair is placed exactly where the old
 // instance was (measured with rays), marks get -F / -S, and the old instance is deleted.
 //
+// --material <regex>: the finish to treat as painted when its name does not say so (e.g. "Skirting Black").
+// --frame <regex> [--rail 30]: a skirting/plinth modelled as one solid block of that material is rebuilt as a frame of
+//   four rails (front, back, sides; rail thick, the block's height) whose outside corners are then mitred: how a
+//   carpenter makes a plinth (user, 11 Nov 2026, Madina 2 plinths).
+//
 // usage: node tools/mitre_painted.mjs --doc <title> --family <text in family name> --save-dir <folder for the .rfa> [--dry] [--split]
+//        [--material <regex>] [--frame <regex> --rail <mm>]
 import { call } from "./rvt.mjs";
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i < 0 ? d : process.argv[i + 1]; };
@@ -26,7 +32,9 @@ if (!DOC || !FAM || (!DIR && !DRY)) { console.error("usage: --doc <title> --fami
 const D = { document: DOC }, TOL = 0.6, OFF = { x: 300000, y: 300000, z: 0 };
 const PAINT_RE = /paint|\bRAL\b|lacquer/i;   // painted finishes only; EGGER U/H/F codes are laminate, not paint
 const METAL = /steel|metal|alumin|iron|brass|stainless/i;   // welded and ground, not glued: the rule is for wood and MDF
-const PAINT = { test: (m) => PAINT_RE.test(m) && !METAL.test(m) };
+const MAT_RE = arg("material") ? new RegExp(arg("material"), "i") : null;
+const FRAME_RE = arg("frame") ? new RegExp(arg("frame"), "i") : null, RAIL = Number(arg("rail", 30));
+const PAINT = { test: (m) => (PAINT_RE.test(m) || (MAT_RE && MAT_RE.test(m))) && !METAL.test(m) };
 const AX = ["x", "y", "z"];
 const eq = (a, b) => Math.abs(a - b) < TOL;
 const TEMPLATES = {
@@ -66,7 +74,20 @@ for (const [family, insts] of fams) {
   let inf; try { inf = await call("inspect_family", { ...D, element_id: ref.id }); } catch { continue; }
   const solids = inf.items.filter((i) => i.material && /Extrusion|FreeForm|Blend|Sweep|Revolution/.test(i.class));
   if (solids.some((i) => /Blend|Sweep|Revolution/.test(i.class))) { console.log(`SKIP ${family}: has sweeps/revolves/blends, not a flat-board family`); continue; }
-  const B = solids.map((i, k) => ({ k, mat: i.material, lo: { ...i.min }, hi: { ...i.max }, cuts: [] }));
+  const B0 = solids.map((i) => ({ lo: { ...i.min }, hi: { ...i.max } }));      // as it stands, for the guard
+  let B = solids.map((i) => ({ mat: i.material, lo: { ...i.min }, hi: { ...i.max }, cuts: [] }));
+  if (FRAME_RE) {                                   // solid skirting block -> four rails
+    let nf = 0;
+    B = B.flatMap((b) => {
+      const dx = b.hi.x - b.lo.x, dy = b.hi.y - b.lo.y, dz = b.hi.z - b.lo.z;
+      if (!FRAME_RE.test(b.mat) || dz > 150 || dx < 3 * RAIL || dy < 3 * RAIL || Math.min(dx, dy) <= dz) return [b];
+      nf++;
+      const r = (lo, hi) => ({ mat: b.mat, lo: { ...b.lo, ...lo }, hi: { ...b.hi, ...hi }, cuts: [] });
+      return [r({}, { y: b.lo.y + RAIL }), r({ y: b.hi.y - RAIL }, {}), r({}, { x: b.lo.x + RAIL }), r({ x: b.hi.x - RAIL }, {})].map((x) => ({ ...x, framed: true }));
+    });
+    if (nf) console.log(`${family}: ${nf} solid skirting block(s) made into ${RAIL} mm rail frames`);
+  }
+  B.forEach((b, k) => { b.k = k; });
   for (const b of B) { const d = AX.map((a) => b.hi[a] - b.lo[a]); b.thin = AX[d.indexOf(Math.min(...d))]; b.t = Math.min(...d); b.lo0 = { ...b.lo }; b.hi0 = { ...b.hi }; }
   const done = new Set(); let n = 0;
   for (const A of B) for (const Bb of B) {
@@ -95,7 +116,7 @@ for (const [family, insts] of fams) {
   // Guard: the boards are read as bounding boxes, so prove they ARE boxes before touching the family. One instance is
   // fitted with rays (also near the board edges) against the boxes as they stand (before the mitre); a curved part such
   // as an arch lunette does not fit and the family is refused.
-  const boxSols = B.map((b) => ({ profile: [[b.lo0.x, b.lo0.y], [b.hi0.x, b.lo0.y], [b.hi0.x, b.hi0.y], [b.lo0.x, b.hi0.y]].map(([x, y]) => ({ x, y, z: b.lo0.z })), direction: { x: 0, y: 0, z: 1 }, length_mm: b.hi0.z - b.lo0.z }));
+  const boxSols = B0.map((b) => ({ profile: [[b.lo.x, b.lo.y], [b.hi.x, b.lo.y], [b.hi.x, b.hi.y], [b.lo.x, b.hi.y]].map(([x, y]) => ({ x, y, z: b.lo.z })), direction: { x: 0, y: 0, z: 1 }, length_mm: b.hi.z - b.lo.z }));
   const chk = await fitInstance(ref, boxSols, true);
   if (!chk) { console.log(`SKIP ${family}: rays cannot see an instance (hidden in {3D}); check by hand`); continue; }
   if (chk.res > 1) { console.log(`SKIP ${family}: not flat boards (fit off by ${chk.res.toFixed(1)} mm, curved or shaped parts); mitre by hand`); continue; }
@@ -132,29 +153,26 @@ for (const [family, insts] of fams) {
 
   // ---- 4. reload the family, put every instance back -----------------------------------------------------------------
   // A reload through make_unit_family can move the family origin (a different template, e.g. Generic Model -> Casework,
-  // shifts it 44.7 mm along local x) and inspect_family does not show it. So each instance is measured in the model with
-  // rays through the centre of its largest board, before and after, and moved back by the drift.
-  const big = B.reduce((a, b) => (vol(b) > vol(a) ? b : a));
+  // shifts it 44.7 mm along local x) and inspect_family does not show it. Each instance is fitted with rays to its OLD
+  // boards before the reload (as placed or mirrored), then to its NEW boards after, and moved by the true difference.
+  // (Measuring the same ray before and after is wrong when the ray crosses a changed part: the middle of a skirting
+  // block that became a hollow frame read as a 50 mm drop on Madina 2 OSB-1/2, 11 Nov 2026.)
+  const NEW_SOLS = B.flatMap((b) => b.sol);
   const pre = new Map();
-  for (const e of insts) pre.set(e.id, await measure(e, big));
-  const before = solidMin(inf.items);
+  for (const e of insts) { const f0 = await fitInstance(e, boxSols); pre.set(e.id, f0 && f0.res <= 1 ? f0.T : null); }
   const cat = ref.category;
   const ds = (await call("create_direct_shape", { ...D, category: cat === "Casework" ? "OST_Casework" : cat === "Furniture" ? "OST_Furniture" : "OST_GenericModel", name: family, solids: S })).id;
   const r = await call("make_unit_family", { ...D, template_path: TEMPLATES[cat] ?? TEMPLATES["Generic Models"], family_name: family, save_dir: DIR, level_id: lv, mark: "TEMP-MITRE", element_ids: [ds] });
   if (!insts.some((e) => e.id === r.id)) await call("delete_elements", { ...D, element_ids: [r.id] });
-  const after = solidMin((await call("inspect_family", { ...D, element_id: ref.id })).items);
-  const dl = { x: after.x - before.x, y: after.y - before.y, z: after.z - before.z };
   for (const e of insts) {
-    const m0 = pre.get(e.id), m1 = m0 ? await remeasure(e.id, m0) : null;
-    let mv;
-    if (m0 && m1) mv = Object.fromEntries(AX.map((a) => [a, -(m1[a] - m0[a].lo)]));
-    else {
-      const th = ((e.location?.rotation_deg ?? 0) * Math.PI) / 180;
-      mv = { x: -(dl.x * Math.cos(th) - dl.y * Math.sin(th)), y: -(dl.x * Math.sin(th) + dl.y * Math.cos(th)), z: -dl.z };
-      console.log(`  VERIFY ${e.id}: rays could not see it (hidden in {3D}?); moved by the family coordinates only`);
-    }
-    if (Math.abs(mv.x) + Math.abs(mv.y) + Math.abs(mv.z) > 0.05) await call("move_elements", { ...D, element_ids: [e.id], dx_mm: mv.x, dy_mm: mv.y, dz_mm: mv.z });
-    console.log(`  ${e.id}: moved back ${AX.map((a) => mv[a].toFixed(1)).join(",")}`);
+    const T = pre.get(e.id);
+    if (!T) { console.log(`  VERIFY ${e.id}: rays could not see it (hidden in {3D}?); check its place by hand`); continue; }
+    const want = xform(NEW_SOLS, T), f1 = await fitToSolids(e.id, want);
+    if (!f1) { console.log(`  VERIFY ${e.id}: rays could not see it after the reload`); continue; }
+    if (AX.some((a) => Math.abs(f1.drift[a]) > 0.05)) await call("move_elements", { ...D, element_ids: [e.id], dx_mm: -f1.drift.x, dy_mm: -f1.drift.y, dz_mm: -f1.drift.z });
+    const f2 = await fitToSolids(e.id, want);
+    const ok = f2 && AX.every((a) => Math.abs(f2.drift[a]) < 0.2) && f2.res < 0.5;
+    console.log(`  ${e.id}: ${ok ? "in place" : "VERIFY placement"} (moved ${AX.map((a) => (-f1.drift[a]).toFixed(1)).join(",")})`);
   }
   console.log(`${family}: rebuilt with ${n} mitre(s), ${S.length} solids; ${insts.length} instance(s) checked in place`);
 }

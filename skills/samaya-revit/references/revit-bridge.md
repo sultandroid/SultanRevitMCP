@@ -320,3 +320,5 @@ The Claude app is an MSIX package: files its shells write under %LOCALAPPDATA% g
 ## Sheet sets for export
 
 `save_sheet_set` saves a named sheet set (Print / Export PDF / DWG > Selected views/sheets). `tools/sheet_sets.mjs <model>` makes `<CODE> 00 ALL`, one set per Sheet Package and one per fabrication item group; run it after `sheet_groups.mjs`.
+
+- **reload_handlers did not take a new build (11 Nov 2026).** In Revit pid 18940 the loader kept loading `handlers\20261111-073716` after newer builds (`074519`, `074648`, a fresh copied folder) were built, with or without the shell sandbox, although `NewestBuild()` in `loader/HandlerHost.cs` sorts folder names newest first. The installed loader DLL (4 Nov) may not match the repo source. Until this is found, a handler change (e.g. `edit_family_solids` `profile`) is only live after a Revit restart; agree it with any other session using that Revit first. Check with `handlers_info` after every install: the `version` must be the folder just built.
