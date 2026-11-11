@@ -184,8 +184,10 @@ function toWorld(e, p) {                       // approximate: location + rotati
   return { x: L.x + p.x * Math.cos(th) - p.y * Math.sin(th), y: L.y + p.x * Math.sin(th) + p.y * Math.cos(th), z: L.z + p.z };
 }
 async function hitsAlong(id, o, a) {           // first and last hit on element id along world axis a through point o
+  // 6 m either side, up to 300 hits: a long ray through a crowded run used to run out of hits (limit 50) before the
+  // far face of a long board (Madina 2 LF-D-2, 11 Nov 2026)
   const origin = { ...o, [a]: o[a] - 6000 }, dir = { x: 0, y: 0, z: 0, [a]: 1 };
-  const r = await call("probe_ray", { ...D, origin, direction: dir, max_distance_mm: 12000, limit: 50, target: "family" });
+  const r = await call("probe_ray", { ...D, origin, direction: dir, max_distance_mm: 12000, limit: 300, target: "family" });
   const h = r.hits.filter((x) => x.element_id === id).map((x) => x.point[a]);
   return h.length ? { lo: Math.min(...h), hi: Math.max(...h) } : null;
 }
@@ -271,7 +273,10 @@ async function fitToSolids(id, sols, dense = false) {   // drift of instance id 
       vals[a].push(h.lo - ex.lo, h.hi - ex.hi);
     }
     if (!AX.some((a) => vals[a].length)) return null;
-    const nd = Object.fromEntries(AX.map((a) => { const v = vals[a].slice().sort((p, q) => p - q); return [a, v.length ? v[Math.floor(v.length / 2)] : drift[a]]; }));
+    // the drift most rays agree on (within 0.5 mm); a tie goes to the smaller move. Not the median: on a mitred board
+    // half the rays land on the 45 degree line (half the board thickness in) and the median picked that (LF-A, 9 mm).
+    const mode = (v, d0) => { if (!v.length) return d0; let best = v[0], bc = -1; for (const c of v) { const k = v.filter((x) => Math.abs(x - c) < 0.5).length; if (k > bc || (k === bc && Math.abs(c) < Math.abs(best))) { best = c; bc = k; } } return best; };
+    const nd = Object.fromEntries(AX.map((a) => [a, mode(vals[a], drift[a])]));
     res = Math.max(...AX.flatMap((a) => vals[a].map((v) => Math.abs(v - nd[a]))));
     if (dense && miss) res = Math.max(res, 999);   // a ray through a board that hits nothing: a hole, notch or curve
     const moved = AX.some((a) => Math.abs(nd[a] - drift[a]) > 0.05); drift = nd;
