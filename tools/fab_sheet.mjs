@@ -34,7 +34,7 @@ if (oldS.length) await call("delete_elements", { element_ids: oldS }).catch((e) 
 if (stale.length) await call("delete_elements", { element_ids: stale }).catch((e) => console.log("del views", e.message.slice(0, 100)));
 
 // The drawn unit and its parts (family solids) in world coordinates.
-const byMark = async (mark) => { for (const c of ["OST_Casework", "OST_GenericModel", "OST_Furniture"]) { const q = (await call("query_elements", { category: c, parameter_name: "Mark", parameter_value: mark, limit: 20 })).elements; for (const e of q) { const g = await call("get_element", { element_id: e.id }); if (g.parameters.find((p) => p.name === "Mark")?.value === mark) return g; } } return null; };
+const byMark = async (mark) => { for (const c of ["OST_Casework", "OST_GenericModel", "OST_Furniture", "OST_SpecialityEquipment"]) { const q = (await call("query_elements", { category: c, parameter_name: "Mark", parameter_value: mark, limit: 20 })).elements; for (const e of q) { const g = await call("get_element", { element_id: e.id }); if (g.parameters.find((p) => p.name === "Mark")?.value === mark) return g; } } return null; };
 const g = await byMark(t.ref); if (!g) throw new Error("no unit with mark " + t.ref);
 const id = g.id;
 const fam = await call("inspect_family", { element_id: id });
@@ -229,7 +229,7 @@ const sheet = (await call("create_sheet", { number: SN, name: t.title, title_blo
 await setv(sheet, "Sheet Group", t.group);
 const tbi = (await call("query_elements", { category: "OST_TitleBlocks", view_id: sheet, limit: 5 })).elements[0]?.id;
 for (const [n, v] of C.signoff) { await setv(sheet, n, v); if (tbi) await setv(tbi, n, v); }
-await call("set_sheet_revisions", { sheet_ids: [sheet], revision_ids: C.revisions });
+await call("set_sheet_revisions", { sheet_ids: [sheet], revision_ids: t.revisions ?? C.revisions }); // t.revisions: the revisions this sheet carries when they differ from the set default
 const wF = W / s, hF = H / s, wS = D / s, hP = PH / s, wA = (dy + 2 * M) / s, wB = W / s, hC = (zb - za) / s;
 // The Top View of a side unit is drawn north-up (its crop cannot be turned), so on paper it is as tall as the unit is long:
 // size it from the world box, or it runs up into the front elevation (counter D-02, Makkah Rev 07). Details keep their own row.

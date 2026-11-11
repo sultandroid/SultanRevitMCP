@@ -87,7 +87,8 @@ if (DRY) process.exit(0);
 
 // 2. Sheet: the table across the drawing area (5 mm text, 5.5 mm bold headings), in two blocks when it is long.
 const old = (await call("query_elements", { category: "OST_Sheets", parameter_name: "Sheet Number", parameter_value: SN, limit: 5 })).elements.map((e) => e.id).concat((await call("query_elements", { category: "OST_Sheets", parameter_name: "Sheet Number", parameter_value: SN + "A", limit: 5 })).elements.map((e) => e.id));
-if (old.length) await call("delete_elements", { element_ids: old }).catch(() => {});
+// the search matches A-1200 inside A-1200A, so an id can come twice: delete each sheet once, on its own
+for (const oid of new Set(old)) await call("delete_elements", { element_ids: [oid] }).catch((e) => console.log("old sheet", oid, e.message.slice(0, 80)));
 const stale = (await call("list_views", {})).views.filter((x) => x.name === `KP-${NO}` || x.name === `KP-${NO}A`).map((x) => x.id);
 if (stale.length) await call("delete_elements", { element_ids: stale }).catch(() => {});
 const note = (await call("ensure_text_type", { name: "Sheet Note 5", size_mm: 5, color: { r: 0, g: 0, b: 0 } })).id;

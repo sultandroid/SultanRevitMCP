@@ -238,6 +238,24 @@
       ],
       "cnc": false,
       "note": "Front filler between the front pier\nand arch AW-A, same as the other\nfillers: EGGER U775 ST9 White Grey 20,\nface 100 behind the arch fronts,\n50 return at the pier end.\nSoftwood battens 20 x 40 on the AW-A\nend panel, bracketed to the pier.\nScribe to wall, floor and pier on site."
+    },
+    "D-02": {
+      "no": 2502,
+      "title": "Cashier Counter D-02",
+      "group": "2 Fab: Furniture",
+      "ref": "D-02",
+      "with": [
+        "D-02-F"
+      ],
+      "marks": [
+        "D-02"
+      ],
+      "revisions": [
+        740290,
+        1291619,
+        1409036
+      ],
+      "note": "Made as 2 units (user, 11 Nov 2026):\nD-02 cashier counter 700 x 1200, top +1.000,\nTuscany travertine 20 top, plinth 100,\nearth plaster finish, POS by others.\nD-02-F display fridge 700 x 900 beside it,\nfridge by others on a painted plinth\nwith vent grille; fixed to D-02 on site.\nPower and drain by MEP."
     }
   },
   "sections": {
@@ -342,7 +360,8 @@
     },
     "reach": 1400,
     "revisions": [
-      1270447
+      1270447,
+      1409036
     ]
   }
 }
