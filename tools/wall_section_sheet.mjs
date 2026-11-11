@@ -110,6 +110,7 @@ await dim(vS, lv.map((z) => W(u0 - 250, cut, z)));
 await dim(vS, [W(u1 + 180, cut, 0), W(u1 + 180, cut, setTop)], true);
 // Marks over the units, in up to 3 rows so they do not run into each other (5 mm text: about 3.1 mm a character).
 const note = (await call("ensure_text_type", { name: "Sheet Note 5", size_mm: 5, color: { r: 0, g: 0, b: 0 } })).id;
+const red = (await call("ensure_text_type", { name: "Sheet Note 5 Red", size_mm: 5, color: { r: 220, g: 0, b: 0 } })).id;
 const bold = (await call("ensure_text_type", { name: "Sheet Heading 5.5", size_mm: 5.5, color: { r: 0, g: 0, b: 0 }, bold: true })).id;
 for (const B of bays) {
   const mk = [...new Set(B.units.sort((a, b) => b.zb - a.zb).map((U) => U.mark))], cu = (B.ua + B.ub) / 2;
@@ -215,15 +216,22 @@ if (C.materialPhotos?.length) {
   const famMats = new Map(), used = new Set();
   for (const U of list) { const fam = U.name; if (!famMats.has(fam)) famMats.set(fam, [...new Set((await call("inspect_family", { element_id: U.id })).items.filter((i) => i.material).map((i) => i.material))]); famMats.get(fam).forEach((m) => used.add(m)); }
   const photos = C.materialPhotos.filter((p) => [...used].some((m) => new RegExp(p.match, "i").test(m)));
+  // paint (user: "and paint code and color"): config.paints = [{ match, code, name, rgb: [r,g,b] | null }] -> a solid swatch
+  // on the sheet (create_swatch), labelled with the code and colour name; no approved code: red "code to confirm"
+  for (const pt of C.paints ?? []) {
+    if (![...used].some((m) => new RegExp(pt.match, "i").test(m))) continue;
+    photos.push({ file: null, rgb: pt.rgb, label: pt.code ? `${pt.code}\n${pt.name}` : `${pt.name}\nto confirm`, red: !pt.code });
+  }
   const yP0 = yN - (noteTxt.split("\n").length + 1) * 7.8 - 8;
   if (photos.length) {
-    await txt(NOTES, yP0, "FINISH MATERIALS (APPROVED SAMPLES)", bold);
+    await txt(NOTES, yP0, "FINISH MATERIALS AND PAINT (APPROVED)", bold);
     const PW = 44, GAP = 5;
     for (const [k, p] of photos.entries()) {
       const cx = NOTES + PW / 2 + (k % 4) * (PW + GAP), cy = yP0 - 14 - PW / 2 - Math.floor(k / 4) * (PW + 22);
       if (p.file) await call("place_image", { view_id: sheet, path: p.file, center: P(cx, cy), width_mm: PW, height_mm: PW }).catch((e) => console.log("photo", p.label, e.message.slice(0, 90)));
-      else await txt(cx - PW / 2 + 2, cy + 6, "photo\nto follow");
-      await txt(cx - PW / 2, cy - PW / 2 - 3, p.label);
+      else if (p.rgb) await call("create_swatch", { view_id: sheet, min: P(cx - PW / 2, cy - PW / 2), max: P(cx + PW / 2, cy + PW / 2), color: { r: p.rgb[0], g: p.rgb[1], b: p.rgb[2] } }).catch((e) => console.log("swatch", e.message.slice(0, 80)));
+      else await txt(cx - PW / 2 + 2, cy + 6, p.red ? "colour\nto confirm" : "photo\nto follow", p.red ? red : note);
+      await txt(cx - PW / 2, cy - PW / 2 - 3, p.label, p.red ? red : note);
     }
   }
 }

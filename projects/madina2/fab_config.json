@@ -315,5 +315,19 @@
       "file": null,
       "label": "Tuscany\ntravertine 20"
     }
+  ],
+  "paints": [
+    {
+      "match": "Gypsum Board Light Grey Paint",
+      "code": null,
+      "name": "Light grey\npaint",
+      "rgb": null
+    },
+    {
+      "match": "FR MDF Painted RAL",
+      "code": null,
+      "name": "Arch paint\nFR MDF",
+      "rgb": null
+    }
   ]
 }
