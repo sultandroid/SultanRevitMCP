@@ -55,26 +55,16 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 
 ## Pegboard and cable management
 
-### Factory pegboard system (the Madina 1 standard)
+### Factory pegboard system (standard from 11 Nov 2026)
 
-Every open shelf unit with a pegboard back is built this way unless the user says otherwise. Model it with `tools/pegboard_system.mjs` (geometry only: it returns the parts as `create_direct_shape` solids for any unit size, then `make_unit_family`). First used on Madina 1 (typical arch, `projects/madina1/scripts/m_keel.mjs`, sheets A-2102 to A-2104), then Makkah (units OS-A/B/C).
+Every open shelf unit with a pegboard back is built this way unless the user says otherwise (user, 11 Nov 2026; replaces the Madina 1 steel-plate and lit-peg system). Model it with `tools/pegboard_system.mjs` (geometry only: it returns the parts as `create_direct_shape` solids for any unit size, then `make_unit_family`). First applied to Madina 2 OS-A..E.
 
-| Layer, from the back of the unit | Thickness | Notes |
-|---|---|---|
-| Rear steel plate | 2 | 2 halves, 5 mm gap at the centre |
-| Space | 30 | wiring |
-| Front steel plate | 2 | 2 halves, on the back of the wood board |
-| FR MDF | 18 | pegboard core |
-| EGGER face | 8 | approved decor; board total 60 from the back |
-
-- The wood pegboard (FR MDF + EGGER, 26) is **one piece**, drilled together with the plates: Ø21 holes at 50 mm pitch, grid centred across the board (columns ±25, ±75, ...), at least 45 mm solid border.
-- 2 mm steel angles fixed to the sides carry the plates. No softwood stops.
-- Removable lower panel under the pegboard, same 26 build-up, about 140 high, 3 rows of vent holes: access to the wiring.
-- Shelves sit on hole rows, at fixed positions (350 apart on Madina 1 and Makkah). Each shelf is double EGGER 18 (36) with a PVC 2 mm front edge and the LED in a 12 x 10 groove 15 mm behind the front.
-- Pegs are hardwood: Ø25 under the shelf, 360 long, top seated 9 mm into the shelf; Ø20 shank through the board to the rear plate. 4 per shelf, on hole columns (two near the centre, two near the sides).
-- Lit shelves take power through the pegs: the split plates are the two low-voltage poles, with brass strips on the live pegs and in the shelf grooves. Needs an electrical engineer's review and a tested sample.
-- Assembly order (as on the Madina 1 exploded view): frame and steel angles, rear plates, driver and wiring, front plates on the wood board, wood pegboard and lower panel, pegs, shelves.
-- The fabrication sheet shows a plan detail at the side (side, angle, plates, space, board) and the exploded view.
+- **Pegboard = FR MDF 18 + EGGER 8 face in the project colour** (26), one piece, **decorative only**: Ø21 holes at 50 pitch, grid centred, plain border with **no holes within 100 mm of any edge** (to the hole edge). The holes may take small accessories; nothing structural hangs on them.
+- **No steel**: no plates, no angles, no wiring space, no shelf pegs through the board.
+- **Shelves are carried from the sides**: two EGGER 18 side panels (project shelf decor), from the back of the board to the shelf front, full height, **inside the clear opening** (measure the opening in the model; behind an arch the board may run on behind the linings, the sides may not). **Ø5 shelf pins, System 32**: two hole rows 37 from the front and 37 from the board face, 32 pitch, 4 pins per shelf, shelves 1 mm clear of each side.
+- Shelves: double 18 EGGER (36), PVC 2 front edge, LED in a 12 x 10 groove 15 behind the front. Keep the designer's front shape (curved fronts stay curved; move the ends, never stretch the curve).
+- Lower panel under the pegboard: same 26 build-up, plain.
+- A big pegboard with many holes can exceed Revit's edge limit in one family ("too many edges"): split it into a pegboard family (board + sides) and a shelf family (shelves + pins), placed together.
 
 ### Metal pegboard and general rules
 
