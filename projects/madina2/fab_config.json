@@ -239,5 +239,47 @@
       "cnc": false,
       "note": "Front filler between the front pier\nand arch AW-A, same as the other\nfillers: EGGER U775 ST9 White Grey 20,\nface 100 behind the arch fronts,\n50 return at the pier end.\nSoftwood battens 20 x 40 on the AW-A\nend panel, bracketed to the pier.\nScribe to wall, floor and pier on site."
     }
+  },
+  "sections": {
+    "W": {
+      "no": 1201,
+      "title": "West Wall Section",
+      "group": "2 Fab: 0 Wall Sections",
+      "wall": "-x",
+      "face": 280,
+      "from": 160,
+      "to": 5660,
+      "reach": 760
+    },
+    "R": {
+      "no": 1202,
+      "title": "Rear Wall Section",
+      "group": "2 Fab: 0 Wall Sections",
+      "wall": "+y",
+      "face": 5660,
+      "from": 280,
+      "to": 6360,
+      "reach": 840
+    },
+    "E": {
+      "no": 1203,
+      "title": "East Wall Section",
+      "group": "2 Fab: 0 Wall Sections",
+      "wall": "+x",
+      "face": 6360,
+      "from": 160,
+      "to": 5660,
+      "reach": 760
+    },
+    "F": {
+      "no": 1204,
+      "title": "Front Wall Section",
+      "group": "2 Fab: 0 Wall Sections",
+      "wall": "-y",
+      "face": 190,
+      "from": 280,
+      "to": 6360,
+      "reach": 700
+    }
   }
 }

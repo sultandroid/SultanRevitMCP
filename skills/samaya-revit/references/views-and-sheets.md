@@ -144,6 +144,10 @@ Every fit-out set includes joinery shop drawings in the A-700 series:
 - List each unit's mark and exact size on its type sheet, because built sizes differ slightly.
 - A quantity schedule of all units, and a material legend with colour swatches, finish names and codes, and where each is used.
 
+## Carpentry sheets go by section first (user, Madina 2, 11 Nov 2026)
+
+**Each carpentry sheet set starts with sections, not items:** one sheet per wall section (west, rear, east, front, free-standing), showing the whole run as built with every unit on it and the complete measurements: unit widths chained wall to wall, the levels (floor, plinth, counter, springing, soffit, top, ceiling) and the depths in a plan strip under it. Every unit is named by its mark, with the sheet of its details. The item sheets (layout guide below) come after, only as details where an item needs them. Tool:  with a  block in the project fab config (Madina 2: A-1201 to A-1204, group "2 Fab: 0 Wall Sections").
+
 ## Fabrication sheet layout guide
 
 Use this on every fabrication sheet, every time. Do not start from an older sheet. An old sheet in the model is replaced, not patched.

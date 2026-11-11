@@ -213,7 +213,14 @@
   "witness_gap_mm": 3,
   "witness_extension_mm": 3,
   "string_spacing_mm": 12,
-  "min_segment_mm": 60
+  "min_segment_mm": 60,
+  "overall": {
+   "type": "Samaya ISO 129-1 Blue 7mm Overall",
+   "text_mm": 7,
+   "bold": true,
+   "line_weight": 5,
+   "use": "overall width, height and depth of a set: the boundary dimensions on wall section sheets (user, Madina 2, 11 Nov 2026)"
+  }
  },
  "scales": {
   "iso_5455": [
