@@ -10,13 +10,14 @@
 // ray fit (the Casework template lands 44.7 mm off). Replaces an older piece of the same mark (--replace).
 //
 // usage: node tools/arch_head_marble.mjs --doc <title> --ids <F id>,... --save-dir <folder> [--thick 20] [--soffit]
-//        [--replace] [--ignore <regex of items fixed under the soffit>] [--material "Marble Tuscany Travertine 20 Approved"] [--arch "Arch Unit"] [--dry]
+//        [--replace] [--round <bird's-nose radius>] [--ignore <regex of items fixed under the soffit>] [--material "Marble Tuscany Travertine 20 Approved"] [--arch "Arch Unit"] [--dry]
 import { call } from "./rvt.mjs";
 import { setDoc, AX, fitToSolids } from "./fitlib.mjs";
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i < 0 ? d : process.argv[i + 1]; };
 const DOC = arg("doc"), IDS = (arg("ids") || "").split(",").filter(Boolean).map(Number), DIR = arg("save-dir");
 const T = Number(arg("thick", 20)), SOFFIT = process.argv.includes("--soffit"), REPLACE = process.argv.includes("--replace");
+const RND = Number(arg("round", 0));   // bird's-nose: round the outer corner of the L with this radius (mm)
 const IGN = arg("ignore") ? new RegExp(arg("ignore")) : null;   // items fixed UNDER the soffit, to be re-fixed to the stone (reported)
 const MAT = arg("material", `Marble Tuscany Travertine ${T} Approved`), ARCH = new RegExp(arg("arch", "Arch Unit")), DRY = process.argv.includes("--dry");
 setDoc(DOC);
@@ -77,13 +78,21 @@ for (const id of IDS) {
       if (h && (nStop === null || Math.abs(h.point[n] - nOut) < Math.abs(nStop - nOut))) nStop = h.point[n];
     }
     if (nStop === null) { console.log(`SKIP ${mark}: nothing found behind the soffit`); continue; }
-    // face mitre wedge: (n,z) triangle O=(nOut+sT, zb-T), (nOut+sT, zb), I=(nOut, zb)
-    sol.push(prW([[nOut + s * T, zb - T], [nOut + s * T, zb], [nOut, zb]], em[0], em[1]));
-    // soffit wedge: I=(nOut, zb), (nOut, zb-T), O=(nOut+sT, zb-T)
-    sol.push(prW([[nOut, zb], [nOut, zb - T], [nOut + s * T, zb - T]], em[0], em[1]));
+    // the corner, in (u = out from the panel face, v = up from the soffit underside): outer O=(T,-T), inner I=(0,0).
+    // Mitre on the diagonal I-O. Bird's nose (--round R): the outer corner is a quarter round R centred on the
+    // diagonal at (T-R, -T+R); the joint runs from I to the middle of that round, so each piece keeps half of it.
+    const UV = ([u, v]) => [nOut + s * u, zb + v];
+    let faceW, soffW;
+    if (RND > 0) {
+      const R = Math.min(RND, T), cu = T - R, cv = -T + R, arc = (a0, a1, k = 6) => Array.from({ length: k + 1 }, (_, i) => { const a = a0 + ((a1 - a0) * i) / k; return [cu + R * Math.cos(a), cv + R * Math.sin(a)]; });
+      faceW = [[T, 0], ...arc(0, -Math.PI / 4), [0, 0]];                 // (T,0) down the face, round to the middle, back to I
+      soffW = [[0, 0], ...arc(-Math.PI / 4, -Math.PI / 2), [0, -T]];      // I, middle of the round, round to the underside, (0,-T)
+    } else { faceW = [[T, -T], [T, 0], [0, 0]]; soffW = [[0, 0], [0, -T], [T, -T]]; }
+    sol.push(prW(faceW.map(UV), em[0], em[1]));
+    sol.push(prW(soffW.map(UV), em[0], em[1]));
     // soffit body from the panel face back to nStop, (w,z) ends cut to the arch line over the thickness
     sol.push(prN([[eB[0], zb - T], [eB[1], zb - T], [eT[1], zb], [eT[0], zb]], nOut, nStop));
-    soffitTxt = `; soffit ${Math.round(Math.abs(nStop - nOut) + T)} deep x ${Math.round(eB[1] - eB[0])} wide, mitred 45 to the face${clash.size ? `; CLASH: ${[...clash].join(", ")} is fixed under the soffit, must drop ${T} mm` : ""}`;
+    soffitTxt = `; soffit ${Math.round(Math.abs(nStop - nOut) + T)} deep x ${Math.round(eB[1] - eB[0])} wide, mitred 45 to the face${RND > 0 ? `, bird's-nose R${Math.min(RND, T)} on the outer corner` : ""}${clash.size ? `; CLASH: ${[...clash].join(", ")} is fixed under the soffit, must drop ${T} mm` : ""}`;
   }
   console.log(`${mark}: ${T} mm ${SOFFIT ? "L" : "face"} on the ${n}${s > 0 ? "+" : "-"} side at ${n} ${nOut.toFixed(1)}; face ${Math.round(rows[0][2] - rows[0][1])} wide x ${Math.round(Math.max(...top.map((p) => p[1])) - zb + (SOFFIT ? T : 0))} tall${soffitTxt}`);
   if (DRY) continue;
@@ -97,7 +106,7 @@ for (const id of IDS) {
   const f1 = await fitToSolids(r.id, sol);
   if (f1 && AX.some((a) => Math.abs(f1.drift[a]) > 0.05)) await call("move_elements", { ...D, element_ids: [r.id], dx_mm: -f1.drift.x, dy_mm: -f1.drift.y, dz_mm: -f1.drift.z });
   const f2 = await fitToSolids(r.id, sol), ok = f2 && AX.every((a) => Math.abs(f2.drift[a]) < 0.2);
-  await call("set_parameter", { ...D, element_id: r.id, parameter_name: "Comments", value: `${T} mm Tuscany travertine (design MR 01) ${SOFFIT ? "L: face on " + mark + "-F and soffit under " + mark + "-S, 45 degree mitre at the outer bottom corner" : "face on " + mark + "-F"}, cut to the arch line; sign letters fixed on it as per design (user, 11 Nov 2026)` });
+  await call("set_parameter", { ...D, element_id: r.id, parameter_name: "Comments", value: `${T} mm Tuscany travertine (design MR 01) ${SOFFIT ? "L: face on " + mark + "-F and soffit under " + mark + "-S, 45 degree mitre at the outer bottom corner" + (RND > 0 ? ", bird's-nose R" + Math.min(RND, T) + " on the outer corner" : "") : "face on " + mark + "-F"}, cut to the arch line; sign letters fixed on it as per design (user, 11 Nov 2026)` });
   for (const p of ["SF_Maturity", "SF_PhaseStatus"]) { const v = e.parameters.find((x) => x.name === p)?.value; if (v) await call("set_parameter", { ...D, element_id: r.id, parameter_name: p, value: v }).catch(() => {}); }
   console.log(`  ${fam}: ${r.id} ${ok ? "in place" : "VERIFY placement"}`);
 }
