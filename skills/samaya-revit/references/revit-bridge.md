@@ -311,6 +311,8 @@ The Claude app is an MSIX package: files its shells write under %LOCALAPPDATA% g
 
 **Federated model (Makkah, 10 Nov 2026):** `Rvt/FED/<Project>_FED.rvt`, made with `create_project` from `template/Samaya Factory.rte`, links EXT, ARCH, MECH and ELEC origin to origin with backslash paths (`scratchpad mak/fed_build.mjs` pattern). A model that is open in the same Revit cannot be linked ("Revit created no usable link type"): save and close it there first. ARCH also links the other models, so set those links to Overlay in ARCH if nested copies show twice in the federated model.
 
+**PDF export of wall elevations full of pegboard holes can crash Revit (Makkah A-2111, 11 Nov 2026):** three 1:15 wall sections with every pegboard hole drawn hung `export_sheets_pdf` past the 280 s client timeout and then took Revit down, twice. `export_view_image` of the same sheet works. Before exporting such a sheet, set those views to Detail Level Medium (or hide the pegboard holes), and never retry a PDF export that has already hung once.
+
 **`rotate_elements`** (10 Nov 2026): turns elements about a vertical axis, each about its own point or about `center`. Use it to turn a placed device (a DB, a panel) instead of placing a new turned copy, which would lose its circuits.
 
 **Measure existing structure by rays, not by bounding box (Makkah FS-1, 10 Nov 2026).** The EXT "Front Pier" box was 1310 wide because it took in the lintels; rays along its shop face (`probe_ray`, 25 mm steps, then halving to the edge) gave the real column, 721. Size joinery to the measured face.
