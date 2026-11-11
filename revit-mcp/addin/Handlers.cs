@@ -2806,10 +2806,12 @@ namespace RevitMcp
             var files = new JsonArray();
             foreach (var id in ids)
             {
-                var sheet = doc.GetElement(id) as ViewSheet ?? throw new ArgumentException($"{id} is not a sheet.");
-                var name = string.Join("_", $"{sheet.SheetNumber} {sheet.Name}".Split(Path.GetInvalidFileNameChars()));
+                // a sheet exports on paper; any other view exports alone at true size (1:1 mm), for CAD work
+                var view = doc.GetElement(id) as View ?? throw new ArgumentException($"{id} is not a sheet or view.");
+                var sheet = view as ViewSheet;
+                var name = string.Join("_", (sheet != null ? $"{sheet.SheetNumber} {sheet.Name}" : view.Name).Split(Path.GetInvalidFileNameChars()));
                 var ok = doc.Export(folder, name, new List<ElementId> { id }, options);
-                files.Add(new JsonObject { ["sheet"] = sheet.SheetNumber, ["file"] = Path.Combine(folder, name + ".dwg"), ["ok"] = ok });
+                files.Add(new JsonObject { ["sheet"] = sheet?.SheetNumber ?? view.Name, ["file"] = Path.Combine(folder, name + ".dwg"), ["ok"] = ok });
             }
             return new JsonObject { ["files"] = files };
         }
@@ -3476,6 +3478,7 @@ namespace RevitMcp
             var boxes = p["add"] as JsonArray ?? new JsonArray();
             var familyDoc = doc.EditFamily(target.Symbol.Family);
             var added = new JsonArray();
+            string? cutNotes = null;
             try
             {
                 using (var transaction = new Transaction(familyDoc, "MCP: Edit family solids"))
@@ -3508,9 +3511,33 @@ namespace RevitMcp
                             for (var k = 0; k < pts.Length; k++) loop3.Append(Line.CreateBound(pts[k], pts[(k + 1) % pts.Length]));
                             var prof3 = new CurveArrArray();
                             prof3.Append(loop3);
+                            // "holes": inner loops [[{x,y,z},...],...] on the same plane, e.g. shelf-pin holes in a lining
+                            if (o["holes"] is JsonArray hl)
+                                foreach (var h in hl.OfType<JsonArray>())
+                                {
+                                    var hp = h.Select(ToPoint).ToArray(); if (hp.Length < 3) continue;
+                                    var hloop = new CurveArray();
+                                    for (var k = 0; k < hp.Length; k++) hloop.Append(Line.CreateBound(hp[k], hp[(k + 1) % hp.Length]));
+                                    prof3.Append(hloop);
+                                }
+                            // "circles": [{x,y,z,r}] round holes on the profile plane, each as two true arcs (few segments,
+                            // no "sketches with many segments" warning: Madina 2 shelf-pin matrix, 11 Nov 2026)
+                            if (o["circles"] is JsonArray cl)
+                                foreach (var ci in cl.OfType<JsonObject>())
+                                {
+                                    var cc = ToPoint(ci); var rr = FromMm(ReqNum(ci, "r"));
+                                    var ux = dir.CrossProduct(Math.Abs(dir.Z) < 0.9 ? XYZ.BasisZ : XYZ.BasisX).Normalize();
+                                    var uy = dir.CrossProduct(ux).Normalize();
+                                    var cloop = new CurveArray();
+                                    cloop.Append(Arc.Create(cc + ux * rr, cc - ux * rr, cc + uy * rr));
+                                    cloop.Append(Arc.Create(cc - ux * rr, cc + ux * rr, cc - uy * rr));
+                                    prof3.Append(cloop);
+                                }
                             var sp = SketchPlane.Create(familyDoc, Plane.CreateByNormalAndOrigin(dir, pts[0]));
-                            var ext3 = familyDoc.FamilyCreate.NewExtrusion(true, prof3, sp, FromMm(ReqNum(o, "length_mm")));
-                            ext3.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.Set(material.Id);
+                            // "void": true cuts instead of adds (e.g. horizontal shelf-pin holes through an arch skin)
+                            var isVoid = o["void"] != null && o["void"]!.GetValue<bool>();
+                            var ext3 = familyDoc.FamilyCreate.NewExtrusion(!isVoid, prof3, sp, FromMm(ReqNum(o, "length_mm")));
+                            if (!isVoid) ext3.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.Set(material.Id);
                             added.Add(ext3.Id.Value);
                             continue;
                         }
@@ -3530,6 +3557,33 @@ namespace RevitMcp
                         extrusion.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.Set(material.Id);
                         added.Add(extrusion.Id.Value);
                     }
+                    // "cut_voids": true makes every void form cut the solid forms its box meets. A void made through the
+                    // API does not cut other forms by itself (shelf-pin holes through an arch skin, 11 Nov 2026).
+                    if (p["cut_voids"] != null && p["cut_voids"]!.GetValue<bool>())
+                    {
+                        var forms = new FilteredElementCollector(familyDoc).OfClass(typeof(GenericForm)).Cast<GenericForm>().ToList();
+                        var voids = forms.Where(f => !f.IsSolid).ToList();
+                        var solidsF = forms.Where(f => f.IsSolid).ToList();
+                        var cuts = 0; var whyNot = new List<string>();
+                        foreach (var v in voids)
+                        {
+                            var vb = v.get_BoundingBox(null); if (vb == null) continue;
+                            foreach (var s in solidsF)
+                            {
+                                var sb = s.get_BoundingBox(null); if (sb == null) continue;
+                                if (vb.Max.X < sb.Min.X || vb.Min.X > sb.Max.X || vb.Max.Y < sb.Min.Y || vb.Min.Y > sb.Max.Y || vb.Max.Z < sb.Min.Z || vb.Min.Z > sb.Max.Z) continue;
+                                try
+                                {
+                                    if (SolidSolidCutUtils.CutExistsBetweenElements(s, v, out _)) continue;
+                                    if (SolidSolidCutUtils.CanElementCutElement(v, s, out var why)) { SolidSolidCutUtils.AddCutBetweenSolids(familyDoc, s, v); cuts++; }
+                                    else if (whyNot.Count < 5) whyNot.Add($"{s.GetType().Name} {s.Id}: {why}");
+                                }
+                                catch (Exception ex) { if (whyNot.Count < 5) whyNot.Add($"{s.Id}: {ex.Message}"); }
+                            }
+                        }
+                        added.Add(-cuts);
+                        cutNotes = string.Join(" | ", whyNot) + $" (voids {voids.Count}, solids {solidsF.Count})";
+                    }
                     transaction.Commit();
                 }
                 familyDoc.LoadFamily(doc, new OverwriteFamily());
@@ -3538,7 +3592,7 @@ namespace RevitMcp
             {
                 familyDoc.Close(false);
             }
-            return new JsonObject { ["deleted"] = remove.Count, ["added"] = added };
+            return new JsonObject { ["deleted"] = remove.Count, ["added"] = added, ["cut_notes"] = cutNotes };
         }
 
         private static void CollectSolids(GeometryElement geometry, List<Solid> solids)
