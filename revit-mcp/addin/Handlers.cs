@@ -206,6 +206,14 @@ namespace RevitMcp
             ["show_rebar_in_view"] = ShowRebarInView,
             ["copy_view_contents"] = CopyViewContents,
             ["copy_views_between_models"] = CopyViewsBetweenModels,
+            ["match_view_settings"] = MatchViewSettings,
+            ["create_view_like"] = CreateViewLike,
+            ["read_view_dimensions"] = ReadViewDimensions,
+            ["create_dimensions"] = CreateDimensions,
+            ["read_type_parameters"] = ReadTypeParameters,
+            ["apply_type_parameters"] = ApplyTypeParameters,
+            ["save_family_copy"] = SaveFamilyCopy,
+            ["update_revision"] = UpdateRevision,
             ["duplicate_type"] = DuplicateType,
             ["set_dimension_rounding"] = SetDimensionRounding,
             ["create_annotation_symbol"] = CreateAnnotationSymbol,
@@ -296,11 +304,32 @@ namespace RevitMcp
             var path = ReqStr(p, "path");
             if (!System.IO.Path.IsPathRooted(path)) return Failed($"Path must be absolute: {path}");
             if (!System.IO.File.Exists(path)) return Failed($"File not found: {path}");
-            return DocumentCall(() =>
+            // A model with missing links stops on "Unresolved References" and the bridge hangs until someone clicks.
+            // Answer it the safe way (Ignore and continue opening; the links stay as they are) and report it.
+            var answered = new JsonArray();
+            void OnDialog(object s, Autodesk.Revit.UI.Events.DialogBoxShowingEventArgs e)
             {
-                var doc = app.OpenAndActivateDocument(path).Document;
-                return new JsonObject { ["ok"] = true, ["title"] = doc.Title, ["path"] = doc.PathName, ["is_modified"] = doc.IsModified };
-            });
+                if (e is Autodesk.Revit.UI.Events.TaskDialogShowingEventArgs td
+                    && td.DialogId.IndexOf("Unresolved_References", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    td.OverrideResult((int)TaskDialogResult.CommandLink2);
+                    answered.Add($"{td.DialogId}: ignored and continued opening");
+                }
+            }
+            app.DialogBoxShowing += OnDialog;
+            try
+            {
+                return DocumentCall(() =>
+                {
+                    var ui = app.OpenAndActivateDocument(path);
+                    var doc = ui?.Document ?? throw new InvalidOperationException(
+                        "Revit did not open it. If it is linked into an open model, close that model first.");
+                    var r = new JsonObject { ["ok"] = true, ["title"] = doc.Title, ["path"] = doc.PathName, ["is_modified"] = doc.IsModified };
+                    if (answered.Count > 0) r["dialogs_answered"] = answered.DeepClone();
+                    return r;
+                });
+            }
+            finally { app.DialogBoxShowing -= OnDialog; }
         }
 
         private static JsonNode ActivateDocument(UIApplication app, JsonObject p)
@@ -1045,7 +1074,8 @@ namespace RevitMcp
                 }
                 if (!Viewport.CanAddViewToSheet(doc, sheet.Id, view.Id))
                     throw new InvalidOperationException($"View '{view.Name}' cannot be placed; it may already be on a sheet.");
-                var viewport = Viewport.Create(doc, sheet.Id, view.Id, location);
+                var viewport = Viewport.Create(doc, sheet.Id, view.Id, location)
+                    ?? throw new InvalidOperationException($"Revit made no viewport for '{view.Name}'; an empty view cannot be placed on a sheet.");
                 return new JsonObject { ["id"] = viewport.Id.Value };
             });
         }

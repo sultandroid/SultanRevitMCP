@@ -74,7 +74,18 @@ namespace RevitMcp
                     ["numbering_sequence"] = (doc.GetElement(r.RevisionNumberingSequenceId) as RevisionNumberingSequence)?.Name,
                 });
             }
-            return new JsonObject { ["count"] = items.Count, ["revisions"] = items };
+            var result = new JsonObject { ["count"] = items.Count, ["revisions"] = items };
+            // sheet_id (optional): which revisions show on that sheet (clouded or added), in sequence order
+            if (p["sheet_id"] != null && doc.GetElement(ReqId(p, "sheet_id")) is ViewSheet sheet)
+            {
+                var on = new JsonArray();
+                foreach (var id in sheet.GetAllRevisionIds()) on.Add(((Revision)doc.GetElement(id)).RevisionNumber);
+                var added = new JsonArray();
+                foreach (var id in sheet.GetAdditionalRevisionIds()) added.Add(((Revision)doc.GetElement(id)).RevisionNumber);
+                result["on_sheet"] = on;
+                result["added_to_sheet"] = added;
+            }
+            return result;
         }
 
         /// <summary>

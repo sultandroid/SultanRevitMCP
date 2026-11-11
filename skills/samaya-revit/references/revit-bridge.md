@@ -322,3 +322,20 @@ The Claude app is an MSIX package: files its shells write under %LOCALAPPDATA% g
 `save_sheet_set` saves a named sheet set (Print / Export PDF / DWG > Selected views/sheets). `tools/sheet_sets.mjs <model>` makes `<CODE> 00 ALL`, one set per Sheet Package and one per fabrication item group; run it after `sheet_groups.mjs`.
 
 - **reload_handlers did not take a new build (11 Nov 2026).** In Revit pid 18940 the loader kept loading `handlers\20261111-073716` after newer builds (`074519`, `074648`, a fresh copied folder) were built, with or without the shell sandbox, although `NewestBuild()` in `loader/HandlerHost.cs` sorts folder names newest first. The installed loader DLL (4 Nov) may not match the repo source. Until this is found, a handler change (e.g. `edit_family_solids` `profile`) is only live after a Revit restart; agree it with any other session using that Revit first. Check with `handlers_info` after every install: the `version` must be the folder just built. After a Revit restart (user OK, 11 Nov 2026) `reload_handlers` took the newest folder at once, so a restart clears it.
+
+## Moving sheets between models (Madina 1, 11 Nov 2026)
+
+Revit cannot copy a sheet across models, so `tools/move_sheets.mjs` rebuilds it. These commands do the work and are general:
+
+- `copy_view_contents`: a view's own annotation (text, detail lines, regions, symbols) into a view of another open model, origin to origin. Linear dimensions are left out on purpose: Revit silently deletes a copied dimension whose references are not in the target, while still counting it as copied.
+- `match_view_settings`: scale, detail level, crop and annotation crop, view range, phase and per-category visibility and overrides from one view onto another across models.
+- `create_view_like`: a section or 3D view in another model facing the same way. The frame comes from the view's own right, up and view directions; the crop box axes can be mirrored, which made sections look the other way and flipped every copied note. It refuses to finish unless view and right directions both match.
+- `read_view_dimensions` / `create_dimensions`: dimensions saved to JSON with portable references (grid or level by name, detail line by end points, element by stable reference plus its model) and rebuilt in the target. Run the read with the source open and the create with the target alone, so its links are loaded.
+- `read_type_parameters` / `apply_type_parameters`: make a same-named type match (dimension and text types). Template and older models carry types with the standard names but other settings (black 2.5 mm dimensions, wider text that ran off the sheet).
+- `save_family_copy`: save a loaded family as .rfa. The repo `title-blocks/Samaya Factory A1.rfa` had no revision table; it is now the copy in use in ELEC.
+- `update_revision`: change a revision's description or date (not a parameter in Revit). Keep the "moved" revision to one line; five two-line rows overrun the title block's revision panel.
+- `list_revisions` with `sheet_id` returns the revisions on that sheet; `open_document` answers "Unresolved References" itself (Ignore and continue) and reports it.
+
+Order that works: open the source, open the target, `move_sheets.mjs`; read dimensions and types from the source; close the source; open the target alone, reload its links, add grids (copied from the source by name), apply types, create dimensions, fill Project Information, render every sheet; back up, delete the old copies, run `sheet_groups.mjs` and `sheet_sets.mjs`.
+
+Open-model rules met on the way: a model linked into an open model cannot be opened (open the linked one first); links of a model saved while their source was open stay Unloaded until `reload_link`; Revit will not close the last open model through the API (keep a small family open as a placeholder while switching); a new revision joins Revit's default Numeric sequence unless `set_revision_sequence` with `like_revision_id` moves it; the active view cannot be deleted (`open_view` another first); an empty view cannot be placed on a sheet.
