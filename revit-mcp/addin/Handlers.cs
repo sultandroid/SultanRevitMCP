@@ -113,6 +113,7 @@ namespace RevitMcp
             ["ensure_project_parameters"] = EnsureProjectParameters,
             ["inspect_cut"] = InspectCut,
             ["inspect_family"] = InspectFamily,
+            ["family_solid_profiles"] = FamilySolidProfiles,
             ["copy_instance_scaled"] = CopyInstanceScaled,
             ["set_family_material"] = SetFamilyMaterial,
             ["extract_nested_family"] = ExtractNestedFamily,
@@ -124,6 +125,7 @@ namespace RevitMcp
             ["ensure_material"] = EnsureMaterial,
             ["set_material_hatch"] = SetMaterialHatch,
             ["rename_materials"] = RenameMaterials,
+            ["rename_family"] = RenameFamily,
             ["create_pipe_run"] = CreatePipeRun,
             ["create_duct_run"] = CreateDuctRun,
             ["create_flex_duct"] = CreateFlexDuct,
@@ -201,6 +203,8 @@ namespace RevitMcp
             ["create_rebar"] = CreateRebar,
             ["rebar_report"] = RebarReport,
             ["show_rebar_in_view"] = ShowRebarInView,
+            ["copy_view_contents"] = CopyViewContents,
+            ["copy_views_between_models"] = CopyViewsBetweenModels,
             ["duplicate_type"] = DuplicateType,
             ["set_dimension_rounding"] = SetDimensionRounding,
             ["create_annotation_symbol"] = CreateAnnotationSymbol,
@@ -3456,12 +3460,28 @@ namespace RevitMcp
                     foreach (var node in boxes)
                     {
                         var o = node.AsObject();
-                        var min = ReqPoint(o, "min");
-                        var max = ReqPoint(o, "max");
                         var name = ReqStr(o, "material");
                         var material = new FilteredElementCollector(familyDoc).OfClass(typeof(Material)).Cast<Material>().FirstOrDefault(m => m.Name == name)
                                        ?? (Material)familyDoc.GetElement(Material.Create(familyDoc, name));
                         if (o["color"] != null) material.Color = ColorOf(o, "color");
+                        // direction + length_mm: "profile" is a closed 3D outline [{x,y,z},...] in mm on a plane square to
+                        // direction, extruded length_mm along it (e.g. an upright CNC arch former running front to back).
+                        if (o["direction"] != null && o["profile"] is JsonArray p3 && p3.Count >= 3)
+                        {
+                            var dir = ToPoint(o["direction"]).Normalize();
+                            var pts = p3.Select(ToPoint).ToArray();
+                            var loop3 = new CurveArray();
+                            for (var k = 0; k < pts.Length; k++) loop3.Append(Line.CreateBound(pts[k], pts[(k + 1) % pts.Length]));
+                            var prof3 = new CurveArrArray();
+                            prof3.Append(loop3);
+                            var sp = SketchPlane.Create(familyDoc, Plane.CreateByNormalAndOrigin(dir, pts[0]));
+                            var ext3 = familyDoc.FamilyCreate.NewExtrusion(true, prof3, sp, FromMm(ReqNum(o, "length_mm")));
+                            ext3.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.Set(material.Id);
+                            added.Add(ext3.Id.Value);
+                            continue;
+                        }
+                        var min = ReqPoint(o, "min");
+                        var max = ReqPoint(o, "max");
                         var loop = new CurveArray();
                         var c = new[] { new XYZ(min.X, min.Y, min.Z), new XYZ(max.X, min.Y, min.Z), new XYZ(max.X, max.Y, min.Z), new XYZ(min.X, max.Y, min.Z) };
                         // profile: optional plan outline [{x,y},...] in mm, extruded from min.z to max.z (e.g. a mitred
@@ -3533,6 +3553,72 @@ namespace RevitMcp
                     ["source_size_mm"] = new JsonObject { ["x"] = ToMm(size.X), ["y"] = ToMm(size.Y), ["z"] = ToMm(size.Z) },
                 };
             });
+        }
+
+        /// <summary>
+        /// Exact extrusion profiles of an instance's family solids, in family coordinates (same frame as inspect_family):
+        /// per solid its material, extrusion direction, length and the start cap's loops (outer + holes, curves tessellated).
+        /// Lets a tool rebuild curved board parts exactly instead of from bounding boxes (user, 11 Nov 2026). Solids that are
+        /// not prisms come back with "prism": false and their bounding box only.
+        /// </summary>
+        private static JsonNode FamilySolidProfiles(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var target = RequireElement(doc, ReqId(p, "element_id")) as FamilyInstance
+                         ?? throw new ArgumentException("element_id is not a family instance.");
+            if (!target.Symbol.Family.IsEditable) throw new InvalidOperationException("This family cannot be edited.");
+            var familyDoc = doc.EditFamily(target.Symbol.Family);
+            try
+            {
+                var outSolids = new JsonArray();
+                foreach (var e in new FilteredElementCollector(familyDoc).WhereElementIsNotElementType().Where(x => x is GenericForm))
+                {
+                    var matName = familyDoc.GetElement(e.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.AsElementId() ?? ElementId.InvalidElementId)?.Name;
+                    var geo = e.get_Geometry(new Options { ComputeReferences = false, DetailLevel = ViewDetailLevel.Fine });
+                    if (geo == null) continue;
+                    foreach (var solid in geo.OfType<Solid>().Where(s => s.Volume > 1e-9))
+                    {
+                        var faces = solid.Faces.Cast<Face>().ToList();
+                        PlanarFace best = null, other = null; double bestArea = -1;
+                        foreach (var f in faces.OfType<PlanarFace>())
+                        {
+                            var n = f.FaceNormal;
+                            var g = faces.OfType<PlanarFace>().FirstOrDefault(h => h != f && h.FaceNormal.IsAlmostEqualTo(n.Negate(), 1e-6));
+                            if (g == null) continue;
+                            if (!faces.OfType<PlanarFace>().Where(h => h != f && h != g).All(h => Math.Abs(h.FaceNormal.DotProduct(n)) < 1e-6)) continue;
+                            if (f.Area > bestArea) { bestArea = f.Area; best = f; other = g; }
+                        }
+                        var item = new JsonObject { ["element_id"] = e.Id.Value, ["material"] = matName, ["volume_mm3"] = solid.Volume * Math.Pow(304.8, 3) };
+                        var bb = solid.GetBoundingBox();
+                        item["min"] = PointJson(bb.Transform.OfPoint(bb.Min)); item["max"] = PointJson(bb.Transform.OfPoint(bb.Max));
+                        if (best == null) { item["prism"] = false; outSolids.Add(item); continue; }
+                        // start cap: the one the extrusion leaves along +dir
+                        var dir = other.FaceNormal;                       // from best towards other: other's outward normal
+                        var len = Math.Abs((other.Origin - best.Origin).DotProduct(dir));
+                        var loops = new JsonArray();
+                        foreach (var loop in best.GetEdgesAsCurveLoops())
+                        {
+                            var pts = new JsonArray();
+                            foreach (var c in loop)
+                            {
+                                var tess = c.Tessellate();
+                                for (var i = 0; i < tess.Count - 1; i++) pts.Add(PointJson(tess[i]));
+                            }
+                            loops.Add(pts);
+                        }
+                        item["prism"] = true;
+                        item["direction"] = new JsonObject { ["x"] = dir.X, ["y"] = dir.Y, ["z"] = dir.Z };
+                        item["length_mm"] = len * 304.8;
+                        item["loops"] = loops;                           // loops[0] outer (largest), others holes
+                        outSolids.Add(item);
+                    }
+                }
+                return new JsonObject { ["family"] = familyDoc.Title, ["count"] = outSolids.Count, ["solids"] = outSolids };
+            }
+            finally
+            {
+                familyDoc.Close(false);
+            }
         }
 
         private static JsonNode InspectFamily(UIApplication app, JsonObject p)
@@ -3635,6 +3721,22 @@ namespace RevitMcp
         /// reloads those families, so schedules, tags and inspect_family all show the new name (approved colour codes, Makkah
         /// 6 Nov 2026). renames: [{from, to, color?}]; family_prefix limits which families are opened. When "to" already exists,
         /// the elements using "from" are moved to it (merge) and "from" stays unused.</summary>
+        // Rename an instance family and/or its type (no prompt, one undo step).
+        private static JsonNode RenameFamily(UIApplication app, JsonObject p)
+        {
+            var doc = Doc(app);
+            var el = doc.GetElement(new ElementId(p["element_id"]!.GetValue<long>())) as FamilyInstance ?? throw new ArgumentException("element_id is not a family instance.");
+            var fam = Str(p, "family_name"); var typ = Str(p, "type_name");
+            using (var t = new Transaction(doc, "MCP: Rename family"))
+            {
+                t.Start();
+                if (fam != null) el.Symbol.Family.Name = fam;
+                if (typ != null) el.Symbol.Name = typ;
+                t.Commit();
+            }
+            return new JsonObject { ["family"] = el.Symbol.Family.Name, ["type"] = el.Symbol.Name };
+        }
+
         private static JsonNode RenameMaterials(UIApplication app, JsonObject p)
         {
             var doc = Doc(app);
@@ -3706,6 +3808,36 @@ namespace RevitMcp
             var cross = p["cross"]?.GetValue<bool>() ?? false;
             var angle = Num(p, "angle_degrees") ?? 45;
             var spacing = Num(p, "spacing_mm") ?? 1.5;
+            // surface: true -> a MODEL pattern at real size on the material's faces (elevations, 3D), not the cut pattern.
+            // rattan: true -> cane webbing weave, lines at 0/90/45/135 deg (user, 11 Nov 2026: "hatch to fit the rattan look").
+            var surface = p["surface"]?.GetValue<bool>() ?? false;
+            var rattan = p["rattan"]?.GetValue<bool>() ?? false;
+            if (surface || rattan)
+                return InTransaction(doc, $"Surface pattern {name}", () =>
+                {
+                    var sp = Num(p, "spacing_mm") ?? (rattan ? 12 : 10);
+                    var pname = rattan ? $"Rattan Cane Weave {sp:0.##}" : $"Model {(cross ? "Cross " : "")}{angle:0.##} {sp:0.##}";
+                    var pe = new FilteredElementCollector(doc).OfClass(typeof(FillPatternElement)).Cast<FillPatternElement>()
+                        .FirstOrDefault(f => f.Name == pname && f.GetFillPattern().Target == FillPatternTarget.Model);
+                    if (pe == null)
+                    {
+                        var g = FromMm(sp);
+                        var fp = new FillPattern(pname, FillPatternTarget.Model, FillPatternHostOrientation.ToHost);
+                        var grids = new List<FillGrid>();
+                        var angles = rattan ? new[] { 0.0, 90.0, 45.0, 135.0 } : cross ? new[] { angle, angle + 90 } : new[] { angle };
+                        foreach (var a in angles)
+                        {
+                            var fg = new FillGrid { Angle = a * Math.PI / 180, Offset = (a % 90 == 0 ? g : g * Math.Sqrt(2)) };
+                            grids.Add(fg);
+                        }
+                        fp.SetFillGrids(grids);
+                        pe = FillPatternElement.Create(doc, fp);
+                    }
+                    material.SurfaceForegroundPatternId = pe.Id;
+                    material.SurfaceForegroundPatternColor = p["color"] is JsonObject ? ColorOf(p, "color") : new Color(120, 85, 40);
+                    if (p["shade"] is JsonObject) material.Color = ColorOf(p, "shade");
+                    return new JsonObject { ["id"] = material.Id.Value, ["surface_pattern"] = pe.Name };
+                });
             return InTransaction(doc, $"Hatch {name}", () =>
             {
                 var patterns = new FilteredElementCollector(doc).OfClass(typeof(FillPatternElement)).Cast<FillPatternElement>().ToList();
