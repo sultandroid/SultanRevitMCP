@@ -1046,7 +1046,20 @@
   "counter_total_mm": 700,
   "skirting_mm": 50,
   "carcass_mm": 18,
-  "shadow_gap_to_ceiling_min_mm": 20
+  "shadow_gap_to_ceiling_min_mm": 20,
+  "painted_corners": {
+   "rule": "Every outside corner between two painted parts is a 45 degree mitre (both boards cut on the diagonal from the outer to the inner corner), never a butt or overlap, so the paint does not crack along the joint. Small chamfer or arris at the outer edge.",
+   "mitre_deg": 45,
+   "applies_to": "painted MDF / FR MDF / any RAL or U-colour painted board",
+   "exceptions": "inside corners and T-joints; veneer and laminate boards keep their edge banding",
+   "tool": "tools/mitre_painted.mjs",
+   "since": "2026-11-11 (user)"
+  },
+  "make_and_fit_separately": {
+   "rule": "Split a part into the pieces a carpenter makes and fits separately: an L fascia is an OUTSIDE fascia (face board, -F) and an INSIDE part (soffit and drop boards, -S), each its own family and mark, meeting on the 45 degree mitre as a site joint. Model parts the way they are produced and installed, never as one block that cannot be fitted.",
+   "tool": "tools/mitre_painted.mjs --split",
+   "since": "2026-11-11 (user)"
+  }
  },
  "bim_standards": {
   "_about": "BIM/Revit standards by tier, most important for our work first (user list, 4 Nov 2026). Editions as given; confirm the current edition before quoting one on a deliverable. how = what SultanRevitMCP does about it today.",
