@@ -91,6 +91,8 @@ Every open shelf unit with a pegboard back is built this way unless the user say
 - Every wooden unit type gets an arrangement sheet (here 114 base cabinets, 115 arch units, 116 low bays, 117 rear centre units) so fabrication can check sizes before cutting: per side, chains for grid to grid, each unit and gap, the type end to end, and wall to wall with the space either side; a size table of every unit by mark, read from the model.
 - The arrangement sheet: views scaled to fill the sheet; the units in question in full black, every other element halftone by element override; a width and quantity table (qty = available length / 1000 rounded up, width = length / qty); a storage table for the shop operator (net inside W x D x H, litres each and total, shelf area); and the marble top quantities (length, depth, thickness, pieces, area, front edge), since this is where the run lengths are.
 
+- Boxed frame members (Madina 2 CF-1 ceiling frame, 11 Nov 2026): a 100x100 member is a U of 18 FR MDF with veneer to match the EGGER, open at the top (soffit + two sides), every edge mitred 45: the long soffit/side edges and the plan corners. Glue blocks inside @ 600. Model each board as its cross-section in the corner mitre plane, extruded to just past mid-length from both ends and fused (create_direct_shape union), so all 45 faces are exact.
+
 ## Counters with a sink (Madina 2 E-C1, 11 Nov 2026)
 
 - Never all stainless on a display counter: it looks like a kitchen and costs far more. Use steel and stainless where the water is.

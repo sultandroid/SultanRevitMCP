@@ -103,8 +103,11 @@ const dx = b.x1 - b.x0, dy = b.y1 - b.y0, xc = (b.x0 + b.x1) / 2, yc = (b.y0 + b
 const yL = t.locDepth != null ? b.y0 + t.locDepth : yc;
 // Factory standard: joinery stops at least 20 mm under the ceiling (shadow gap). config.ceiling = ceiling height (mm, FFL).
 const GAP = C.shadowGap ?? 20;
-if (C.ceiling && b.z1 > C.ceiling - GAP + 0.5) throw new Error(`${t.ref} top +${r(b.z1)} is less than ${GAP} mm under the ceiling +${C.ceiling}: fix the family first (shadow gap rule)`);
-const nearCeiling = C.ceiling && b.z1 > C.ceiling - 150;
+// t.ceiling: this unit's own ceiling height, or false for a ceiling feature fixed up to the ceiling (Madina 2 CF-1 frame in
+// the rattan tray): no shadow gap check and no ceiling line for it.
+const CEIL = t.ceiling === undefined ? C.ceiling : t.ceiling || null;
+if (CEIL && b.z1 > CEIL - GAP + 0.5) throw new Error(`${t.ref} top +${r(b.z1)} is less than ${GAP} mm under the ceiling +${CEIL}: fix the family first (shadow gap rule)`);
+const nearCeiling = CEIL && b.z1 > CEIL - 150;
 
 // One scale for the main views, floor to top, so the figure stands on the floor.
 const zTop = Math.max(b.z1, 1700) + 100, zBot = -150, M = 200, F = 450;
@@ -283,7 +286,7 @@ await txt(NOTES, y2 - 12, "(per unit, net, no waste, approx.)");
 const shortQ = (m) => shortM(m).replace(/ Natural Carini Walnut/, " Walnut").replace(/\bPainted\b/, "ptd.").slice(0, 40);
 await txt(NOTES, y2 - 28, ["MATERIAL", ...mats.map(([m]) => shortQ(m))].join("\n"));
 await txt(975, y2 - 28, ["QTY", ...mats.map(([m, q]) => qty(m, q))].join("\n"));
-const notesTxt = `${t.note ? t.note + "\n" : ""}${nearCeiling ? `Top +${(b.z1 / 1000).toFixed(3)}: ${r(C.ceiling - b.z1)} shadow gap\nto the ceiling (${GAP} min.).\n` : ""}All dimensions in mm.\nCheck on site before cutting.${t.cnc === false ? "" : "\nCurved parts: cut from the CNC file."}`;
+const notesTxt = `${t.note ? t.note + "\n" : ""}${nearCeiling ? `Top +${(b.z1 / 1000).toFixed(3)}: ${r(CEIL - b.z1)} shadow gap\nto the ceiling (${GAP} min.).\n` : ""}All dimensions in mm.\nCheck on site before cutting.${t.cnc === false ? "" : "\nCurved parts: cut from the CNC file."}`;
 await txt(NOTES, y2 - 28 - (mats.length + 2) * 7.8 - 8, notesTxt);
 const notesBottom = y2 - 28 - (mats.length + 2) * 7.8 - 8 - (notesTxt.split("\n").length + 1) * 7.8;
 // Key plan: every unit of this type in red.
@@ -331,9 +334,9 @@ const NB = {
 };
 if (boxOn) await setv(v3d, "Section Box", 1);
 const xL = NB.left ? b.x0 - NB.left.d : null, xR = NB.right ? b.x1 + NB.right.d : null;
-const zU = NB.up ? b.z1 + NB.up.d : C.ceiling ?? null, yB = NB.back ? b.y1 + NB.back.d : null, yF = NB.front ? b.y0 - NB.front.d : null;
+const zU = NB.up ? b.z1 + NB.up.d : CEIL ?? null, yB = NB.back ? b.y1 + NB.back.d : null, yF = NB.front ? b.y0 - NB.front.d : null;
 // context: 700 beyond the neighbours each side; in plan the walkway in front is shown up to 1500 (its full length is in the note)
-const LX0 = Math.min(xL ?? b.x0, b.x0) - 400, LX1 = Math.max(xR ?? b.x1, b.x1) + 400, LZ1 = Math.max(C.ceiling ?? 0, zU ?? 0, b.z1 + 300) + 250;
+const LX0 = Math.min(xL ?? b.x0, b.x0) - 400, LX1 = Math.max(xR ?? b.x1, b.x1) + 400, LZ1 = Math.max(CEIL ?? 0, zU ?? 0, b.z1 + 300) + 250;
 const yFs = yF != null && b.y0 - yF <= 1500 ? yF : null;
 const PY1 = (yB ?? b.y1 + 300) + 250, PY0 = (yFs ?? b.y0 - 1500) - 250;
 // the plan is drawn north-up: for a side unit its width runs up the paper
@@ -372,7 +375,7 @@ if (sL) {
   const wx = thin([xL, b.x0, b.x1, xR].filter((x) => x != null));
   await dim(vLS, wx.map((x) => P(x, yL, -90)));
   if (xL != null && xR != null) await dim(vLS, [P(xL, yL, LZ1 - 90), P(xR, yL, LZ1 - 90)]);
-  const hz = [...new Set([0, r(b.z0), r(b.z1), zU != null ? r(zU) : null, C.ceiling && (zU == null || Math.abs(zU - C.ceiling) > 5) ? C.ceiling : null].filter((z) => z != null))].sort((a, c) => a - c);
+  const hz = [...new Set([0, r(b.z0), r(b.z1), zU != null ? r(zU) : null, CEIL && (zU == null || Math.abs(zU - CEIL) > 5) ? CEIL : null].filter((z) => z != null))].sort((a, c) => a - c);
   await dim(vLS, hz.map((z) => P(LX1 - 150, yL, z)));
   await dim(vLP, wx.map((x) => P(x, b.y0 - 150, 0)));
   const dyz = thin([yB, b.y1, b.y0, yFs].filter((y) => y != null));
