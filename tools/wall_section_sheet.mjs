@@ -176,11 +176,21 @@ const byType = new Map();
 for (const U of list) { const k = U.name; const g = byType.get(k) ?? { name: k, units: [] }; g.units.push(U); byType.set(k, g); }
 const label = (g) => { const ms = g.units.map((U) => U.mark); if (ms.length === 1) return ms[0]; let p = ms[0]; for (const m of ms) while (!m.startsWith(p)) p = p.slice(0, -1); return p.replace(/-$/, "") || ms[0]; };
 const rowsB = [];
+// size from the family's own solids (exact), turned into the wall frame: W along the wall, D out from it, H
+const famSize = async (U) => {
+  const it = (await call("inspect_family", { element_id: U.id })).items.filter((i) => i.material && i.min && /FreeForm|Extrusion|Blend|Sweep|Revolution/.test(i.class));
+  if (!it.length) return `${r(U.ub - U.ua)} x ${r(U.wb - U.wa)} x ${r(Math.min(U.zb, ceil) - U.za)}`;
+  const ex = (k) => Math.max(...it.map((i) => i.max[k])) - Math.min(...it.map((i) => i.min[k]));
+  const g = await call("get_element", { element_id: U.id }), rd = (((g.location?.rotation_deg ?? 0) % 180) + 180) % 180;
+  const lx = rd === 90 ? ex("y") : ex("x"), ly = rd === 90 ? ex("x") : ex("y");   // world x and y extents
+  const Wd = axis === "x" ? lx : ly, Dd = axis === "x" ? ly : lx;
+  return `${r(Wd)} x ${r(Dd)} x ${r(ex("z"))}`;
+};
 for (const [, cat] of [...CATS, [null, "OTHER"]]) {
   const gs = [...byType.values()].filter((g) => catOf(g.name) === cat).sort((a, b) => a.units[0].ua - b.units[0].ua);
   if (!gs.length) continue;
   rowsB.push({ head: cat });
-  for (const g of gs) { const U = g.units[0]; const mx = (fn) => Math.max(...g.units.map(fn)); rowsB.push({ m: label(g), q: g.units.length, sz: `${r(mx((V) => V.ub - V.ua))} x ${r(mx((V) => V.wb - V.wa))} x ${r(mx((V) => Math.min(V.zb, ceil) - V.za))}`, sh: detailOf(U.mark) }); }
+  for (const g of gs) { const U = g.units[0]; rowsB.push({ m: label(g), q: g.units.length, sz: await famSize(U), sh: detailOf(U.mark) }); }
 }
 const marks = [...new Set(list.map((U) => U.mark))];
 await txt(NOTES, 772, "BOM BY CATEGORY, PER UNIT", bold);
@@ -191,13 +201,32 @@ for (const row of rowsB) {
   await txt(NOTES, yb, row.m); await txt(NOTES + 60, yb, String(row.q)); await txt(NOTES + 75, yb, row.sz); await txt(NOTES + 140, yb, row.sh); yb -= 7.8;
 }
 const yN = yb - 10;
-await txt(NOTES, yN, `${S.note ? S.note + "\n" : ""}Bold dimensions: overall set and wall
+const noteTxt = `${S.note ? S.note + "\n" : ""}Bold dimensions: overall set and wall
 to wall, overall height and depth.
 Widths chained: arches, piers and fillers;
 base units. Levels at the left from FFL.
 Sizes W x D x H as built, in mm.
 Item details: see the detail sheets.
-Check on site.`);
+Check on site.`;
+await txt(NOTES, yN, noteTxt);
+// Photos of the finish materials on this wall (user: "add photo for the materials used in this sheet"), from the approved
+// colour folder: config.materialPhotos = [{ match: regex on the material name, file: image path or null, label }].
+if (C.materialPhotos?.length) {
+  const famMats = new Map(), used = new Set();
+  for (const U of list) { const fam = U.name; if (!famMats.has(fam)) famMats.set(fam, [...new Set((await call("inspect_family", { element_id: U.id })).items.filter((i) => i.material).map((i) => i.material))]); famMats.get(fam).forEach((m) => used.add(m)); }
+  const photos = C.materialPhotos.filter((p) => [...used].some((m) => new RegExp(p.match, "i").test(m)));
+  const yP0 = yN - (noteTxt.split("\n").length + 1) * 7.8 - 8;
+  if (photos.length) {
+    await txt(NOTES, yP0, "FINISH MATERIALS (APPROVED SAMPLES)", bold);
+    const PW = 44, GAP = 5;
+    for (const [k, p] of photos.entries()) {
+      const cx = NOTES + PW / 2 + (k % 4) * (PW + GAP), cy = yP0 - 14 - PW / 2 - Math.floor(k / 4) * (PW + 22);
+      if (p.file) await call("place_image", { view_id: sheet, path: p.file, center: P(cx, cy), width_mm: PW, height_mm: PW }).catch((e) => console.log("photo", p.label, e.message.slice(0, 90)));
+      else await txt(cx - PW / 2 + 2, cy + 6, "photo\nto follow");
+      await txt(cx - PW / 2, cy - PW / 2 - 3, p.label);
+    }
+  }
+}
 // key plan: the wall zone in red
 const planId = (await call("list_views", {})).views.find((x) => x.name === C.planView)?.id;
 const kpD = await call("duplicate_view", { view_id: planId, name: `KP-${S.no}`, option: "Duplicate" }), kp = kpD.id ?? kpD.view_id;

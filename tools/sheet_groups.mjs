@@ -20,6 +20,8 @@ export function groupFor(code, existing = "") {
   if (role === "A") {
     if (n < 1000) return "0 General";
     if (n >= 1400 && n < 1500) return "1 Site Civil";
+    // A-1201..1299 wall sections through the units open the carpentry package (user, Madina 2, 11 Nov 2026): keep a "2 Fab" group
+    if (n >= 1201 && n <= 1299 && /^2 Fab/.test(existing)) return existing;
     if (n < 2000) return "1 Arch GA";
     if (n < 3000) return /^2 Fab/.test(existing) ? existing : "2 Fab";
     return "1 Arch GA";
