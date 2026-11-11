@@ -35,6 +35,8 @@ Never fix a finished sheet straight onto a column or wall. It is not flat or squ
 
 ## Arches
 
+- **How we make an arch (user, 11 Nov 2026).** CNC-cut MDF formers ("nillers") to the arch curve first, then clad them with bendable MDF to get the shape. In the model every arch unit carries its formers: 18 mm FR MDF cut to the band between the inside and outside 8 mm skins, floor to apex, standing square to the depth, one behind the oak front, one at the back end and the rest evenly between at 200 mm centres or less. A leg that runs on alone below the other (an end arch) gets a straight strip former. `tools/arch_formers.mjs --doc --family <regex> [--replace]` traces the cavity with rays and adds them to the family (edit_family_solids with direction + profile), so the CNC files and cut list can come from the model.
+
 - **Use the keel arch (pointed broken arch, عقد مدبب منكسر)** on Madina-style shopfronts. Two arcs with centres on the springing line, radius R, each running into a straight tangent line that meets the other at the apex. The user chose it over the five-centred arch (العقد المخموس) because it matches the designer's shape. Applies to Madina 1 and Madina 2.
 - Get R and the rise from the designer's CAD line: fit the keel to the outline and keep the ratios. Madina 2: rise 0.60 x span, R 0.43 x span (side arches); rise 0.57, R 0.38 (rear centre). Round R, rise and springing to whole cm.
 - All arches in one shop share one springing level (where the marble head starts), rear and side alike. Keep each arch's rise and R; the apex follows (apex = springing + rise). Check the tallest apex stays under the cladding top. With the same counter height and shelf count, the shelves then line up across the shop.
