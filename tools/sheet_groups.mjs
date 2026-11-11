@@ -14,7 +14,7 @@ useDocument(title);
 
 // Group from the short code, e.g. "A-1002" -> "1 Arch GA". Order of the groups = order of the set.
 export function groupFor(code, existing = "") {
-  const m = /([A-Z])-(\d{4})$/.exec(code);
+  const m = /([A-Z])-(\d{4})A?$/.exec(code);   // a continuation sheet (number + A) takes its main sheet's group
   if (!m) return null;
   const [, role, digits] = m, n = Number(digits);
   if (role === "A") {
