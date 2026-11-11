@@ -227,6 +227,17 @@
         "scale": 2,
         "title": "L Corner: marble on wood"
       }
+    },
+    "CL": {
+      "no": 2304,
+      "title": "Filler CL",
+      "group": "2 Fab: Dividers and Cladding",
+      "ref": "CL",
+      "marks": [
+        "CL"
+      ],
+      "cnc": false,
+      "note": "Front filler between the front pier\nand arch AW-A, same as the other\nfillers: EGGER U775 ST9 White Grey 20,\nface 100 behind the arch fronts,\n50 return at the pier end.\nSoftwood battens 20 x 40 on the AW-A\nend panel, bracketed to the pier.\nScribe to wall, floor and pier on site."
     }
   }
 }
