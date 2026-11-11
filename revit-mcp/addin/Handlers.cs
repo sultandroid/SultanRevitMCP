@@ -2678,7 +2678,10 @@ namespace RevitMcp
         {
             var doc = Doc(app);
             var revision = RequireElement(doc, ReqId(p, "revision_id")) as Revision ?? throw new ArgumentException("revision_id is not a revision.");
-            var sequence = ReqId(p, "sequence_id");
+            // like_revision_id: use the numbering of another revision (a new revision otherwise takes the default Numeric one).
+            var sequence = OptId(p, "like_revision_id") is ElementId like
+                ? ((doc.GetElement(like) as Revision) ?? throw new ArgumentException("like_revision_id is not a revision.")).RevisionNumberingSequenceId
+                : ReqId(p, "sequence_id");
             return InTransaction(doc, "Set revision sequence", () =>
             {
                 revision.RevisionNumberingSequenceId = sequence;

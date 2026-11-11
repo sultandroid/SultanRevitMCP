@@ -1,0 +1,232 @@
+{
+  "doc": "Madina2_ARCH_01",
+  "prefix": "MD2-SF-ZZ-GF-DR-A-",
+  "titleBlock": "Samaya Factory A0",
+  "planView": "A-GF-PLAN-New",
+  "ceiling": 3000,
+  "shadowGap": 20,
+  "signoff": [
+    [
+      "Designed By",
+      "LORICH"
+    ],
+    [
+      "Drawn By",
+      "LORICH"
+    ],
+    [
+      "Checked By",
+      "Mohamed Sultan"
+    ],
+    [
+      "Approved By",
+      "Anas Matter"
+    ]
+  ],
+  "revisions": [
+    1105187
+  ],
+  "log": "C:/Users/user/samaya-revit-standards/projects/madina2/fab_log.json",
+  "units": {
+    "RA-B": {
+      "no": 2105,
+      "title": "Rear Centre Arch RA-B",
+      "group": "2 Fab: Arch Units",
+      "rot": 270,
+      "ref": "RA-B",
+      "with": [
+        "RA-B-BL"
+      ],
+      "marks": [
+        "RA-B"
+      ],
+      "note": "Made in 2 parts (the head meets the\nexisting rear column):\nRA-B front arch, 237 deep, stops 3 mm\nin front of the column cladding.\nRA-B-BL back sides, 305 deep, beside\nthe column, follow the arch curve up\nto the LF-C soffit (+2.292).\nCNC MDF 18 formers, 8 FR MDF skins,\npainted. 40 solid oak arch front.",
+      "cutPlan": {
+        "z": 1000,
+        "at": [
+          460,
+          400
+        ],
+        "scale": 8,
+        "margin": 400,
+        "title": "Plan at +1.000: the 2 parts",
+        "dims": [
+          [
+            [
+              2470,
+              4840
+            ],
+            [
+              2470,
+              5077
+            ]
+          ],
+          [
+            [
+              2470,
+              5080
+            ],
+            [
+              2470,
+              5385
+            ]
+          ],
+          [
+            [
+              2540,
+              5470
+            ],
+            [
+              2590,
+              5470
+            ],
+            [
+              2966,
+              5470
+            ]
+          ],
+          [
+            [
+              4101,
+              5470
+            ],
+            [
+              4051,
+              5470
+            ],
+            [
+              3785,
+              5470
+            ]
+          ]
+        ],
+        "labels": [
+          {
+            "at": [
+              2700,
+              4660
+            ],
+            "text": "Front arch RA-B (237) + back sides RA-B-BL (305), 3 mm joint"
+          }
+        ]
+      }
+    },
+    "LF-A": {
+      "no": 2107,
+      "title": "L Fascia LF-A",
+      "group": "2 Fab: Arch Units",
+      "rot": 180,
+      "ref": "LF-A-1-F",
+      "with": [
+        "LF-A-1-S",
+        "LF-A-1-M"
+      ],
+      "marks": [
+        "LF-A-1-F",
+        "LF-A-2-F",
+        "LF-A-3-F"
+      ],
+      "note": "3 parts per head, made apart:\n-F outside lunette, -S inside soffit:\nFR MDF painted, fixed first.\n-M marble L, 20 Tuscany travertine,\nglued on after the wood is fixed.\nMarble corner: 45 mitre, bird's-nose R10.\nSign letters + LED: as per design.",
+      "lDetail": {
+        "at": [
+          500,
+          560
+        ],
+        "scale": 2,
+        "title": "L Corner: marble on wood"
+      }
+    },
+    "LF-B": {
+      "no": 2108,
+      "title": "L Fascia LF-B",
+      "group": "2 Fab: Arch Units",
+      "ref": "LF-B-1-F",
+      "with": [
+        "LF-B-1-S",
+        "LF-B-1-M"
+      ],
+      "marks": [
+        "LF-B-1-F",
+        "LF-B-2-F"
+      ],
+      "note": "3 parts per head, made apart:\n-F outside lunette, -S inside soffit:\nFR MDF painted, fixed first.\n-M marble L, 20 Tuscany travertine,\nglued on after the wood is fixed.\nMarble corner: 45 mitre, bird's-nose R10.\nSign letters + LED: as per design.",
+      "lDetail": {
+        "at": [
+          500,
+          560
+        ],
+        "scale": 2,
+        "title": "L Corner: marble on wood"
+      }
+    },
+    "LF-C": {
+      "no": 2109,
+      "title": "L Fascia LF-C",
+      "group": "2 Fab: Arch Units",
+      "rot": 270,
+      "ref": "LF-C-F",
+      "with": [
+        "LF-C-S",
+        "LF-C-M"
+      ],
+      "marks": [
+        "LF-C-F"
+      ],
+      "note": "3 parts, made apart:\n-F outside lunette, -S inside soffit:\nFR MDF painted, fixed first.\n-M marble L, 20 Tuscany travertine,\nglued on after the wood is fixed.\nMarble corner: 45 mitre, bird's-nose R10.\nCarpet hanger CH fixed under the marble.\nSign letters + LED: as per design.",
+      "lDetail": {
+        "at": [
+          500,
+          560
+        ],
+        "scale": 2,
+        "title": "L Corner: marble on wood"
+      }
+    },
+    "LF-D": {
+      "no": 2110,
+      "title": "L Fascia LF-D",
+      "group": "2 Fab: Arch Units",
+      "rot": 270,
+      "ref": "LF-D-1-F",
+      "with": [
+        "LF-D-1-S",
+        "LF-D-1-M"
+      ],
+      "marks": [
+        "LF-D-1-F",
+        "LF-D-2-F"
+      ],
+      "note": "3 parts per head, made apart:\n-F outside lunette, -S inside soffit:\nFR MDF painted, fixed first.\n-M marble L, 20 Tuscany travertine,\nglued on after the wood is fixed.\nMarble corner: 45 mitre, bird's-nose R10.\nSoffit and marble stop at the RA-A back board.\nSign letters + LED: as per design.",
+      "lDetail": {
+        "at": [
+          500,
+          560
+        ],
+        "scale": 2,
+        "title": "L Corner: marble on wood"
+      }
+    },
+    "LF-E": {
+      "no": 2111,
+      "title": "L Fascia LF-E",
+      "group": "2 Fab: Arch Units",
+      "ref": "LF-E-F",
+      "with": [
+        "LF-E-S",
+        "LF-E-M"
+      ],
+      "marks": [
+        "LF-E-F"
+      ],
+      "note": "3 parts, made apart:\n-F outside, -S inside: FR MDF painted,\nfixed first.\n-M marble L, 20 Tuscany travertine,\nglued on after the wood is fixed.\nMarble corner: 45 mitre, bird's-nose R10.\nSign letters + LED: as per design.",
+      "lDetail": {
+        "at": [
+          500,
+          560
+        ],
+        "scale": 2,
+        "title": "L Corner: marble on wood"
+      }
+    }
+  }
+}

@@ -42,7 +42,7 @@ const raw = fam.items.filter((f) => (f.class === "FreeFormElement" || f.class ==
 const instRot = ((g.location?.rotation_deg ?? 0) % 360 + 360) % 360, o = g.location.point;
 const rot = t.rot ?? instRot; // t.rot: the face direction when it differs from the instance rotation (a family built in place on a rear wall has rotation 0)
 const turn = ([x, y]) => instRot === 90 ? [-y, x] : instRot === 180 ? [-x, -y] : instRot === 270 ? [y, -x] : [x, y];
-const parts = raw.map((f) => { const [a, c] = [turn([f.min.x, f.min.y]), turn([f.max.x, f.max.y])]; return { m: f.material ?? "Unassigned", x0: Math.min(a[0], c[0]) + o.x, x1: Math.max(a[0], c[0]) + o.x, y0: Math.min(a[1], c[1]) + o.y, y1: Math.max(a[1], c[1]) + o.y, z0: f.min.z + o.z, z1: f.max.z + o.z }; });
+const parts = raw.map((f) => { const [a, c] = [turn([f.min.x, f.min.y]), turn([f.max.x, f.max.y])]; return { own: id, m: f.material ?? "Unassigned", x0: Math.min(a[0], c[0]) + o.x, x1: Math.max(a[0], c[0]) + o.x, y0: Math.min(a[1], c[1]) + o.y, y1: Math.max(a[1], c[1]) + o.y, z0: f.min.z + o.z, z1: f.max.z + o.z }; });
 // t.with: marks of separate families that belong to this item (Makkah AR-B1 ring, rebuilt smooth as its own family): they
 // are drawn, isolated and counted with it.
 const IDS = [id];
@@ -53,7 +53,34 @@ for (const mk of t.with ?? []) {
   const tn = ([x, y]) => r2 === 90 ? [-y, x] : r2 === 180 ? [-x, -y] : r2 === 270 ? [y, -x] : [x, y];
   for (const f of (await call("inspect_family", { element_id: g2.id })).items.filter((f) => (f.class === "FreeFormElement" || f.class === "Extrusion") && f.min)) {
     const [a, c] = [tn([f.min.x, f.min.y]), tn([f.max.x, f.max.y])];
-    parts.push({ m: f.material ?? "Unassigned", x0: Math.min(a[0], c[0]) + o2.x, x1: Math.max(a[0], c[0]) + o2.x, y0: Math.min(a[1], c[1]) + o2.y, y1: Math.max(a[1], c[1]) + o2.y, z0: f.min.z + o2.z, z1: f.max.z + o2.z });
+    parts.push({ own: g2.id, m: f.material ?? "Unassigned", x0: Math.min(a[0], c[0]) + o2.x, x1: Math.max(a[0], c[0]) + o2.x, y0: Math.min(a[1], c[1]) + o2.y, y1: Math.max(a[1], c[1]) + o2.y, z0: f.min.z + o2.z, z1: f.max.z + o2.z });
+  }
+}
+// Family coordinates + location are not always where the solids are: families made by make_unit_family from the casework
+// template sit 44.7 mm off along their local x (Madina 2 RA-B-BL and the LF -M marble, 11 Nov 2026: the sheet said 1606 wide
+// for a 1561 arch). Measure each instance with rays along x, y and z and shift its parts by the value most rays agree on.
+{
+  const { hitsAlong, setDoc } = await import("./fitlib.mjs"); setDoc(C.doc);
+  const AXS = ["x", "y", "z"];
+  for (const own of IDS) {
+    const ps = parts.filter((f) => f.own === own), d = { x: 0, y: 0, z: 0 };
+    for (const a of AXS) {
+      const [p1, p2] = AXS.filter((k) => k !== a), sz = (f) => (f[p1 + "1"] - f[p1 + "0"]) * (f[p2 + "1"] - f[p2 + "0"]);
+      const votes = [];
+      for (const p of [...ps].sort((u, v) => sz(v) - sz(u)).slice(0, 8)) for (const fr of [0.5, 0.25, 0.75]) {
+        const q = { [a]: (p[a + "0"] + p[a + "1"]) / 2, [p1]: p[p1 + "0"] + fr * (p[p1 + "1"] - p[p1 + "0"]), [p2]: p[p2 + "0"] + fr * (p[p2 + "1"] - p[p2 + "0"]) };
+        const on = ps.filter((f) => f[p1 + "0"] <= q[p1] && f[p1 + "1"] >= q[p1] && f[p2 + "0"] <= q[p2] && f[p2 + "1"] >= q[p2]);
+        const h = await hitsAlong(own, { x: q.x + d.x, y: q.y + d.y, z: q.z + d.z }, a);
+        if (h && on.length) votes.push(Math.round((h.lo - (Math.min(...on.map((f) => f[a + "0"])) + d[a])) * 2) / 2);
+      }
+      if (!votes.length) continue;
+      const cnt = new Map(); for (const v of votes) cnt.set(v, (cnt.get(v) ?? 0) + 1);
+      const [best, n] = [...cnt].sort((u, v) => v[1] - u[1])[0];
+      // only a clear majority counts (loose boxes of curved parts give scattered votes), and only a small shift
+      if (Math.abs(best) > 0.5 && Math.abs(best) <= 100 && n >= Math.max(3, votes.length / 2)) d[a] += best;
+      else if (Math.abs(best) > 0.5) console.log("placement check", own, a, "no clear shift", JSON.stringify([...cnt].slice(0, 6)));
+    }
+    if (AXS.some((a) => d[a])) { console.log("placement fix", own, JSON.stringify(d)); for (const f of ps) for (const a of AXS) { f[a + "0"] += d[a]; f[a + "1"] += d[a]; } }
   }
 }
 const b = { x0: Math.min(...parts.map((f) => f.x0)), x1: Math.max(...parts.map((f) => f.x1)), y0: Math.min(...parts.map((f) => f.y0)), y1: Math.max(...parts.map((f) => f.y1)), z0: Math.min(...parts.map((f) => f.z0)), z1: Math.max(...parts.map((f) => f.z1)) };
@@ -126,7 +153,10 @@ const big = t.details !== false && s >= 8 && W / 5 <= 360 ? 5 : 0; // 1:5 detail
 const dx0 = Math.max(b.x0 - 100, b.x1 - 350);
 const vDT = big ? await sec("Detail Top", "Detail: Top", P(dx0, yc), P(b.x1 + 100, yc), P(0, 1, 0), 40, big, b.z1 + 60, b.z1 - 460) : null;
 const vDB = big ? await sec("Detail Base", "Detail: Base", P(dx0, yc), P(b.x1 + 100, yc), P(0, 1, 0), 40, big, b.z0 + 360, b.z0 - 60) : null;
-for (const v of [vFront, vSide, vA, vB, vTop, vDT, vDB].filter(Boolean)) {
+// t.lDetail = { at: [x, y] on the sheet, scale (2), back (160), up (120), title }: a large section through the front bottom
+// corner (Section A's cut, cropped), for a stone L glued on the wood (Madina 2 marble heads: 45 mitre, bird's-nose R10).
+const vL = t.lDetail ? await sec("L Corner", t.lDetail.title ?? "Detail: L Corner", P(xA, b.y0 + (t.lDetail.back ?? 160)), P(xA, b.y0 - 40), P(1, 0, 0), 40, t.lDetail.scale ?? 2, b.z0 + (t.lDetail.up ?? 120), b.z0 - 40) : null;
+for (const v of [vFront, vSide, vA, vB, vTop, vDT, vDB, vL].filter(Boolean)) {
   await call("isolate_in_view", { view_id: v, element_ids: IDS });
   await call("set_view_categories", { view_id: v, hide: ["OST_Sections", "OST_Elev", "OST_Callouts", "OST_Levels", "OST_Grids", "OST_CLines", "OST_RvtLinks"] }).catch(() => {});
 }
@@ -382,7 +412,10 @@ if (t.cutPlan) {
   for (const lb of cp.labels ?? []) await rawC("create_text_note", { document: C.doc, view_id: vCP, location: { x: lb.at[0], y: lb.at[1], z: 0 }, text: lb.text, text_type_id: note }).catch((e) => console.log("cut label", e.message.slice(0, 80)));
   await place(vCP, cp.at[0], cp.at[1]);
 }
-log[key_] = { sheet, sheetNumber: SN, scale: s, scale3d: s3, keyPlanMarks: marks, location: { scale: sL, NB }, views: { vFront, vSide, vA, vB, vTop, vDT, vDB, kp, v3 } };
+// dimensions after isolation (isolate_in_view hides whatever exists when it runs, dimensions too)
+if (vL) for (const ch of [[P(xA, b.y0, b.z0 - 15), P(xA, b.y0 + 20, b.z0 - 15)], [P(xA, b.y0 - 15, b.z0), P(xA, b.y0 - 15, b.z0 + 20)]]) await call("create_dimension_string", { view_id: vL, points: ch, tick_mm: 12 }).catch((e) => console.log("L dim", e.message.slice(0, 80)));
+if (vL) await place(vL, t.lDetail.at[0], t.lDetail.at[1]);
+log[key_] = { sheet, sheetNumber: SN, scale: s, scale3d: s3, keyPlanMarks: marks, location: { scale: sL, NB }, views: { vFront, vSide, vA, vB, vTop, vDT, vDB, vL, kp, v3 } };
 writeFileSync(LOG, JSON.stringify(log, null, 1));
 await call("save_document", { title: C.doc });
 console.log("done", key_, SN, "scale 1:" + s, "3D 1:" + s3, "rot", rot, "face", FACE, "key plan", marks + "/" + t.marks.length, "mats", mats.map(([m, q]) => m + "=" + qty(m, q)).join("; "));
