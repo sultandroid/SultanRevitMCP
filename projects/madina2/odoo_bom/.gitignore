@@ -1,0 +1,5 @@
+node_modules/
+*.json
+!package.json
+!old_products.json
+*.xlsx
