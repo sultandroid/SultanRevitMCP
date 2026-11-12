@@ -14,6 +14,21 @@ const N = { H1113_8: NEW("MFC Sheet 8 mm [Egger H1113-ST10]", "لوح MFC إيج
   M10: NEW("Threaded rod M10 x 3 m", "قضيب مسنن M10 طول 3 م", "Units"), FB406: NEW("Flat bar 40x6 mm", "حديد مبسط 40x6 مم", "m"), FB308: NEW("Flat bar 30x8 mm", "حديد مبسط 30x8 مم", "m"),
   ANG25: NEW("Angle 25x25x3 mm", "زاوية حديد 25x25x3 مم", "m"), ANG40: NEW("Angle 40x40x4 mm", "زاوية حديد 40x40x4 مم", "m"), MESH: NEW("Welded mesh 4 mm @ 100 x 100", "شبك ملحوم 4 مم فتحة 100x100", "m²"),
   DUCT: NEW("PVC cable duct 80x40 white", "مجرى كابلات PVC أبيض 80x40", "m"), TRAY: NEW("Cable tray perforated 100x50", "حامل كابلات مثقب 100x50", "m") };
+Object.assign(P, { L25: 24223, L40: 24225, FB405: 24208, VNOAK: 24317 });
+const NEWC = (code, en, ar, uom) => ({ new: true, code, en, ar, uom });
+Object.assign(N, {
+  U775_8: NEWC("RAW-MFC-EGGER-U775-8", "MFC Sheet 8 mm [Egger U775 ST9 White Grey]", "لوح إم إف سي إيجر أبيض رمادي", "Sheet [205X280]"),
+  M10: NEWC("RAW-ROD-THREAD-M10-3M", "Threaded Rod M10 × 3 m", "قضيب مسنن", "Units"),
+  MESH: NEWC("RAW-MESH-WELD-4-100", "Welded Mesh 4 mm @ 100×100 mm", "شبك حديد ملحوم", "m2"),
+  RAT: NEWC("MAT-RATTAN-CANE", "Rattan Cane Webbing", "شبك راتان", "m2"),
+  HSS: NEWC("MAT-HANDLE-BAR-SS304", "Bar Handle Stainless Steel 304 Brushed", "مقبض ستانلس ستيل", "Units"),
+  HWD: NEWC("MAT-HANDLE-BAR-WOOD", "Bar Handle Hardwood", "مقبض خشب طبيعي", "Units"),
+  LEG: NEWC("MAT-LEG-ADJ-50", "Adjustable Cabinet Leg 50 mm", "رجل خزانة قابلة للتعديل", "Units"),
+  PIN: NEWC("MAT-SHELF-PIN-5", "Shelf Pin 5 mm Nickel", "مسمار رف", "Units"),
+  DUCT: NEWC("MAT-DUCT-PVC-80x40", "PVC Cable Duct 80×40 mm White", "مجرى كابلات بلاستيك", "m"),
+  TRAY: NEWC("MAT-TRAY-CABLE-100x50", "Cable Tray Perforated 100×50 mm", "حامل كابلات مثقب", "m"),
+  DFRAME: NEWC("MAT-ALU-FRAME-WHT", "Aluminium Display Frame White", "إطار عرض ألمنيوم أبيض", "m"),
+  GRILLE: NEWC("MAT-GRILLE-VENT-GRY", "Ventilation Grille Grey", "شبكة تهوية رمادي", "Units") });
 const area = (d) => (d[1] * d[2]) / 1e6, len = (d) => d[2] / 1000, vol = (d) => (d[0] * d[1] * d[2]) / 1e9;
 const sheet = (c, A = SH) => ({ c, q: (d) => area(d) / A * WASTE });
 const paint = { c: P.NCPAINT, q: (d) => area(d) };
@@ -24,15 +39,15 @@ const rule = (m, t, dd = [0, 0, 0]) => {
     if (a >= 38 && b <= 42) return [{ c: P.SHS40, q: (d) => len(d) / 6 * WASTE, note: "bar = 6 m" }];
     if (a <= 4.5 && b <= 4.5) return [{ c: N.MESH, q: (d) => len(d) / 20 * WASTE, note: "mesh m2 = wire length / 20" }];
     if (a <= 10.5 && b <= 10.5) return a >= 9 ? [{ c: N.M10, q: (d) => len(d) / 3 * WASTE }, { c: P.ANCH, q: () => 1 }] : [{ c: P.M8ROD, q: (d) => len(d) / 3 * WASTE, note: "3 m rod" }];
-    if (a <= 4.5 && b <= 41 && c <= 60) return [{ c: N.ANG40, q: (d) => len(d) / 2 }];      // cleat leg, 2 legs per angle
-    if (a <= 6.5 && b >= 39 && b <= 41) return [{ c: N.FB406, q: (d) => len(d) * WASTE }];
-    if (a <= 8.5 && b >= 29 && b <= 31) return [{ c: N.FB308, q: (d) => len(d) * WASTE }];
-    if (a <= 3.5 && b <= 26) return [{ c: N.ANG25, q: (d) => len(d) / 2 * WASTE }];          // 2 legs per angle
+    if (a <= 4.5 && b <= 41 && c <= 60) return [{ c: P.L40, q: (d) => len(d) / 2 / 6 * WASTE, note: "cleats; bar = 6 m" }];      // cleat leg, 2 legs per angle
+    if (a <= 6.5 && b >= 39 && b <= 41) return [{ c: P.FB405, q: (d) => len(d) / 6 * WASTE, note: "drawn 40x6: stock FB 40x5; bar = 6 m" }];
+    if (a <= 8.5 && b >= 29 && b <= 31) return [{ c: P.FB405, q: (d) => len(d) / 6 * WASTE, note: "drawn 30x8 on edge: stock FB 40x5; bar = 6 m" }];
+    if (a <= 3.5 && b <= 26) return [{ c: P.L25, q: (d) => len(d) / 2 / 6 * WASTE, note: "bar = 6 m" }];          // 2 legs per angle
   }
-  if (/^FR MDF \d+ Oak Veneer/.test(m)) return [t <= 9 ? sheet(P.FR8) : sheet(P.FR18), { c: N.OVEN, q: (d) => area(d) * WASTE }];
+  if (/^FR MDF \d+ Oak Veneer/.test(m)) return [t <= 9 ? sheet(P.FR8) : sheet(P.FR18), { c: P.VNOAK, q: (d) => area(d) * WASTE, note: "natural oak veneer to match EGGER H1145" }];
   if (/Threaded Rod M10/.test(m)) return [{ c: N.M10, q: (d) => len(d) / 3 * WASTE, note: "short bolts in the hanger" }];
   if (/Nut and Washer/.test(m)) return [];
-  if (/Steel Angle 40x40x4/.test(m)) return [{ c: N.ANG40, q: (d) => len(d) / 2 * WASTE }];
+  if (/Steel Angle 40x40x4/.test(m)) return [{ c: P.L40, q: (d) => len(d) / 2 / 6 * WASTE, note: "bar = 6 m" }];
   if (/^Paint (Rust|Green)/.test(m)) return [paint];
   if (/Cable Duct PVC/.test(m)) return [{ c: N.DUCT, q: (d) => len(d) * WASTE }];
   if (/Cable Tray/.test(m)) return [{ c: N.TRAY, q: (d) => len(d) * WASTE }];
@@ -70,7 +85,7 @@ const rule = (m, t, dd = [0, 0, 0]) => {
   if (/Hinge 35 Inset/.test(m)) return [{ c: P.HINGE_I, q: () => 1 }];
   if (/Bar Handle Stainless/.test(m)) return [{ c: N.HSS, q: () => 1 }];
   if (/Hardwood Bar Handle/.test(m)) return [{ c: N.HWD, q: () => 1 }];
-  if (/Baton Handle/.test(m)) return [{ c: N.HISL, q: () => 1 }];
+  if (/Baton Handle/.test(m)) return [{ c: N.HWD, q: () => 1 }];
   if (/Grommet/.test(m)) return [{ c: N.GROM, q: () => 1 }];
   if (/Shelf Pin/.test(m)) return [{ c: N.PIN, q: () => 1 }];
   if (/Adjustable Leg/.test(m)) return [{ c: N.LEG, q: () => 1 }];
@@ -79,10 +94,10 @@ const rule = (m, t, dd = [0, 0, 0]) => {
   if (/Earth Plaster/.test(m)) return [{ c: N.PLAST, q: (d) => area(d) * WASTE }];
   if (/Paint Pink/.test(m)) return [{ c: P.WBPAINT, q: area }];
   if (/Furniture MDF Painted|Island Plinth/.test(m)) return [sheet(P.FR18), paint];
-  if (/Island Wood Veneer/.test(m)) return [{ c: N.VEN, q: (d) => area(d) * WASTE }];
-  if (/Dark Wood Top/.test(m)) return [{ c: N.DTOP, q: (d) => area(d) * WASTE }];
+  if (/Island Wood Veneer/.test(m)) return [{ c: P.VNOAK, q: (d) => area(d) * WASTE, note: "island veneer as approved" }];
+  if (/Dark Wood Top/.test(m)) return [sheet(P.FR18), { c: P.VNOAK, q: (d) => area(d) * WASTE }, { ...paint, note: "dark stain + lacquer as approved" }];
   if (/Rattan/.test(m)) return [{ c: N.RAT, q: (d) => area(d) * WASTE }];
-  if (/Oak Veneer/.test(m)) return [{ c: N.OVEN, q: (d) => area(d) * WASTE }];
+  if (/Oak Veneer/.test(m)) return [{ c: P.VNOAK, q: (d) => area(d) * WASTE, note: "natural oak veneer to match EGGER H1145" }];
   if (/Vent Grille/.test(m)) return [{ c: N.GRILLE, q: () => 1 }];
   if (/Display Frame White/.test(m)) return [{ c: N.DFRAME, q: (d) => len(d) * WASTE }];
   return null;
@@ -96,14 +111,14 @@ const AR = [[/East Counter E-C1/, "كاونتر شرقي ستانلس"], [/Base 
   [/Ceiling Wood Frame/, "إطار خشبي للسقف"], [/Cashier Counter/, "كاونتر كاشير"], [/Island Display/, "وحدة عرض جزيرة"], [/Display Fridge/, "قاعدة ثلاجة عرض"]];
 // Standard products (company rule, 11 Nov 2026): no project name in the product; type + main material + size in cm, so one
 // product serves many projects and BOMs. Code JN-<type>-<W>x<D>x<H>[-<material>]. Project goes on the MO, not the product.
-const T = [[/Ceiling Steel Frame/, "STF", "Steel Frame SHS 40", "هيكل SHS 40", 231], [/Rattan Panel/, "CLD", "Cladding Panel", "تجاليد", 239],
+const T = [[/Ceiling Steel Frame/, "STF", "Steel Frame SHS 40", "هيكل حديد", 231], [/Rattan Panel/, "CLD", "Cladding Panel", "تجاليد", 239],
   [/Flower Mesh/, "MSH", "Steel Mesh Panel", "لوح شبك حديد", 232], [/Tray Edge Lining/, "CLD", "Cladding Panel", "تجاليد", 239], [/Pegboard Joint Strip/, "FL", "Filler Panel", "حشوة", 236], [/East Counter/, "CT", "Stainless Steel Counter", "كاونتر ستانلس ستيل", 237], [/Cashier Counter/, "CT", "Counter", "كاونتر", 237], [/Base Cabinet/, "BC", "Base Cabinet", "خزانة سفلية", 238], [/Open Shelf Base Top/, "OBT", "Open Shelf Base Top", "سطح وحدة أرفف سفلية", 237],
   [/Open Shelf Base Unit/, "OSB", "Open Shelf Base Unit", "وحدة أرفف سفلية", 237], [/Open Shelf Unit .*Pegboard/, "OSP", "Open Shelf Unit with Pegboard", "وحدة أرفف مع لوح مثقب", 237], [/Open Shelf Unit/, "OS", "Open Shelf Unit", "وحدة أرفف مفتوحة", 237],
   [/Back Legs/, "ARL", "Arch Back Legs", "أرجل خلفية لارش", 236], [/Arch Unit/, "AR", "Keel Arch Unit complete with Soffit and Marble Head", "وحدة ارش", 236], [/Spandrel/, "CLD", "Cladding Panel", "تجاليد", 239],
   [/Arch Back Panel/, "ABP", "Arch Back Panel", "لوح خلفي لارش", 239], [/Column Cladding Pegboard/, "CCP", "Column Cladding with Pegboard", "تجاليد عمود بلوح مثقب", 239], [/L Fascia .*Marble/, "MLH", "Marble L Head 20 mm", "رأس رخام L سماكة 20 مم", 228],
   [/L Fascia .*(Soffit|Inside)/, "FSO", "Fascia Soffit", "سقفية واجهة", 236], [/L Fascia .*(Lunette|Outside)/, "FLU", "Fascia Lunette", "واجهة هلالية", 236], [/Filler/, "FL", "Filler Panel", "حشوة", 236],
   [/Services Cabinet/, "FS", "Services Cabinet", "خزانة خدمات", 238], [/Carpet Hanger/, "CH", "Carpet Hanger", "علاقة سجاد", 232], [/Continuous Shelf/, "SH", "Wall Shelf", "رف حائطي", 236], [/Back Cladding/, "CLD", "Cladding Panel", "تجاليد", 239],
-  [/Steel Structure/, "STF", "Steel Frame SHS 40", "هيكل SHS 40", 231], [/Arch Hangers/, "HG", "Steel Arch Hanger Set", "طقم علاقات للارشات", 232], [/Tray Wood Frame|Ceiling Wood Frame/, "CF", "Ceiling Wood Frame", "إطار خشبي للسقف", 611],
+  [/Steel Structure/, "STF", "Steel Frame SHS 40", "هيكل حديد", 231], [/Arch Hangers/, "HG", "Steel Arch Hanger Set", "طقم علاقات للارشات", 232], [/Tray Wood Frame|Ceiling Wood Frame/, "CF", "Ceiling Wood Frame", "إطار خشبي للسقف", 611],
   [/Island Display/, "ID", "Island Display Unit", "وحدة عرض جزيرة", 237], [/Display Fridge/, "FP", "Display Fridge Plinth", "قاعدة ثلاجة عرض", 236]];
 const MAT = [[/Rattan/, "RAT", "Rattan", "راتان"], [/Oak Veneer/, "OVN", "Oak Veneer", "قشرة بلوط"], [/H1145/, "BOK", "Bardolino Oak MFC", "MFC بلوط باردولينو"], [/H1113|Oak Frame/, "OAK", "Oak MFC", "MFC بلوط"], [/H3710/, "BOK", "Bardolino Oak MFC", "MFC بلوط باردولينو"], [/U775/, "WG", "White Grey MFC", "MFC أبيض رمادي"], 
   [/Stainless/, "SS", "Stainless Steel", "ستانلس ستيل"], [/SHS|Steel/, "STL", "Steel", "حديد"], [/FR MDF Painted|Painted/, "PNT", "Painted FR MDF", "MDF مقاوم حريق مدهون"], [/Travertine/, "TRV", "Travertine", "ترافرتين"], [/Plaster/, "PLS", "Earth Plaster", "لياسة طينية"], [/Softwood|Wood Frame/, "SW", "Softwood", "خشب صنوبر"]];
@@ -137,7 +152,7 @@ for (const u of U) {
   const [w, d0, h] = u.size.map((v) => Math.round(v / 10)); const [W, D] = w >= d0 ? [w, d0] : [d0, w];
   const code = `JN-${ab}-${W}x${D}x${h}${mat[1] ? "-" + mat[1] : ""}`;
   const arN = tar, enN = `${ten}${mat[2] && !ten.includes(mat[2]) ? " " + mat[2] : ""}`;
-  const odooName = `${arN} | ${enN} - ${W} x ${D} x ${h} cm`;
+  const odooName = `${enN} – ${arN}`;
   const known = prods.get(code); if (known) { known.qty += u.qty; known.marks.push([u.mark || en, ...(u.kids ?? [])].join(" + ")); continue; }
   const agg = new Map();
   for (const p of u.parts) { const d = [...p.d].sort((a, b) => a - b); const r = rule(p.m, Math.round(d[0]), d); if (r === null) { unmapped.add(p.m); continue; }
@@ -147,7 +162,7 @@ for (const u of U) {
 }
 for (const it of items) { it.marksTxt = it.marks.join(", ");
   for (const a of it.agg.values()) { const e = a.c.new ? null : od[a.c];
-    lines.push({ code: it.code, item: it.en, status: a.c.new ? "NEW - to create" : "Exists", id: e?.id ?? "", ccode: e?.default_code || "", cname: a.c.new ? `${a.c.en} | ${a.c.ar}` : e.display_name, qty: +a.q.toFixed(4), uom: a.c.new ? a.c.uom : e.uom_id[1], total: +(a.q * it.qty).toFixed(3), from: [...a.from].join("; "), note: [...a.notes].join("; ") }); } }
+    lines.push({ code: it.code, item: it.en, status: a.c.new ? "NEW - to create" : "Exists", id: e?.id ?? "", ccode: a.c.new ? (a.c.code ?? "") : (e?.default_code || ""), cname: a.c.new ? `${a.c.en} – ${a.c.ar}` : e.display_name, qty: +a.q.toFixed(4), uom: a.c.new ? a.c.uom : e.uom_id[1], total: +(a.q * it.qty).toFixed(3), from: [...a.from].join("; "), note: [...a.notes].join("; ") }); } }
 // check the standard products against Odoo (same code or same name already there)
 for (const it of items) { const r = await kw("product.template", "search_read", [["|", ["default_code", "=", it.code], ["name", "=", it.odooName]]], { fields: ["id"], limit: 1 }); if (r.length) it.inOdoo = "Exists #" + r[0].id; }
 fs.writeFileSync("items.json", JSON.stringify(items.map(({ agg, ...i }) => i), null, 1)); fs.writeFileSync("lines.json", JSON.stringify(lines, null, 1));
