@@ -6,7 +6,8 @@ Write `STUDY.md` beside the piece's scripts and copy it to the client's Drive fo
 - Height against the room's use: dining 740-760, desk 740, coffee / centre 400-450 (sofa seat about 450), side 500-600, console 800-900. A drawn height that does not fit the use is a question for the designer, never a silent change.
 - Edges, points and corners at knee and child height (brass pyramids, sharp glass): blunt or round them.
 - Stability: weight of every part (density beech 700, ply 650, MDF 750, glass 2500, brass 8500, steel 7850); tipping load at the rim = weight x (base radius) / (rim radius - base radius). Under about 80 kg: widen or weight the base.
-- Every joint at the floor or a base: no recess or gap that collects dust; faces meet at 90 deg; a shoe (brass) protects painted feet from the mop and covers fragile angled toes (CT-01).
+- Every joint at the floor or a base: no recess or gap that collects dust. No covers or shoes over a leg foot (the factory rejected a brass shoe on CT-01).
+- Legs on a base: make the base in 2 layers. Leg foot cut level, glued on the upper layer and screwed from below (no holes, no bolts); then the lower layer glued and screwed under it hides the screws; a brass ring in a groove at the layer joint hides the joint line (CT-01, factory's method).
 - Levelling: any base on the floor gets adjustable glides (M8, ±5) under the load points; keep the drawn heights by thinning the lowest part.
 - Loose parts (glass): what stops them sliding; how they are cleaned.
 - Delivery and access: largest size against a 900 door and the lift; total weight; make it knock-down (bolts, inserts, barrel nuts) when it does not pass whole.
