@@ -339,8 +339,9 @@ if (t.keynotes3d) {
   // leader end on the face towards the viewer, along it: a tray or plinth ring is empty in the middle.
   const fr = (k) => 0.25 + 0.25 * (k % 3); // parts on the same face (a strip frame, its cane, its trim) get their own leader ends
   const pts = tg.map((q, k) => { const f = q.f, p = [dirW[0] > 0 ? f.x0 + (f.x1 - f.x0) * fr(k) : f.x1 - (f.x1 - f.x0) * fr(k), dirW[1] > 0 ? f.y0 : f.y1, (f.z0 + f.z1) / 2]; return { n: k + 1, x: vc[0] + (dt(p, rt) - mu) / s3, y: vc[1] + (dt(p, up) - mv) / s3 }; }).sort((a, c) => c.y - a.y);
-  let last = Infinity;
-  for (const p of pts) { const ly = Math.min(p.y, last - 12); last = ly; await rawC("create_keynote", { document: C.doc, view_id: sheet, at: P(vc[0] + left - 12, ly + 3), to: P(p.x, p.y), text: String(p.n), text_type_id: num }).catch((e) => console.log("key3d", p.n, e.message.slice(0, 80))); } // sheet points: not turned into the unit frame
+  let last = Infinity; const lys = pts.map((p) => (last = Math.min(p.y, last - 12)));
+  const lift = Math.max(0, Y0 + 40 - Math.min(...lys)); // keep the number column above the view title (A-2101, 12 Nov 2026)
+  for (const [k, p] of pts.entries()) { const ly = lys[k] + lift; await rawC("create_keynote", { document: C.doc, view_id: sheet, at: P(vc[0] + left - 12, ly + 3), to: P(p.x, p.y), text: String(p.n), text_type_id: num }).catch((e) => console.log("key3d", p.n, e.message.slice(0, 80))); } // sheet points: not turned into the unit frame
 
 }
 // Location: every item drawn in its place, not alone (user, 6 Nov 2026). A section through the unit's bay and a plan, NOT
