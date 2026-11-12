@@ -17,7 +17,8 @@ Write `STUDY.md` beside the piece's scripts and copy it to the client's Drive fo
 ## 1b. Clash check before sheets (CT-01, 12 Nov 2026)
 - Check every curved member against the notch it sits in at the top and bottom of each layer: a leaning, curved leg moves inward below the top, so the notch must be cut to that curve (per layer). A flat member needs parallel notch sides, not radial ones.
 - Every "housed" end (rails into a ring) gets its housing cut in the model, not an overlap.
-- Screws drawn to size (shank, head, point) and checked to stay inside the member for their full length (a leaning leg: place them toward its outer side).
+- Screws on sheets: one line each, head to point (factory: "only line"); check each stays inside the member for its full length (a leaning leg: place them toward its outer side).
+- A notch that holds a curved member follows its curve (cut layer by layer from the member's template): no stepped gaps.
 - A round piece: one exploded view and one 3D angle are enough; more angles only crowd the sheet.
 
 ## 2. Proportions
