@@ -26,8 +26,8 @@ await call("set_view_categories", { view_id: vB, hide: ["OST_Levels", "OST_Grids
 await dim(vB, [2130, 2148, 2212, 2230].map((x) => P(x, 2118, 3150)));
 await dim(vB, [1990, 2008, 2072, 2090].map((y) => P(2258, y, 3150)));
 for (const v of [vA, vB]) await call("set_element_overrides", { view_id: v, element_ids: [572716], hide_patterns: true }); // show the 45 joints
-for (const [v, x, y] of [[vA, 120, 260], [vB, 285, 260]]) await call("place_view_on_sheet", { sheet_id: sheet, view_id: v, location: P(x, y) });
-await call("set_sheet_revisions", { sheet_ids: [sheet], revision_ids: [1427797] });
+for (const [v, x, y] of [[vA, 380, 400], [vB, 520, 400]]) await call("place_view_on_sheet", { sheet_id: sheet, view_id: v, location: P(x, y) });
+await call("set_sheet_revisions", { sheet_ids: [sheet], revision_ids: [1427797, 1463701] });
 await call("create_text_note", { view_id: sheet, location: P(160, 285), text: "U 100 x 100, open top\n18 FR MDF + oak veneer\nall joints 45", text_type_id: (await call("ensure_text_type", { name: "Sheet Note 5", size_mm: 5, color: { r: 0, g: 0, b: 0 } })).id });
 console.log("details", vA, vB);
 console.log(JSON.stringify(await call("save_document", { title: D.document })).slice(-40));

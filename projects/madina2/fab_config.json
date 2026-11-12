@@ -261,15 +261,23 @@
     },
     "CF-1": {
       "no": 2702,
-      "title": "Ceiling Wood Frame CF-1",
+      "title": "Ceiling Wood Frame, Mesh and Flowers",
       "group": "2 Fab: Ceiling",
       "ref": "Ceiling Wood Frame",
       "marks": [
         "Ceiling Wood Frame"
       ],
       "cnc": false,
-      "note": "Wood frame round the flower grid, in the\nC02 rattan tray. Underside +3.100.\nEach member: U section open at the top,\n18 FR MDF with oak veneer to match\nEGGER H1145 ST10: soffit and two sides.\nAll edges mitred 45: the long edges and\nthe 4 corners. Glue blocks inside @ 600.\nDownlights GL-1 to GL-8 in the soffit,\n50 in from the edge: cut on site.\nHangers to the slab: to confirm.",
-      "ceiling": false
+      "note": "Centre ceiling, all hung from ONE steel frame.\nSTEEL FRAME: SHS 40x40x2 grid on the rattan\nboard (+3.2125): ring 2320 x 1670, 2 cross\nmembers, 1 middle member, welded.\nHANGERS: threaded rods only: 10 M10 rods,\ndrop-in anchors in the slab soffit +3.70, to\nangle cleats 40x40x4 welded to the ring, nut +\nwasher each side (level on the nuts); 4 M10\nrods at 45 as sway bracing.\nWOOD FRAME: U open at the top, 18 FR MDF\noak veneer to match EGGER H1145 ST10, all\nedges 45, glue blocks @ 600. Hung on 10 flat\nbars 40x6 welded to the SHS, through slots in\nthe board. ADJUSTABLE: slot 7x55 in each bar,\n2 M6 bolts + penny washers through the slot\nand a 6 ply packer into M6 threaded inserts\nin the box inner side: slide +-14 to level\nthe box, then tighten (hidden in the box).\nShift <=100 to clear downlights GL-1..8.\nRATTAN BOARD: screwed up into the grid @ 300.\nMESH: welded 4 wire @ 100, black RAL 9005,\ntop +3.200, on 25x25x3 angles screwed to the\nframe; 2 bars 40x8 on 4 M8 rods to the SHS.\nFLOWERS: by florist, FR artificial\nbougainvillea tied to the mesh, outline only,\nlowest tip +2.400. ~115 kg total.",
+      "ceiling": false,
+      "with": [
+        "Ceiling Steel Frame",
+        "Ceiling Flower Mesh"
+      ],
+      "revisions": [
+        1427797,
+        1463701
+      ]
     }
   },
   "sections": {
