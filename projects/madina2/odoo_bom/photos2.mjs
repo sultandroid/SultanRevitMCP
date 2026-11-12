@@ -1,7 +1,9 @@
 import { call as raw } from "file:///C:/Users/user/samaya-revit-standards/tools/rvt.mjs"; import { unit3d } from "file:///C:/Users/user/samaya-revit-standards/tools/view3d.mjs"; import fs from "node:fs";
 const call = (n, a = {}) => raw(n, { document: "Madina2_ARCH_01", ...a });
-const boms = JSON.parse(fs.readFileSync("p_boms.json")).slice(1), OUT = "C:/Users/user/OneDrive - SAMAYA INVESTMENT/Samaya/Technical Office/Bim Unit/Knowledge Econmic City_ShopFit projects/Madina 2/Odoo BOM/Photos";
-const old = (await call("list_views", {})).views.filter((v) => /^PHOTO /.test(v.name)).map((v) => v.id); if (old.length) await call("delete_elements", { element_ids: old });
+// usage: node photos2.mjs [product codes...] - only those products (all when none); rows from g_boms.json (gsheet.mjs)
+const ONLY = process.argv.slice(2);
+const boms = JSON.parse(fs.readFileSync("g_boms.json")).slice(1).filter((r) => !ONLY.length || ONLY.includes(r[1])), OUT = "C:/Users/user/OneDrive - SAMAYA INVESTMENT/Samaya/Technical Office/Bim Unit/Knowledge Econmic City_ShopFit projects/Madina 2/Odoo BOM/Photos";
+const old = (await call("list_views", {})).views.filter((v) => /^PHOTO /.test(v.name) && (!ONLY.length || ONLY.includes(v.name.slice(6)))).map((v) => v.id); if (old.length) await call("delete_elements", { element_ids: old });
 const byMark = async (m) => { for (const c of ["OST_Casework", "OST_GenericModel", "OST_Furniture", "OST_SpecialityEquipment"]) { const q = (await call("query_elements", { category: c, parameter_name: "Mark", parameter_value: m, limit: 10 }).catch(() => ({ elements: [] }))).elements; for (const e of q) { const g = await call("get_element", { element_id: e.id }); if (g.parameters.find((p) => p.name === "Mark")?.value === m) return g; } } return null; };
 const RC = { x: 3300, y: 2900 }, done = new Set(), made = [];
 for (const [ref, pcode, , , marks] of boms) {
