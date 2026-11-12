@@ -121,9 +121,15 @@ const yf = b.y0 - 100, xs = b.x0 - 100;
 // material told apart by its cut hatch (material-hatching.md), with a materials legend of hatch swatches. t.style overrides.
 const STYLE = t.style ?? "HLR";
 // Cut hatch per material, the Samaya table in material-hatching.md; applied to every material of the unit before the views.
-const HATCH = (m) => /Steel|Metal|Alumin|LED|Profile|Rail\b/i.test(m) ? { solid: true }
-  : /Veneer\b|HPL|PVC|ABS|Edge/i.test(m) && !/Softwood/i.test(m) ? { solid: true }
-  : /Softwood|Plinth|Skirting|Frame/i.test(m) ? { cross: true, angle_degrees: 45, spacing_mm: 2.5 }
+// Order matters (Endura side table, 12 Nov 2026): a veneered MDF board is MDF (the veneer is a skin, "MDF 18 Oak Veneer"
+// came out solid black), solid timber is crosshatched even when named "Rail" ("Solid Oak Rail" came out as metal),
+// a mirror is glass, cane and other thin layers are solid.
+const HATCH = (m) => /MDF/i.test(m) ? { angle_degrees: 135, spacing_mm: 1.5 }
+  : /Glass|Mirror/i.test(m) ? { angle_degrees: 60, spacing_mm: 1 }
+  : /Oak|Walnut|Beech|Ash\b|Teak|Hardwood|Solid wood|Timber|Softwood|Plinth|Skirting|Frame/i.test(m) ? { cross: true, angle_degrees: 45, spacing_mm: 2.5 }
+  : /Cane|Rattan|Webbing/i.test(m) ? { solid: true }
+  : /Steel|Metal|Alumin|LED|Profile|Rail\b/i.test(m) ? { solid: true }
+  : /Veneer\b|HPL|PVC|ABS|Edge/i.test(m) ? { solid: true }
   : /Ply/i.test(m) ? { angle_degrees: 0, spacing_mm: 1 }
   : /Marble|Stone|Corian|Solid Surface|Granite/i.test(m) ? { angle_degrees: 45, spacing_mm: 4 }
   : /Glass/i.test(m) ? { angle_degrees: 60, spacing_mm: 1 }

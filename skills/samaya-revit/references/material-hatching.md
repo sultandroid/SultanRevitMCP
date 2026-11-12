@@ -21,16 +21,20 @@ Every material shows its own hatch where it is cut in a section or detail, so th
 |---|---|---|---|
 | EGGER board, 18 mm or 8 mm | Diagonal lines | 45° | 1.5 mm |
 | FR MDF | Diagonal lines, opposite way | 135° | 1.5 mm |
-| Softwood (plinth, skirting, frames) | Crosshatch | 45° | 2.5 mm |
+| Softwood and solid hardwood (plinth, skirting, frames, oak rails and trims) | Crosshatch | 45° | 2.5 mm |
+| Veneered MDF (oak veneer and others): hatched as MDF, the veneer is a skin | Diagonal lines, as FR MDF | 135° | 1.5 mm |
 | Plywood, including bending plywood | Horizontal lines, as laminations | 0° | 1 mm |
 | Marble and stone | Diagonal lines, wide | 45° | 4 mm |
 | Solid surface (Corian and similar) | As stone: diagonal lines, wide | 45° | 4 mm |
 | Metal (pegboard, gold tube, supports) | Solid black | | |
 | Veneer, HPL, PVC and ABS edge | Solid black thin line | | |
+| Cane webbing, rattan | Solid (a thin layer) | | |
 | Existing concrete (material "Existing Concrete") | Crosshatch, wide; halftone as existing work | 45° | 4 mm |
 | Window and door aluminium | Solid black | | |
-| Glass | Diagonal lines, its own angle so it is never mistaken for a board | 60° | 1 mm |
+| Glass and mirror | Diagonal lines, its own angle so it is never mistaken for a board | 60° | 1 mm |
 | Mall floor finish (existing) | Diagonal lines, wide, as stone | 45° | 4 mm |
+
+`fab_sheet.mjs` picks the hatch from the material name in this order: MDF, glass and mirror, timber, cane, metal, thin layers (Endura, 12 Nov 2026: "MDF 18 Oak Veneer" and "Solid Oak Rail" had come out solid black).
 
 ## Applying it
 
