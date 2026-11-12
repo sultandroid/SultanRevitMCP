@@ -27,7 +27,7 @@ const W = (u, w, z = 0) => P(O.x + FR.R[0] * u + FR.N[0] * w, O.y + FR.R[1] * u 
 const toU = (p) => FR.R[0] * (p.x - O.x) + FR.R[1] * (p.y - O.y), toW = (p) => FR.N[0] * (p.x - O.x) + FR.N[1] * (p.y - O.y);
 const [u0, u1] = [toU(P(S.wall.includes("x") ? 0 : S.from, S.wall.includes("x") ? S.from : 0)), toU(P(S.wall.includes("x") ? 0 : S.to, S.wall.includes("x") ? S.to : 0))].sort((a, b) => a - b);
 const ray = async (o, d, max = 9000) => (await call("probe_ray", { origin: o, direction: d, max_distance_mm: max, limit: 300, target: "family" })).hits;
-const isUnit = (h) => !h.link && /Casework|Generic Models|Furniture|Specialty/.test(h.category) && !(IGN && IGN.test(h.name));
+const isUnit = (h) => !h.link && /Casework|Generic Models|Furniture|Specialty/.test(h.category) && !/(^| )HW( |$)/.test(`${h.family ?? ""} ${h.name ?? ""}`) && !(IGN && IGN.test(h.name)); // fixings (HW families) are counted on the detail sheets, not drawn as units
 
 // 1. Units on the wall: rays from the shop straight at the wall over a grid.
 const units = new Map();
@@ -162,9 +162,13 @@ for (const e of (await call("query_elements", { category: "OST_Sheets", limit: 4
   const g = await call("get_element", { element_id: e.id }); const num = g.parameters.find((p) => p.name === "Sheet Number")?.value ?? "";
   if (!/-A-2\d{3}$/.test(num)) continue;
   const tok = (g.parameters.find((p) => p.name === "Sheet Name")?.value ?? e.name).split(" ").pop();
-  sheets.push({ tok, num: num.replace(C.prefix, "A-").replace(/^.*-A-/, "A-") });
+  sheets.push({ tok, name: g.parameters.find((p) => p.name === "Sheet Name")?.value ?? e.name, num: num.replace(C.prefix, "A-").replace(/^.*-A-/, "A-") });
 }
-const detailOf = (mark) => sheets.filter((x) => mark === x.tok || mark.startsWith(x.tok + "-")).sort((a, b) => b.tok.length - a.tok.length)[0]?.num ?? "-";
+// item-name marks (Madina 2, 12 Nov 2026): sheet named as the start of the mark, a config unit listing it, or bom.sheetOf; else the old code rule
+const cfgSheet = {}; for (const u of Object.values(C.units ?? {})) for (const m of [u.ref, ...(u.marks ?? []), ...(u.with ?? [])].filter(Boolean)) cfgSheet[m] = "A-" + u.no;
+const detailOf = (mark) => C.bom?.sheetOf?.[mark] ?? cfgSheet[mark]
+  ?? sheets.filter((x) => mark === x.name || mark.startsWith(x.name + " ") || (mark.startsWith(x.name) && /^\d+$/.test(mark.slice(x.name.length)))).sort((a, b) => b.name.length - a.name.length)[0]?.num
+  ?? sheets.filter((x) => mark === x.tok || mark.startsWith(x.tok + "-")).sort((a, b) => b.tok.length - a.tok.length)[0]?.num ?? "-";
 const NOTES = 815, txt = (x, y, t, ty = note) => call("create_text_note", { view_id: sheet, location: P(x, y), text: t, text_type_id: ty });
 await txt(NOTES, 812, `${S.title.toUpperCase()}\nRun ${r(u1 - u0)} wall to wall, scale 1:${s}\nAll units on this wall, as built`, bold);
 // BOM by item category, one row per unit type on this wall: type, qty, size W x D x H, detail sheet (user: "BOM to be added
@@ -175,7 +179,7 @@ const CATS = [[/Arch Unit|Arch Screen|Back Legs/, "ARCH UNITS"], [/L Fascia/, "L
 const catOf = (n) => CATS.find(([re]) => re.test(n))?.[1] ?? "OTHER";
 const byType = new Map();
 for (const U of list) { const k = U.name; const g = byType.get(k) ?? { name: k, units: [] }; g.units.push(U); byType.set(k, g); }
-const label = (g) => { const ms = g.units.map((U) => U.mark); if (ms.length === 1) return ms[0]; let p = ms[0]; for (const m of ms) while (!m.startsWith(p)) p = p.slice(0, -1); return p.replace(/-$/, "") || ms[0]; };
+const label = (g) => { const ms = g.units.map((U) => U.mark); if (ms.length === 1) return ms[0]; let p = ms[0]; for (const m of ms) while (!m.startsWith(p)) p = p.slice(0, -1); return p.replace(/[- ]+$/, "") || ms[0]; };
 const rowsB = [];
 // size from the family's own solids (exact), turned into the wall frame: W along the wall, D out from it, H
 const famSize = async (U) => {
@@ -195,11 +199,13 @@ for (const [, cat] of [...CATS, [null, "OTHER"]]) {
 }
 const marks = [...new Set(list.map((U) => U.mark))];
 await txt(NOTES, 772, "BOM BY CATEGORY, PER UNIT", bold);
-await txt(NOTES, 760, "TYPE", bold); await txt(NOTES + 58, 760, "QTY", bold); await txt(NOTES + 75, 760, "W x D x H", bold); await txt(NOTES + 140, 760, "SHEET", bold);
+// TYPE as wide as the longest name (about 3.5 mm a character at 5 mm text), capped so SHEET still ends before the title block
+const tw = Math.min(96, Math.max(58, Math.ceil(Math.max(...rowsB.filter((x) => !x.head).map((x) => String(x.m).length)) * 3.5) + 3));
+await txt(NOTES, 760, "TYPE", bold); await txt(NOTES + tw - 2, 760, "QTY", bold); await txt(NOTES + tw + 15, 760, "W x D x H", bold); await txt(NOTES + tw + 77, 760, "SHEET", bold);
 let yb = 748;
 for (const row of rowsB) {
   if (row.head) { yb -= 3; await txt(NOTES, yb, row.head, bold); yb -= 8.5; continue; }
-  await txt(NOTES, yb, row.m); await txt(NOTES + 60, yb, String(row.q)); await txt(NOTES + 75, yb, row.sz); await txt(NOTES + 140, yb, row.sh); yb -= 7.8;
+  await txt(NOTES, yb, row.m); await txt(NOTES + tw + 2, yb, String(row.q)); await txt(NOTES + tw + 15, yb, row.sz); await txt(NOTES + tw + 77, yb, row.sh); yb -= 7.8;
 }
 const yN = yb - 10;
 const noteTxt = `${S.note ? S.note + "\n" : ""}Bold dimensions: overall set and wall

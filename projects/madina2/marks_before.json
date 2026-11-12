@@ -1,0 +1,494 @@
+{
+ "E-C1": [
+  [
+   391666,
+   "Madina2 East Counter E-C1 Factory"
+  ]
+ ],
+ "BC-C-1": [
+  [
+   411427,
+   "Madina2 Base Cabinet BC-C"
+  ]
+ ],
+ "BC-A-1": [
+  [
+   412238,
+   "Madina2 Base Cabinet BC-A"
+  ]
+ ],
+ "BC-A-2": [
+  [
+   412239,
+   "Madina2 Base Cabinet BC-A"
+  ]
+ ],
+ "BC-D-1": [
+  [
+   413869,
+   "Madina2 Base Cabinet BC-D"
+  ]
+ ],
+ "BC-C-2": [
+  [
+   414655,
+   "Madina2 Base Cabinet BC-C"
+  ]
+ ],
+ "OS-A-2": [
+  [
+   517179,
+   "Madina2 Open Shelf Unit OS-A"
+  ]
+ ],
+ "OS-B": [
+  [
+   529926,
+   "Madina2 Open Shelf Unit OS-B"
+  ]
+ ],
+ "OS-A-1": [
+  [
+   531587,
+   "Madina2 Open Shelf Unit OS-A"
+  ]
+ ],
+ "OS-C-1": [
+  [
+   539507,
+   "Madina2 Open Shelf Unit OS-C"
+  ]
+ ],
+ "OS-C-2": [
+  [
+   541148,
+   "Madina2 Open Shelf Unit OS-C"
+  ]
+ ],
+ "OS-E": [
+  [
+   542751,
+   "Madina2 Open Shelf Unit OS-E"
+  ]
+ ],
+ "RA-B": [
+  [
+   670365,
+   "Madina2 Rear Arch Unit RA-B"
+  ]
+ ],
+ "AW-B": [
+  [
+   671911,
+   "Madina2 West Arch Unit AW-B"
+  ]
+ ],
+ "AW-A-1": [
+  [
+   673457,
+   "Madina2 West Arch Unit AW-A"
+  ]
+ ],
+ "AW-A-2": [
+  [
+   674230,
+   "Madina2 West Arch Unit AW-A"
+  ]
+ ],
+ "RA-A-1": [
+  [
+   675004,
+   "Madina2 Rear Arch Unit RA-A"
+  ]
+ ],
+ "RA-A-2": [
+  [
+   675777,
+   "Madina2 Rear Arch Unit RA-A"
+  ]
+ ],
+ "SC-A-1": [
+  [
+   676620,
+   "Madina2 Arch Spandrel Cladding SC-A"
+  ]
+ ],
+ "SC-A-2": [
+  [
+   677393,
+   "Madina2 Arch Spandrel Cladding SC-A"
+  ]
+ ],
+ "SC-C": [
+  [
+   678167,
+   "Madina2 Arch Spandrel Cladding SC-C"
+  ]
+ ],
+ "AR-2": [
+  [
+   724399,
+   "Madina2 East Arch Unit AR"
+  ]
+ ],
+ "AR-3": [
+  [
+   724400,
+   "Madina2 East Arch Unit AR-E-R"
+  ]
+ ],
+ "SC-D": [
+  [
+   725188,
+   "Madina2 Arch Spandrel Cladding SC-D"
+  ]
+ ],
+ "AR-1": [
+  [
+   783394,
+   "Madina2 East Arch Unit AR-E-R"
+  ]
+ ],
+ "SC-E": [
+  [
+   796125,
+   "Madina2 Arch Spandrel Cladding SC-E"
+  ]
+ ],
+ "SC-F": [
+  [
+   796127,
+   "Madina2 Arch Spandrel Cladding SC-F"
+  ]
+ ],
+ "OSB-1": [
+  [
+   953387,
+   "Madina2 Open Shelf Base Unit OSB-1"
+  ]
+ ],
+ "OSB-2": [
+  [
+   954175,
+   "Madina2 Open Shelf Base Unit OSB-2"
+  ]
+ ],
+ "OSB-3": [
+  [
+   954963,
+   "Madina2 Open Shelf Base Unit OSB-3"
+  ]
+ ],
+ "OSB-T": [
+  [
+   955746,
+   "Madina2 Open Shelf Base Top OSB-T"
+  ]
+ ],
+ "CC-P": [
+  [
+   965173,
+   "Madina2 Column Cladding Pegboard CC-P"
+  ]
+ ],
+ "LF-E-F": [
+  [
+   991126,
+   "Madina2 L Fascia LF-E-F Outside"
+  ]
+ ],
+ "LF-E-S": [
+  [
+   991909,
+   "Madina2 L Fascia LF-E-S Inside"
+  ]
+ ],
+ "LF-B-1-F": [
+  [
+   998266,
+   "Madina2 L Fascia LF-B-1-F Lunette"
+  ]
+ ],
+ "LF-B-1-S": [
+  [
+   999051,
+   "Madina2 L Fascia LF-B-1-S Soffit"
+  ]
+ ],
+ "LF-B-2-F": [
+  [
+   999836,
+   "Madina2 L Fascia LF-B-2-F Lunette"
+  ]
+ ],
+ "LF-B-2-S": [
+  [
+   1000621,
+   "Madina2 L Fascia LF-B-2-S Soffit"
+  ]
+ ],
+ "LF-A-1-S": [
+  [
+   1002189,
+   "Madina2 L Fascia LF-A-1-S Soffit"
+  ]
+ ],
+ "LF-A-2-S": [
+  [
+   1003756,
+   "Madina2 L Fascia LF-A-2-S Soffit"
+  ]
+ ],
+ "LF-A-3-S": [
+  [
+   1005323,
+   "Madina2 L Fascia LF-A-3-S Soffit"
+  ]
+ ],
+ "LF-C-F": [
+  [
+   1006107,
+   "Madina2 L Fascia LF-C-F Lunette"
+  ]
+ ],
+ "LF-C-S": [
+  [
+   1006894,
+   "Madina2 L Fascia LF-C-S Soffit"
+  ]
+ ],
+ "OS-D-1-PB": [
+  [
+   1010853,
+   "Madina2 Open Shelf Unit OS-D Pegboard"
+  ]
+ ],
+ "OS-D-2-PB": [
+  [
+   1010854,
+   "Madina2 Open Shelf Unit OS-D Pegboard"
+  ]
+ ],
+ "LF-D-1-F": [
+  [
+   1026921,
+   "Madina2 L Fascia LF-D-1-F Lunette"
+  ]
+ ],
+ "LF-D-2-F": [
+  [
+   1028492,
+   "Madina2 L Fascia LF-D-2-F Lunette"
+  ]
+ ],
+ "LF-D-2-S": [
+  [
+   1029279,
+   "Madina2 L Fascia LF-D-2-S Soffit"
+  ]
+ ],
+ "LF-E-M": [
+  [
+   1064353,
+   "Madina2 L Fascia LF-E-M Marble"
+  ]
+ ],
+ "LF-B-1-M": [
+  [
+   1065138,
+   "Madina2 L Fascia LF-B-1-M Marble"
+  ]
+ ],
+ "LF-B-2-M": [
+  [
+   1065923,
+   "Madina2 L Fascia LF-B-2-M Marble"
+  ]
+ ],
+ "LF-A-1-M": [
+  [
+   1066708,
+   "Madina2 L Fascia LF-A-1-M Marble"
+  ]
+ ],
+ "LF-A-2-M": [
+  [
+   1067493,
+   "Madina2 L Fascia LF-A-2-M Marble"
+  ]
+ ],
+ "LF-A-3-M": [
+  [
+   1068278,
+   "Madina2 L Fascia LF-A-3-M Marble"
+  ]
+ ],
+ "LF-C-M": [
+  [
+   1069063,
+   "Madina2 L Fascia LF-C-M Marble"
+  ]
+ ],
+ "LF-D-1-M": [
+  [
+   1069848,
+   "Madina2 L Fascia LF-D-1-M Marble"
+  ]
+ ],
+ "LF-D-2-M": [
+  [
+   1070633,
+   "Madina2 L Fascia LF-D-2-M Marble"
+  ]
+ ],
+ "RA-B-BL": [
+  [
+   1101510,
+   "Madina2 Rear Arch Unit RA-B Back Legs"
+  ]
+ ],
+ "LF-D-1-S": [
+  [
+   1114537,
+   "Madina2 L Fascia LF-D-1-S Soffit"
+  ]
+ ],
+ "CL": [
+  [
+   1128319,
+   "Madina2 Filler CL"
+  ]
+ ],
+ "CF-1": [
+  [
+   572716,
+   "Madina2 Ceiling Wood Frame CF-1"
+  ]
+ ],
+ "SC-B-1": [
+  [
+   679714,
+   "Madina2 Arch Spandrel Cladding SC-B"
+  ]
+ ],
+ "SC-G": [
+  [
+   803675,
+   "Madina2 Arch Spandrel Cladding SC-G"
+  ]
+ ],
+ "SC-B-2": [
+  [
+   803677,
+   "Madina2 Arch Spandrel Cladding SC-B"
+  ]
+ ],
+ "FS-1": [
+  [
+   913902,
+   "Madina2 Services Cabinet FS"
+  ]
+ ],
+ "CH-1": [
+  [
+   1014160,
+   "Madina2 Carpet Hanger CH"
+  ]
+ ],
+ "AB-RA-A-2": [
+  [
+   1102318,
+   "Madina2 Arch Back Panel RA-A"
+  ]
+ ],
+ "AB-RA-A-1": [
+  [
+   1102319,
+   "Madina2 Arch Back Panel RA-A"
+  ]
+ ],
+ "AB-AW-A-1": [
+  [
+   1207659,
+   "Madina2 Arch Back Panel AW-A"
+  ]
+ ],
+ "AB-AW-A-2": [
+  [
+   1207660,
+   "Madina2 Arch Back Panel AW-A"
+  ]
+ ],
+ "AB-AW-B": [
+  [
+   1208468,
+   "Madina2 Arch Back Panel AW-B"
+  ]
+ ],
+ "ES-1": [
+  [
+   1277953,
+   "Madina2 East Continuous Shelf ES-1"
+  ]
+ ],
+ "BK-E": [
+  [
+   1339470,
+   "Madina2 East Back Cladding BK-E"
+  ]
+ ],
+ "ST-E": [
+  [
+   1370526,
+   "Madina2 East Steel Structure ST-E2"
+  ]
+ ],
+ "HG-E": [
+  [
+   1402618,
+   "Madina2 East Arch Hangers HG-E"
+  ]
+ ],
+ "FL-A": [
+  [
+   1405761,
+   "Madina2 Corner Filler FL-A"
+  ]
+ ],
+ "Oak Joint Strip East-1": [
+  [
+   1438485,
+   "Madina2 East Pegboard Joint Strip JF-E"
+  ]
+ ],
+ "Oak Joint Strip East-2": [
+  [
+   1438486,
+   "Madina2 East Pegboard Joint Strip JF-E"
+  ]
+ ],
+ "TF-1": [
+  [
+   571928,
+   "Madina2 Tray Wood Frame TF-1"
+  ]
+ ],
+ "D-02": [
+  [
+   574311,
+   "Madina2 Cashier Counter D-02"
+  ]
+ ],
+ "D-01": [
+  [
+   577522,
+   "Madina2 Island Display D-01"
+  ]
+ ],
+ "D-02-F": [
+  [
+   1407434,
+   "Madina2 Display Fridge D-02-F"
+  ]
+ ]
+}

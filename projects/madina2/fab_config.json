@@ -33,12 +33,12 @@
       "title": "Rear Centre Arch RA-B",
       "group": "2 Fab: Arch Units",
       "rot": 270,
-      "ref": "RA-B",
+      "ref": "Rear Arch B",
       "with": [
-        "RA-B-BL"
+        "Rear Arch B Back Sides"
       ],
       "marks": [
-        "RA-B"
+        "Rear Arch B"
       ],
       "note": "Made in 2 parts (the head meets the\nexisting rear column):\nRA-B front arch, 237 deep, stops 3 mm\nin front of the column cladding.\nRA-B-BL back sides, 305 deep, beside\nthe column, follow the arch curve up\nto the LF-C soffit (+2.292).\nCNC MDF 18 formers, 8 FR MDF skins,\npainted. 40 solid oak arch front.",
       "cutPlan": {
@@ -118,8 +118,8 @@
       "rot": 180,
       "ref": "LF-A-1-F",
       "with": [
-        "LF-A-1-S",
-        "LF-A-1-M"
+        "East Fascia 1 Soffit",
+        "East Fascia 1 Marble"
       ],
       "marks": [
         "LF-A-1-F",
@@ -140,14 +140,14 @@
       "no": 2108,
       "title": "L Fascia LF-B",
       "group": "2 Fab: Arch Units",
-      "ref": "LF-B-1-F",
+      "ref": "West Fascia 1 Front",
       "with": [
-        "LF-B-1-S",
-        "LF-B-1-M"
+        "West Fascia 1 Soffit",
+        "West Fascia 1 Marble"
       ],
       "marks": [
-        "LF-B-1-F",
-        "LF-B-2-F"
+        "West Fascia 1 Front",
+        "West Fascia 2 Front"
       ],
       "note": "3 parts per head, made apart:\n-F outside lunette, -S inside soffit:\nFR MDF painted, fixed first.\n-M marble L, 20 Tuscany travertine,\nglued on after the wood is fixed.\nMarble corner: 45 mitre, bird's-nose R10.\nSign letters + LED: as per design.",
       "lDetail": {
@@ -164,13 +164,13 @@
       "title": "L Fascia LF-C",
       "group": "2 Fab: Arch Units",
       "rot": 270,
-      "ref": "LF-C-F",
+      "ref": "Rear Centre Fascia Front",
       "with": [
-        "LF-C-S",
-        "LF-C-M"
+        "Rear Centre Fascia Soffit",
+        "Rear Centre Fascia Marble"
       ],
       "marks": [
-        "LF-C-F"
+        "Rear Centre Fascia Front"
       ],
       "note": "3 parts, made apart:\n-F outside lunette, -S inside soffit:\nFR MDF painted, fixed first.\n-M marble L, 20 Tuscany travertine,\nglued on after the wood is fixed.\nMarble corner: 45 mitre, bird's-nose R10.\nCarpet hanger CH fixed under the marble.\nSign letters + LED: as per design.",
       "lDetail": {
@@ -187,14 +187,14 @@
       "title": "L Fascia LF-D",
       "group": "2 Fab: Arch Units",
       "rot": 270,
-      "ref": "LF-D-1-F",
+      "ref": "Rear Fascia 1 Front",
       "with": [
-        "LF-D-1-S",
-        "LF-D-1-M"
+        "Rear Fascia 1 Soffit",
+        "Rear Fascia 1 Marble"
       ],
       "marks": [
-        "LF-D-1-F",
-        "LF-D-2-F"
+        "Rear Fascia 1 Front",
+        "Rear Fascia 2 Front"
       ],
       "note": "3 parts per head, made apart:\n-F outside lunette, -S inside soffit:\nFR MDF painted, fixed first.\n-M marble L, 20 Tuscany travertine,\nglued on after the wood is fixed.\nMarble corner: 45 mitre, bird's-nose R10.\nSoffit and marble stop at the RA-A back board.\nSign letters + LED: as per design.",
       "lDetail": {
@@ -210,13 +210,13 @@
       "no": 2111,
       "title": "L Fascia LF-E",
       "group": "2 Fab: Arch Units",
-      "ref": "LF-E-F",
+      "ref": "West End Fascia Front",
       "with": [
-        "LF-E-S",
-        "LF-E-M"
+        "West End Fascia Soffit",
+        "West End Fascia Marble"
       ],
       "marks": [
-        "LF-E-F"
+        "West End Fascia Front"
       ],
       "note": "3 parts, made apart:\n-F outside, -S inside: FR MDF painted,\nfixed first.\n-M marble L, 20 Tuscany travertine,\nglued on after the wood is fixed.\nMarble corner: 45 mitre, bird's-nose R10.\nSign letters + LED: as per design.",
       "lDetail": {
@@ -232,9 +232,9 @@
       "no": 2304,
       "title": "Filler CL",
       "group": "2 Fab: Dividers and Cladding",
-      "ref": "CL",
+      "ref": "Front Filler",
       "marks": [
-        "CL"
+        "Front Filler"
       ],
       "cnc": false,
       "note": "Front filler between the front pier\nand arch AW-A, same as the other\nfillers: EGGER U775 ST9 White Grey 20,\nface 100 behind the arch fronts,\n50 return at the pier end.\nSoftwood battens 20 x 40 on the AW-A\nend panel, bracketed to the pier.\nScribe to wall, floor and pier on site."
@@ -243,18 +243,19 @@
       "no": 2502,
       "title": "Cashier Counter D-02",
       "group": "2 Fab: Furniture",
-      "ref": "D-02",
+      "ref": "Cashier Counter",
       "with": [
-        "D-02-F"
+        "Cashier Display Fridge"
       ],
       "marks": [
-        "D-02"
+        "Cashier Counter"
       ],
       "revisions": [
         740290,
         1291619,
         1409036,
-        1427798
+        1427798,
+        1439330
       ],
       "note": "Made as 2 units: D-02 counter 700 x 1200\n+ D-02-F display fridge 700 x 900, top +1.000.\nD-02: SHS 40x40x2 frame on 4 adjustable feet\nas E-C1. Inside all stainless 304 brushed 1.2.\nCustomer face and south end FR MDF 18\npainted to the design: sand, rust / green /\nrust bands (colour codes to confirm).\nStaff side: stainless doors, cash drawer,\naccess panel, kick. Travertine 20 on the\nsteel top ring. Wire management: 60 grommet,\nPVC duct 80x40 to the floor box, cable tray.\nPower + data by MEP. Fridge by others."
     },
@@ -262,9 +263,9 @@
       "no": 2702,
       "title": "Ceiling Wood Frame CF-1",
       "group": "2 Fab: Ceiling",
-      "ref": "CF-1",
+      "ref": "Ceiling Wood Frame",
       "marks": [
-        "CF-1"
+        "Ceiling Wood Frame"
       ],
       "cnc": false,
       "note": "Wood frame round the flower grid, in the\nC02 rattan tray. Underside +3.100.\nEach member: U section open at the top,\n18 FR MDF with oak veneer to match\nEGGER H1145 ST10: soffit and two sides.\nAll edges mitred 45: the long edges and\nthe 4 corners. Glue blocks inside @ 600.\nDownlights GL-1 to GL-8 in the soffit,\n50 in from the edge: cut on site.\nHangers to the slab: to confirm.",
@@ -282,7 +283,8 @@
       "to": 5660,
       "reach": 760,
       "revisions": [
-        1206851
+        1206851,
+        1439330
       ]
     },
     "R": {
@@ -295,7 +297,8 @@
       "to": 6360,
       "reach": 840,
       "revisions": [
-        1206851
+        1206851,
+        1439330
       ]
     },
     "E": {
@@ -308,7 +311,8 @@
       "to": 5660,
       "reach": 760,
       "revisions": [
-        1206851
+        1206851,
+        1439330
       ]
     },
     "F": {
@@ -321,7 +325,8 @@
       "to": 6360,
       "reach": 700,
       "revisions": [
-        1206851
+        1206851,
+        1439330
       ]
     }
   },
@@ -375,7 +380,18 @@
     "revisions": [
       1270447,
       1409036,
-      1427798
-    ]
+      1427798,
+      1439330
+    ],
+    "sheetOf": {
+      "East Pegboard": "A-2205",
+      "East Pegboard 2": "A-2205",
+      "East Pegboard 3": "A-2205",
+      "Open Base Unit 1": "A-2004",
+      "Open Base Unit 2": "A-2004",
+      "Open Base Unit 3": "A-2004",
+      "Open Base Unit Top": "A-2004",
+      "East Arch Hangers": "-"
+    }
   }
 }

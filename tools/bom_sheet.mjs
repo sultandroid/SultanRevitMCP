@@ -56,16 +56,22 @@ for (const e of all) {
 // rows: one per family (unit type)
 const rows = new Map();
 for (const U of units) { const k = U.fam; const g = rows.get(k) ?? { fam: k, cat: U.cat, units: [] }; g.units.push(U); rows.set(k, g); }
-const label = (g) => { const ms = g.units.map((U) => U.mark); if (ms.length === 1) return ms[0]; let p = ms[0]; for (const m of ms) while (!m.startsWith(p)) p = p.slice(0, -1); return p.replace(/-$/, "") || ms[0]; };
+const label = (g) => { const ms = g.units.map((U) => U.mark); if (ms.length === 1) return ms[0]; let p = ms[0]; for (const m of ms) while (!m.startsWith(p)) p = p.slice(0, -1); return p.replace(/[- ]+$/, "") || ms[0]; };
 const short = (m) => m.replace(/\s*-\s*BC-C Review/, "").replace(/\s*\(.*?\)/g, "").replace(/\bApproved\b/g, "").replace(/\bPainted\b/, "ptd.").replace(/\s+/g, " ").trim();
 // detail sheets: the last word of each A-2xxx sheet name is the mark it details
 const sheets = [];
 for (const e of (await call("query_elements", { category: "OST_Sheets", limit: 400 })).elements) {
   const g = await call("get_element", { element_id: e.id }); const num = g.parameters.find((p) => p.name === "Sheet Number")?.value ?? "";
   if (!/-A-[12]\d{3}$/.test(num) || /-A-1[0-1]\d{2}$/.test(num)) continue;
-  sheets.push({ tok: (g.parameters.find((p) => p.name === "Sheet Name")?.value ?? e.name).split(" ").pop(), num: num.replace(/^.*-A-/, "A-") });
+  const nm = g.parameters.find((p) => p.name === "Sheet Name")?.value ?? e.name;
+  sheets.push({ tok: nm.split(" ").pop(), name: nm, num: num.replace(/^.*-A-/, "A-") });
 }
-const detailOf = (mark) => sheets.filter((x) => mark === x.tok || mark.startsWith(x.tok + "-")).sort((a, b) => b.tok.length - a.tok.length)[0]?.num ?? "-";
+// marks as item names (Madina 2, 12 Nov 2026): the sheet whose name the mark starts with ("East Fascia 1 Marble" -> "East Fascia"),
+// a config unit that lists the mark (ref, marks, with), or bom.sheetOf { mark: "A-2205" }; else the old code rule (last word = code)
+const cfgSheet = {}; for (const u of Object.values(C.units ?? {})) for (const m of [u.ref, ...(u.marks ?? []), ...(u.with ?? [])].filter(Boolean)) cfgSheet[m] = "A-" + u.no;
+const detailOf = (mark) => B.sheetOf?.[mark] ?? cfgSheet[mark]
+  ?? sheets.filter((x) => mark === x.name || mark.startsWith(x.name + " ") || (mark.startsWith(x.name) && /^\d+$/.test(mark.slice(x.name.length)))).sort((a, b) => b.name.length - a.name.length)[0]?.num
+  ?? sheets.filter((x) => mark === x.tok || mark.startsWith(x.tok + "-")).sort((a, b) => b.tok.length - a.tok.length)[0]?.num ?? "-";
 const order = [...CATS.map(([, n]) => n).filter((n) => !/HARDWARE/.test(n)), "OTHER", "HARDWARE AND FIXINGS"];
 // fixings come as many small families of one kind (turned copies): one row per kind, sizes not needed
 for (const [k, g] of [...rows]) if (g.cat === "HARDWARE AND FIXINGS") { const key = "HW:" + (g.units[0].mats[0] ?? g.fam).replace(/^HW\s+/, ""); rows.delete(k); const h = rows.get(key) ?? { fam: key, cat: g.cat, units: [], hw: true }; h.units.push(...g.units); rows.set(key, h); }
@@ -101,7 +107,10 @@ for (const [n, v] of C.signoff) { await setv(sheet, n, v); if (tbi) await setv(t
 await call("set_sheet_revisions", { sheet_ids: [sheet], revision_ids: B.revisions ?? C.revisions });
 const txt = (x, y, t, ty = note) => (String(t ?? "").trim() ? call("create_text_note", { view_id: sheet, location: P(x, y), text: String(t), text_type_id: ty }) : null);
 // columns (sheet mm from the block's left edge); a block is 495 wide, two blocks fit the drawing area left of the title block
-const COL = { t: 0, q: 52, sz: 70, wall: 138, sh: 174, mat: 202 }, LH = 7.8, TOP = 790, BOT = 40, BW = 495;
+// TYPE column as wide as the longest type name (5 mm text, about 3.5 mm a character): item-name marks (Madina 2, 12 Nov 2026)
+// are 3 times longer than the old codes and ran into QTY
+const tw = Math.max(52, Math.ceil(Math.max(...table.filter((r) => !r.head).map((r) => String(r.t).length)) * 3.5) + 4);
+const COL = { t: 0, q: tw, sz: tw + 18, wall: tw + 86, sh: tw + 122, mat: tw + 150 }, LH = 7.8, TOP = 790, BOT = 40, BW = 495;
 const fitMat = (m) => (m.length > 48 ? m.slice(0, 47) + "." : m);
 const nHW = units.filter((U) => U.cat === "HARDWARE AND FIXINGS").length, nU = units.length - nHW, nT = [...rows.values()].filter((g) => !g.hw).length;
 await txt(30, 818, `${(B.title ?? "Overall BOM - Carpentry").toUpperCase()}: ${nU} units in ${nT} types + ${nHW} fixings, all walls and free-standing`, bold);
