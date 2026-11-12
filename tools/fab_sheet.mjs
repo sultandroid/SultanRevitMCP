@@ -63,10 +63,12 @@ for (const mk of t.with ?? []) {
 // for a 1561 arch). Measure each instance with rays along x, y and z and shift its parts by the value most rays agree on.
 {
   const { hitsAlong, setDoc } = await import("./fitlib.mjs"); setDoc(C.doc);
-  const AXS = ["x", "y", "z"];
+  // t.placementAxes: only check these axes. Parts that are rings or frames (trays, plinths) have boxes that cover their open
+  // middle; rays pass through and the vote goes wrong (Endura side table, 12 Nov 2026: +40 in z, 660 high for a 620 table).
+  const AXS = ["x", "y", "z"], CHECK = t.placementAxes ?? AXS;
   for (const own of IDS) {
     const ps = parts.filter((f) => f.own === own), d = { x: 0, y: 0, z: 0 };
-    for (const a of AXS) {
+    for (const a of CHECK) {
       const [p1, p2] = AXS.filter((k) => k !== a), sz = (f) => (f[p1 + "1"] - f[p1 + "0"]) * (f[p2 + "1"] - f[p2 + "0"]);
       const votes = [];
       for (const p of [...ps].sort((u, v) => sz(v) - sz(u)).slice(0, 8)) for (const fr of [0.5, 0.25, 0.75]) {

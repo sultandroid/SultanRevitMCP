@@ -1417,5 +1417,15 @@
    ],
    "strip": "\\b(ptd\\.|Painted|Paint|RAL|Approved|Matching|Display|Arch|Front|CNC|Former|Core|Backing|Cladding|Carcass|Frame|Back|Shelf|Batten|Skirting|Black|mm|Review)\\b|\\s-\\s|\\b\\d+\\b"
   }
+ },
+ "stock_sizes": {
+  "_rule": "Cut every part from standard market stock (user, 12 Nov 2026: the plinth was 18 x 56, not a market size; use 40 x 40). Check each part against this list before modelling; a size not here needs the factory to confirm it.",
+  "softwood_planed_mm": [[20, 40], [40, 40], [40, 60], [45, 95]],
+  "hardwood_oak_thickness_mm": [20, 25, 30, 40, 50],
+  "mdf_thickness_mm": [3, 6, 9, 12, 16, 18, 25],
+  "egger_thickness_mm": [8, 18],
+  "glass_thickness_mm": [4, 5, 6, 8, 10],
+  "mirror_thickness_mm": [4, 5, 6],
+  "steel_shs_mm": [[20, 20], [25, 25], [40, 40], [50, 50]]
  }
 }
