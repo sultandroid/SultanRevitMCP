@@ -13,3 +13,4 @@ Run in this folder, Revit open with Madina2_ARCH_01 (npm i once):
 odoo.mjs reads the Odoo key from the local access file (never committed, never printed). Nothing is created in Odoo.
 Rules: standard products (no project in the name), code JN-<type>-<W>x<D>x<H>-<material> in cm; steel parts that are all
 "Steel Painted Black" are told apart by shape (SHS, rods, flat bars, angles, mesh) in bom.mjs rule().
+6. `node costs.mjs` then `node gcost.mjs` - unit costs from Odoo (product cost, else vendor price, SAR) for Materials total G:I, cost = qty x unit as a formula, total row 2 below the last line; blank = price to confirm
