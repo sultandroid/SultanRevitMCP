@@ -9,8 +9,9 @@ import { fileURLToPath } from "node:url";
 
 const FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "standards", "material-colors.json");
 export const MIN_DIST = 24;
-// Material names carrying an approved colour code (EGGER H/U/F/W, RAL) keep the colour given: it is the approved colour.
-export const APPROVED = /\b([HUFW]\d{3,4}|RAL ?\d{4})\b/;
+// Locked colours: a real EGGER board with its code (EGGER ... H/U/F/W1234) or a RAL code keeps the colour given: it is the
+// approved colour. A material made "to match" a code, or painted to a code without RAL, is another material: it moves.
+export const APPROVED = { test: (n) => !/\bmatch/i.test(n) && (/\bEGGER\b.*\b[HUFW]\d{3,4}\b/i.test(n) || /\bRAL ?\d{4}\b/i.test(n)) };
 
 let reg = null;
 function load() { if (!reg) { try { reg = JSON.parse(fs.readFileSync(FILE, "utf8")); } catch { reg = {}; } } return reg; }

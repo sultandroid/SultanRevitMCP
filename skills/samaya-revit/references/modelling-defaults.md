@@ -34,9 +34,9 @@ Samaya Factory builds in **EGGER laminates and painted FR MDF**, and this replac
 
 **Different materials, different colours (rule, user 12 Nov 2026).** Every material in a model has its own shading colour; no two share one or sit so close the eye cannot tell them apart (RGB distance under 24).
 - The bridge enforces it. `call("ensure_material")` gives a new material the nearest free colour to the one asked for (client `materialColors.mjs`, registry `standards/material-colors.json`, the add-in checks the model's own materials too). Pass `exact_color: true` only to set an approved colour on purpose.
-- Approved colour codes (EGGER H/U/F/W, RAL in the name) keep their colour: it is the approved colour. Two approved ones too close are reported, not moved.
+- Locked colours: a real EGGER board with its code in the name (EGGER ... H1145) or a RAL code keeps its colour: it is the approved colour. A material made "to match" a code, or painted to a code without RAL, is another material and moves. Two locked ones too close are reported, not moved.
 - `fab_sheet.mjs` applies the rule to every material of the unit before it draws, and the materials legend shows each material's colour chip beside its ISO cut hatch (solid hatches such as steel and veneer are told apart by the chip).
-- Whole model: `node tools/material_colors.mjs <document>` lists the clashes and the moves it would make; `--apply` makes them. The search moves lighter/darker first and never clamps (clamping turned 40 clashes white on 12 Nov 2026; restored from the backup). Back up before `--apply`.
+- Whole model: `node tools/material_colors.mjs <document>` lists the clashes and the moves it would make; `--apply` makes them. The search moves lighter/darker first and never clamps (clamping turned 40 clashes white on 12 Nov 2026; restored from the backup). Back up before `--apply`. Madina 2 done 12 Nov 2026: 187 clashing pairs to 0 over 84 materials.
 
 ## Freestanding furniture
 

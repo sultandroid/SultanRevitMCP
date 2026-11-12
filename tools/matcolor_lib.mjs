@@ -4,9 +4,9 @@
 // it IS the approved colour; a clash between two approved ones is only reported.
 // Used by fab_sheet.mjs for every unit, and by tools/material_colors.mjs for a whole model.
 import { call } from "./rvt.mjs";
-import { distinctColor, MIN_DIST } from "../revit-mcp/client/materialColors.mjs";
+import { distinctColor, MIN_DIST, APPROVED } from "../revit-mcp/client/materialColors.mjs";
+export { APPROVED };
 
-export const APPROVED = /\b([HUFW]\d{3,4}|RAL ?\d{4})\b/;
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 const unpack = (v) => { const n = Number(v); return [n & 255, (n >> 8) & 255, (n >> 16) & 255]; };   // Revit Color as integer
 

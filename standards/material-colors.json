@@ -1,27 +1,422 @@
 {
+ "Adjustable Leg Steel 50": [
+  90,
+  90,
+  90
+ ],
+ "Bar Handle Stainless 304 Brushed": [
+  200,
+  202,
+  205
+ ],
+ "Cable Duct PVC 80x40 White": [
+  240,
+  240,
+  240
+ ],
+ "Cable Tray Steel Perforated 100x50": [
+  150,
+  150,
+  150
+ ],
+ "Dark Wood Top 20 Approved - BC-C Review": [
+  55,
+  158,
+  153
+ ],
+ "Dark Wood Top 20 Approved": [
+  62,
+  42,
+  30
+ ],
+ "Display Bars Painted U775 ST9 White Grey": [
+  231,
+  250,
+  219
+ ],
+ "Display Frame White Approved": [
+  255,
+  255,
+  253
+ ],
+ "Display Glass Clear": [
+  216,
+  238,
+  240
+ ],
+ "EGGER 18 H3710 ST12 Natural Carini Walnut": [
+  112,
+  84,
+  62
+ ],
+ "EGGER 8 H1145 ST10 Natural Bardolino Oak": [
+  186,
+  146,
+  98
+ ],
+ "EGGER 8 Pegboard Face Approved Oak": [
+  150,
+  110,
+  75
+ ],
+ "EGGER 8 Pegboard Face White (code to confirm)": [
+  244,
+  214,
+  240
+ ],
+ "EGGER Oak Back 8 Approved": [
+  169,
+  129,
+  85
+ ],
+ "EGGER Oak Frame 18 Approved - BC-C Review": [
+  229,
+  133,
+  58
+ ],
+ "EGGER Oak Frame 18 Approved": [
+  213,
+  150,
+  128
+ ],
+ "EGGER Shelf 18 Approved Decor": [
+  175,
+  139,
+  120
+ ],
+ "EGGER White Back 8 - BC-C Review": [
+  172,
+  150,
+  221
+ ],
+ "EGGER White Back 8 MR": [
+  210,
+  210,
+  234
+ ],
+ "EGGER White Carcass 18 - BC-C Review": [
+  83,
+  155,
+  220
+ ],
+ "EGGER White Carcass 18 MR": [
+  210,
+  238,
+  206
+ ],
+ "FR MDF - 18 mm Backing": [
+  0,
+  0,
+  0
+ ],
+ "FR MDF 18 CNC Arch Former": [
+  14,
+  14,
+  14
+ ],
+ "FR MDF 18 Cladding Core": [
+  150,
+  124,
+  99
+ ],
  "FR MDF 18 Oak Veneer (match EGGER H1145 ST10)": [
-  196,
-  160,
-  112
+  199,
+  163,
+  109
+ ],
+ "FR MDF 18 Painted Sand As Approved": [
+  228,
+  204,
+  164
+ ],
+ "FR MDF 18 Pegboard Core": [
+  135,
+  105,
+  95
+ ],
+ "FR MDF 18 Raw": [
+  181,
+  171,
+  131
  ],
  "FR MDF 8 Oak Veneer": [
   182,
   146,
-  98
+  74
+ ],
+ "FR MDF Packer 4": [
+  195,
+  175,
+  155
+ ],
+ "FR MDF Painted RAL Approved": [
+  196,
+  191,
+  181
+ ],
+ "Filler EGGER U775 ST9 White Grey": [
+  226,
+  226,
+  220
+ ],
+ "Fridge Vent Grille Grey": [
+  136,
+  136,
+  136
+ ],
+ "Furniture MDF Painted As Approved": [
+  255,
+  230,
+  222
+ ],
+ "Furniture Paint Pink As Approved": [
+  235,
+  209,
+  201
+ ],
+ "Grommet 60 Black": [
+  6,
+  30,
+  30
+ ],
+ "Gypsum Board Light Grey Paint": [
+  183,
+  184,
+  209
+ ],
+ "HW Confirmat Screw 7x50": [
+  102,
+  102,
+  107
+ ],
+ "HW Handle Screw M4x25": [
+  72,
+  72,
+  77
+ ],
+ "HW Plastic Dowel 5x12": [
+  230,
+  197,
+  230
+ ],
+ "HW Screw 4x40 + Plastic Dowel": [
+  120,
+  120,
+  125
+ ],
+ "HW Self Drill Screw 4.2x32": [
+  70,
+  43,
+  75
+ ],
+ "HW Wall Plug + Screw 8x60": [
+  200,
+  60,
+  60
+ ],
+ "HW Wood Dowel 8x35": [
+  169,
+  160,
+  110
+ ],
+ "Hardwood Bar Handle - BC-C Review": [
+  139,
+  61,
+  88
+ ],
+ "Hinge 35 Half Overlay Approved": [
+  162,
+  162,
+  167
+ ],
+ "Hinge 35 Inset 110 Approved - BC-C Review": [
+  163,
+  179,
+  189
+ ],
+ "Hinge Plate Approved - BC-C Review": [
+  104,
+  122,
+  150
+ ],
+ "Hinge Plate Approved": [
+  126,
+  150,
+  155
+ ],
+ "Island Plinth Dark As Approved": [
+  76,
+  58,
+  48
+ ],
+ "Island Wood Baton Handle As Approved": [
+  224,
+  168,
+  158
+ ],
+ "Island Wood Veneer As Approved": [
+  151,
+  146,
+  87
+ ],
+ "LED Strip Warm White": [
+  255,
+  214,
+  140
+ ],
+ "MR MDF 16 Door Core": [
+  177,
+  153,
+  147
+ ],
+ "Marble Tuscany Travertine 20 Approved": [
+  216,
+  211,
+  184
  ],
  "Natural Rattan Weave 3": [
   207,
   177,
   127
  ],
+ "Nut and Washer M10 Galvanised": [
+  28,
+  0,
+  28
+ ],
+ "Oak Veneer - Match EGGER Base Cabinet Corner - BC-C Review": [
+  110,
+  178,
+  92
+ ],
+ "POS Terminal By Others": [
+  40,
+  40,
+  60
+ ],
+ "PVC Edge 2 mm Matching": [
+  132,
+  100,
+  62
+ ],
+ "Paint Green As Approved": [
+  112,
+  130,
+  92
+ ],
+ "Paint Rust As Approved": [
+  160,
+  82,
+  50
+ ],
+ "Plinth Painted U968 ST9 Carbon Grey": [
+  56,
+  58,
+  62
+ ],
  "Plywood 18": [
-  219,
+  240,
   189,
   145
  ],
+ "Rattan Cane Webbing - BC-C Review": [
+  217,
+  181,
+  105
+ ],
+ "SHS 40x40x2 Steel Approved": [
+  41,
+  60,
+  41
+ ],
+ "Shelf Pin Steel Nickel": [
+  190,
+  163,
+  195
+ ],
+ "Sink Stainless Steel Approved": [
+  173,
+  202,
+  183
+ ],
+ "Softwood - Base Cabinet Corner Core - BC-C Review": [
+  234,
+  114,
+  119
+ ],
+ "Softwood Batten 40x40": [
+  231,
+  195,
+  120
+ ],
+ "Softwood Batten": [
+  242,
+  218,
+  178
+ ],
+ "Softwood R100 veneer to match H3710 ST12": [
+  218,
+  155,
+  95
+ ],
+ "Softwood Skirting Black - BC-C Review": [
+  63,
+  85,
+  97
+ ],
+ "Softwood Skirting Black": [
+  41,
+  9,
+  9
+ ],
+ "Solid Oak - Display Arch Front": [
+  190,
+  123,
+  105
+ ],
+ "Stainless Steel 304 Brushed 1.2": [
+  186,
+  216,
+  219
+ ],
+ "Stainless Steel 304 Brushed Kick 1.2 on MR MDF": [
+  161,
+  202,
+  205
+ ],
+ "Steel Angle 40x40x4 Approved": [
+  28,
+  28,
+  0
+ ],
+ "Steel Base Plate 8 Approved": [
+  58,
+  82,
+  58
+ ],
+ "Steel Painted Black, RAL Approved": [
+  25,
+  59,
+  59
+ ],
  "Steel Painted Black": [
-  35,
-  35,
+  5,
+  5,
   35
+ ],
+ "Steel Plate 10 Approved": [
+  70,
+  100,
+  70
+ ],
+ "Steel Plate 6 Approved": [
+  84,
+  84,
+  56
+ ],
+ "Threaded Rod M10 Galvanised": [
+  0,
+  30,
+  0
  ]
 }
