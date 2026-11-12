@@ -66,22 +66,12 @@ for (const p of pts) {
   const inward = p.ax === "x" ? (p.y < 2855 ? 1 : -1) : (p.x < 3320 ? 1 : -1);   // toward the inner side board (opening)
   const off = (a, b) => [Math.min(a, b), Math.max(a, b)];
   const [b0, b1] = off(20 * inward, 26 * inward), [k0, k1] = off(26 * inward, 32 * inward);
-  // ADJUSTABLE (user 12 Nov 2026: "add adjastable system for balancing the box frame"): a vertical slot 7 x 55 in each flat
-  // bar (z 3132..3187); 2 no. M6 x 50 pan bolts @ 25 + penny washers 18 through the slot and the packer into M6 threaded
-  // inserts in the box inner side board -> each point slides +-14 to level the box, then tighten. The grid itself levels on
-  // the M10 rod nuts.
-  const SL = [3132, 3187], seg = [[BOT, SL[0], -20, 20], [SL[1], Z1, -20, 20], [SL[0], SL[1], -20, -3.5], [SL[0], SL[1], 3.5, 20]];
+  // FIXING ONLY (user 12 Nov 2026: "if you make balancing system for the frame no need for the box just flatbar to fix
+  // only"): the grid is levelled on the M10 rod nuts, so the box needs no adjustment of its own. (A slotted M6 version was
+  // built and dropped the same day.) Plain flat bar 40x6, 2 no. 4.8x30 pan screws through the 6 ply packer into the board.
   const along = (u0, u1, w0, w1, z0, z1, m) => p.ax === "x" ? box(p.x + u0, p.y + w0, z0, p.x + u1, p.y + w1, z1, m) : box(p.x + w0, p.y + u0, z0, p.x + w1, p.y + u1, z1, m);
-  for (const [z0, z1, u0, u1] of seg) S.push(along(u0, u1, b0, b1, z0, z1, blk));   // flat bar 40x6 with the slot
+  S.push(along(-20, 20, b0, b1, BOT, Z1, blk));                                       // flat bar 40x6
   S.push(along(-50, 50, k0, k1, BOT, 3200, ply));                                     // 6 ply packer on the inner side board
-  for (const zc of [3147, 3172]) {                                                     // 2 M6 bolts in the slot, horizontal
-    const lin = (w0, w1, r, m, n = 8) => {
-      const [a0, a1] = off(w0 * inward, w1 * inward), prof = Array.from({ length: n }, (_, i) => { const t = (2 * Math.PI * i) / n, du = r * Math.cos(t), dz = r * Math.sin(t);
-        return p.ax === "x" ? { x: p.x + du, y: p.y + a0, z: zc + dz } : { x: p.x + a0, y: p.y + du, z: zc + dz }; });
-      return { profile: prof, direction: p.ax === "x" ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 }, length_mm: a1 - a0, material_id: m };
-    };
-    S.push(lin(14.5, 46, 3, galv), lin(18.5, 20, 9, galv, 12), lin(14.5, 18.5, 5, galv, 6));   // bolt, penny washer, head
-  }
 }
 const lv = (await call("list_levels", D)).levels.reduce((a, l) => (Math.abs(l.elevation_mm) < Math.abs(a.elevation_mm) ? l : a)).id;
 // remove the separate rod hangers
@@ -90,5 +80,5 @@ if (old.length) await call("delete_elements", { ...D, element_ids: old });
 const ds = (await call("create_direct_shape", { ...D, category: "OST_GenericModel", name: FAM, solids: S })).id;
 const r = await call("make_unit_family", { ...D, template_path: RFT, family_name: FAM, save_dir: DIR, level_id: lv, mark: MARK, element_ids: [ds] });
 await call("set_parameter", { ...D, element_id: r.id, parameter_name: "Comments", value:
-  "One steel frame carries the centre ceiling (user 12 Nov 2026): SHS 40x40x2 grid, black primer, lying on the rattan board +3.2125..+3.2525: ring on the Ceiling Wood Frame centre lines 2320 x 1670, 2 cross members x 2940 / 3700, middle member y 2855, all welded. HANGERS: threaded rods only: 10 M10 galvanised rods from drop-in anchors in the slab soffit +3.70 to angle cleats 40x40x4 x 50 welded to the inner face of the ring, nut + washer above and below (level the grid on the nuts); 4 M10 rods at 45 as sway bracing. BOX FRAME: 10 flat bars 40x6 welded to the SHS, through 45x10 slots in the rattan board, ADJUSTABLE: vertical slot 7x55 in each bar, 2 no. M6 x 50 pan bolts + 18 penny washers through the slot and a 6 ply packer into M6 threaded inserts in the box inner side board: each point slides +-14 to level the box, then tighten; hidden inside the open-top box. Middle rattan board screwed up into the grid @ 300. Flower mesh bars on 4 M8 rods to the cross members. ~115 kg on 10 rods. Shift flat bars <=100 to clear downlights GL-1..8." });
+  "One steel frame carries the centre ceiling (user 12 Nov 2026): SHS 40x40x2 grid, black primer, lying on the rattan board +3.2125..+3.2525: ring on the Ceiling Wood Frame centre lines 2320 x 1670, 2 cross members x 2940 / 3700, middle member y 2855, all welded. HANGERS: threaded rods only: 10 M10 galvanised rods from drop-in anchors in the slab soffit +3.70 to angle cleats 40x40x4 x 50 welded to the inner face of the ring, nut + washer above and below (level the grid on the nuts); 4 M10 rods at 45 as sway bracing. BOX FRAME: 10 flat bars 40x6 welded to the SHS, through 45x10 slots in the rattan board, fixed with 2 no. 4.8x30 pan screws through a 6 ply packer into the box inner side board, hidden inside the open-top box (levelling is on the M10 rod nuts only). Middle rattan board screwed up into the grid @ 300. Flower mesh bars on 4 M8 rods to the cross members. ~115 kg on 10 rods. Shift flat bars <=100 to clear downlights GL-1..8." });
 console.log("steel frame", r.id, S.length, "solids; removed hangers", old);
