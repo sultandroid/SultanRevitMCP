@@ -31,7 +31,7 @@ export function spec({ name, SW, SH, SWID, source_rfa, save_path, brand }) {
     source_rfa, save_path, sheet_size_mm: { w: SW, h: SH },
     lines: [
       line(W, B, R, B), line(R, B, R, T), line(R, T, W, T), line(W, T, W, B), line(L, B, L, T),
-      ...ROWS.map((yy) => line(L, yy, R, yy)), line(M, y(56), M, y(146)),
+      ...ROWS.map((yy) => line(L, yy, R, yy)), line(L, y(206), R, y(206)), line(M, y(56), M, y(146)),
       line(SW / 2, T, SW / 2, SH), line(SW / 2, 0, SW / 2, B), line(0, SH / 2, W, SH / 2), line(R, SH / 2, SW, SH / 2),
       ...Array.from({ length: COLS + 1 }, (_, k) => line(W + k * zw, T, W + k * zw, T + 5)), ...Array.from({ length: COLS + 1 }, (_, k) => line(W + k * zw, B, W + k * zw, B - 5)),
       ...Array.from({ length: ROWS_Z + 1 }, (_, k) => line(W, B + k * zh, W - 5, B + k * zh)), ...Array.from({ length: ROWS_Z + 1 }, (_, k) => line(R, B + k * zh, R + 5, B + k * zh)),
@@ -44,7 +44,7 @@ export function spec({ name, SW, SH, SWID, source_rfa, save_path, brand }) {
       ...Array.from({ length: ROWS_Z }, (_, k) => ({ text: String.fromCharCode(65 + ROWS_Z - 1 - k), at: P(W - 8, B + k * zh + zh / 2 + 2), size_mm: 2.5, color: BLACK })),
       ...Array.from({ length: ROWS_Z }, (_, k) => ({ text: String.fromCharCode(65 + ROWS_Z - 1 - k), at: P(R + 3, B + k * zh + zh / 2 + 2), size_mm: 2.5, color: BLACK })),
       ...notesPanel(X, y(587), y(475)),
-      head("PROJECT", X, y(277)), head("DRAWING TITLE", X, y(237)), head("DRAWING NO.", X, y(182)), head("REV", x(1154), y(182)),
+      head("PROJECT", X, y(277)), head("DRAWING TITLE", X, y(237)), head("MFG ORDER NO.", X, y(202)), head("DRAWING NO.", X, y(182)), head("REV", x(1154), y(182)),
       head("SCALE", X, y(142)), head("DATE", M + 5 * kx, y(142)), head("DRAWN BY", X, y(112)), head("CHECKED BY", M + 5 * kx, y(112)), head("APPROVED BY", X, y(82)), head("PROJECT NO.", M + 5 * kx, y(82)),
       { text: SWID >= 160 ? `This drawing is the property of ${owner}. Do not scale. Check all dimensions on site before fabrication.` : `Property of ${owner}. Do not scale.` + NL + "Check all dimensions on site.", at: P(X, y(51)), size_mm: 2, color: BLACK },
       // Footer: sized and centred in its own row (a text box is about 1.4 x its size; at = top of the box), so it never touches the border on A3 (cell is under 5 mm there).
@@ -59,3 +59,8 @@ export function spec({ name, SW, SH, SWID, source_rfa, save_path, brand }) {
     revSchedule: (() => { const rev = Math.max(12, Math.round(16 * kx)), date = Math.max(24, Math.round(38 * kx)); return { location: P(L + 1, Math.min(y(362), y(367) - 4)), fields: [{ name: "Revision Number", heading: "REV", width_mm: rev }, { name: "Revision Description", heading: "DESCRIPTION", width_mm: SWID - 2 - rev - date }, { name: "Revision Date", heading: "DATE", width_mm: date }] }; })(),
   };
 }
+
+// Manufacturing order number (user, 12 Nov 2026: every factory title block, Samaya too). Revit cannot add a label to a
+// family from the API, so the value is a sheet text note at this point: tools/mfg_order.mjs writes it on every sheet.
+export function moAt(size) { const z = SIZES.find((q) => q[0] === size); if (!z) return null; const [, SW, SH, SWID] = z;
+  const R = SW - 10, L = R - SWID, X = L + 5 * (SWID / 160), ky = (SH - 20) / 821; return { x: X, y: 10 + (193 - 10) * ky, z: 0 }; }

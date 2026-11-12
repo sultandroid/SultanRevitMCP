@@ -94,3 +94,6 @@ They are printed in the title block's NOTES panel, so they are on every sheet wi
 
 - DESIGNER panel: the designer's name on the left, their logo on the right, cut from their own drawing (source named).
 - PROJECT panel: the Arabic project name as a text note under the English label (the label holds one line). Example `indora-furniture/revit/sample-side-table/tb_extras.mjs`.
+
+## Manufacturing order number (user, 12 Nov 2026)
+Every factory title block (Samaya Factory and client factories) has a MFG ORDER NO. cell between DRAWING TITLE and DRAWING NO. (tools/title_block_spec.mjs). Revit cannot add a label to a family from the API, so the value is a sheet text note: `node tools/mfg_order.mjs --doc <title> --mo <number> [--sheets <prefix>]` writes it on every sheet. Ask the factory for the MO number before issue; never invent it.
