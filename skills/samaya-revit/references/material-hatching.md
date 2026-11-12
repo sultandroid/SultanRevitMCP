@@ -26,11 +26,11 @@ Every material shows its own hatch where it is cut in a section or detail, so th
 | Plywood, including bending plywood | Horizontal lines, as laminations | 0° | 1 mm |
 | Marble and stone | Diagonal lines, wide | 45° | 4 mm |
 | Solid surface (Corian and similar) | As stone: diagonal lines, wide | 45° | 4 mm |
-| Metal (pegboard, gold tube, supports) | Solid black | | |
+| Metal (pegboard, gold tube, supports, brass, steel) | Solid fill in the metal's own colour: brass gold (190, 150, 60), stainless and aluminium light grey, mild steel and black-painted metal dark grey or black, copper copper-red (user, 12 Nov 2026) | | |
 | Veneer, HPL, PVC and ABS edge | Solid black thin line | | |
 | Cane webbing, rattan | Solid (a thin layer) | | |
 | Existing concrete (material "Existing Concrete") | Crosshatch, wide; halftone as existing work | 45° | 4 mm |
-| Window and door aluminium | Solid black | | |
+| Window and door aluminium | Solid fill, aluminium grey (or the frame colour) | | |
 | Glass and mirror | Diagonal lines, its own angle so it is never mistaken for a board | 60° | 1 mm |
 | Mall floor finish (existing) | Diagonal lines, wide, as stone | 45° | 4 mm |
 
