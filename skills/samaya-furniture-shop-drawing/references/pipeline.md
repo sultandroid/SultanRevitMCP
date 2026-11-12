@@ -13,6 +13,8 @@ Copy `indora-furniture/revit/sample-side-table/` to the new piece's folder and c
 | `exploded.mjs` | Sheet 2102: parts pulled apart (two shaded views), number columns, parts list and steps, coloured 3D | Nothing (reads `parts.mjs`) |
 | `junctions.mjs` | Sheet 2103: one 1:1 section per junction (`kind: "section"` looks +y, `"secx"` looks +x), dimensions, screws as lines, bilingual labels | The junction list |
 | `finishes.mjs` | Sheet 2104: finishes table with photos, notes, red questions, coloured 3D | The finish rows |
+| `cnc_sheet.mjs` | Sheet 2105: CNC routing (user, 12 Nov 2026: "for CNC work add a sheet for any profile that needs routing"). Every routed part flat from the parts.mjs numbers with sizes (true diameters, not into a notch), notch/pocket close-up, one 1:1 DXF per part via tools/cnc_dxf.mjs (CUT / HOLES / POCKET-n / ENGRAVE / info layers) and a CSV cut list, copied to the Drive CNC folder. Formers and cauls for bent parts too | The PARTS list (cut, holes, drill, pocket, mark, note) |
+| `render_sheet.mjs` | Renders every sheet and runs tools/sheet_overflow.ps1: nothing may cross the title-block border | - |
 | `product3d.mjs` | Clean coloured 3D for any sheet: `dir` (angle), `margin` | Box of the piece |
 | `tb_extras.mjs` | Designer name and logo, Arabic project name | Names, logo file |
 | `render_sheet.mjs` | Renders each sheet to `check-NNNN.png` (read them) | Sheet numbers |
