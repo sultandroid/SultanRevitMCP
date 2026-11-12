@@ -30,6 +30,8 @@ The worked example to copy is `indora-furniture/revit/sample-side-table/` (GitHu
 - **Flush means flush**: when the design shows a shelf level with its frame, size the rebate, board and plinth so it is; check with a section.
 - **Fixings**: draw each screw at its real height through real wood; cut a fixing detail where the fixing really is (not through a window or void).
 - **Curved members are bent laminations**, never cut from a straight blank (short grain breaks). **Round frames are segments** in two layers, joints staggered. **Solid wood moves**: slotted fixings, never glued full face to metal or glass.
+- **An angled member meeting a flat part** (a curved leg on a base): cut its end level and seat it in a shallow locating recess (5 mm, the footprint only), fixed by a bolt from below into a threaded insert plus 2 dowels and glue. A deep pocket at a 40 deg angle runs over 100 long and weakens the base (user, CT-01).
+- **Proportion by family**: give legs the same section as the frame they carry (CT-01 legs 50 x 70 = ring 50 x 70); the factory found 40 x 50 and 45 x 60 weak.
 - **Skins on frames** (stone alternative clay sheet, veneer panels): glued on an MDF backing, edges hidden under a mitred trim that stands proud.
 
 ## Sheet rules (on top of views-and-sheets.md)
