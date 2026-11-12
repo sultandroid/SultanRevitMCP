@@ -52,11 +52,18 @@ The CONSULTANT panel has no label. Add the name as a text note on each sheet, at
 
 `template/Samaya Factory.rte` and `template/Title Blocks/Samaya Factory A0..A3.rfa` (with the logo) are built by `tools/samaya_template.mjs` and copied here after each rebuild. Rebuilt and checked on 3 Nov 2026: A1 renders clean.
 
-Known fault on A3, still open:
-- The REVISIONS heading sits on the revision schedule's header row.
-- The website line touches the bottom border.
+A3 faults fixed in the shared layout (12 Nov 2026, checked on the Endura build): the revision schedule now starts 4 mm under the REVISIONS heading, and the footer line is sized and centred in its own row. Rebuild the Samaya template to pick it up.
 
-The schedule text does not scale with the sheet. Fix it in the builder's A2 and A3 specs before using those sizes on an issued sheet.
+The schedule text still does not scale with the sheet: on A3 the header row text is large but fits.
+
+## Title blocks for other factories (Endura, 12 Nov 2026)
+
+The layout is one function, `tools/title_block_spec.mjs`. The Samaya template and every other factory we work for use it.
+- `node tools/brand_title_blocks.mjs <brand.json>` builds A0 to A3 with that factory's logo, owner name (in the disclaimer) and footer line. It renders `check-A0..A3.png` and keeps `<prefix> Title Blocks.rvt` with all four loaded.
+- `brand.json` and the logo live in the client's own repo, not here. Example: `indora-furniture/revit/brand.json`.
+- The logo slot is about 2.75 : 1. A tall logo (mark above the name) must be laid out wide first: mark on the left, name on the right, opaque white.
+- **The bridge does not write the revision schedule into the .rfa.** `add_titleblock_revision_schedule` edits the family inside the project and closes it unsaved. The .rfa files carry everything else; the kept .rvt carries the schedules. Load from the .rvt, or add the schedule after loading.
+- Right after a load, `create_sheet` can refuse the new title block type once. The tool waits and retries.
 
 ## NOTES panel: fabrication notes and standards on every sheet
 

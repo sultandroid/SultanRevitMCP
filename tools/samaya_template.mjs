@@ -5,6 +5,7 @@
 import { writeFileSync, mkdirSync, copyFileSync } from "node:fs";
 import { call } from "./rvt.mjs";
 import { S, ensureStyles } from "./standards.mjs";
+import { SIZES, spec as tbSpec } from "./title_block_spec.mjs";
 
 const ROOT = "C:/Users/user/OneDrive - SAMAYA INVESTMENT/Samaya/";
 const OUT_DIR = ROOT + "Technical Office/Revit Template/";
@@ -17,59 +18,9 @@ const P = (x, y) => ({ x, y, z: 0 });
 mkdirSync(OUT_DIR + "Title Blocks", { recursive: true });
 copyFileSync(LOGO, OUT_DIR + "Title Blocks/samaya-factory-logo-black.png");
 
-// ISO 216 sizes, landscape, with the strip width used on each.
-const SIZES = [["A0", 1189, 841, 160], ["A1", 841, 594, 140], ["A2", 594, 420, 120], ["A3", 420, 297, 100]];
-
-// NOTES panel, on every sheet: the factory's short fabrication notes and the standards applied, from sultan-standards.json.
-// Lines run down from under the panel heading (top) to the KEY PLAN panel (bottom), spaced to fit each sheet size.
-function notesPanel(X, top, bottom, SWID) {
-  const N = S.sheet_notes, lines = [[N.fabrication_heading, true], ...N.fabrication.map((t) => [t, false]), ["", false], [N.standards_heading, true], ...N.standards.map((t) => [t, false])];
-  const step = Math.min(N.size_mm * 1.6, (top - bottom - 4) / (lines.length + 0.5)), size = Math.max(1.8, Math.min(N.size_mm, step / 1.45));
-  return lines.map(([text, bold], i) => text && { text, at: P(X, top - 5 - i * step), size_mm: Math.round(size * 10) / 10, color: BLACK, bold }).filter(Boolean);
-}
-
-// The A1-layout title block (designed on 1192 x 841, strip 160 wide) scaled to one sheet size.
-function spec(name, SW, SH, SWID) {
-  const R = SW - 10, L = R - SWID, X = L + 5 * (SWID / 160), M = (L + R) / 2, W = 20, T = SH - 10, B = 10;
-  const ky = (T - B) / 821, kx = SWID / 160, y = (v) => B + (v - 10) * ky, x = (v) => L + (v - 1022) * kx;
-  const f = Math.min(1, Math.max(0.55, ky * 1.3)), size = (s) => Math.round(Math.max(2.6, s * f) * 10) / 10;
-  const zone = SH >= 841 ? 100 : 50, COLS = Math.max(2, Math.round((R - W) / zone)), ROWS_Z = Math.max(2, Math.round((T - B) / zone));
-  const zw = (R - W) / COLS, zh = (T - B) / ROWS_Z;
-  const line = (x1, y1, x2, y2) => ({ start: P(x1, y1), end: P(x2, y2) });
-  const head = (text, xx, yy) => ({ text, at: P(xx, yy), size_mm: 2.5, color: BLACK, bold: true });
-  const ROWS = [741, 691, 641, 591, 471, 371, 281, 241, 186, 146, 116, 86, 56, 24].map(y);
-  const used = new Set(["2.5b", "2n", "3b"]);
-  const lab = (match, xx, yy, s, bold = false) => { let z = size(s); while (used.has(z + (bold ? "b" : "n"))) z = Math.round((z + 0.1) * 10) / 10; used.add(z + (bold ? "b" : "n")); return { match, at: P(xx, yy), size_mm: z, color: BLACK, bold }; };
-  return {
-    source_rfa: SOURCE, save_path: `${OUT_DIR}Title Blocks/${name}.rfa`, sheet_size_mm: { w: SW, h: SH },
-    lines: [
-      line(W, B, R, B), line(R, B, R, T), line(R, T, W, T), line(W, T, W, B), line(L, B, L, T),
-      ...ROWS.map((yy) => line(L, yy, R, yy)), line(M, y(56), M, y(146)),
-      line(SW / 2, T, SW / 2, SH), line(SW / 2, 0, SW / 2, B), line(0, SH / 2, W, SH / 2), line(R, SH / 2, SW, SH / 2),
-      ...Array.from({ length: COLS + 1 }, (_, k) => line(W + k * zw, T, W + k * zw, T + 5)), ...Array.from({ length: COLS + 1 }, (_, k) => line(W + k * zw, B, W + k * zw, B - 5)),
-      ...Array.from({ length: ROWS_Z + 1 }, (_, k) => line(W, B + k * zh, W - 5, B + k * zh)), ...Array.from({ length: ROWS_Z + 1 }, (_, k) => line(R, B + k * zh, R + 5, B + k * zh)),
-    ],
-    images: [{ path: OUT_DIR + "Title Blocks/samaya-factory-logo-black.png", center: P(M, y(786)), width_mm: Math.round(130 * kx) }],
-    texts: [
-      head("CLIENT", X, y(737)), head("CONSULTANT", X, y(687)), head("DESIGNER", X, y(637)), head("NOTES", X, y(587)), head("KEY PLAN", X, y(467)), head("REVISIONS", X, y(367)),
-      ...Array.from({ length: COLS }, (_, k) => ({ text: String(k + 1), at: P(W + k * zw + zw / 2 - 2, T + 7), size_mm: 2.5, color: BLACK })),
-      ...Array.from({ length: COLS }, (_, k) => ({ text: String(k + 1), at: P(W + k * zw + zw / 2 - 2, 7), size_mm: 2.5, color: BLACK })),
-      ...Array.from({ length: ROWS_Z }, (_, k) => ({ text: String.fromCharCode(65 + ROWS_Z - 1 - k), at: P(W - 8, B + k * zh + zh / 2 + 2), size_mm: 2.5, color: BLACK })),
-      ...Array.from({ length: ROWS_Z }, (_, k) => ({ text: String.fromCharCode(65 + ROWS_Z - 1 - k), at: P(R + 3, B + k * zh + zh / 2 + 2), size_mm: 2.5, color: BLACK })),
-      ...notesPanel(X, y(587), y(475), SWID),
-      head("PROJECT", X, y(277)), head("DRAWING TITLE", X, y(237)), head("DRAWING NO.", X, y(182)), head("REV", x(1154), y(182)),
-      head("SCALE", X, y(142)), head("DATE", M + 5 * kx, y(142)), head("DRAWN BY", X, y(112)), head("CHECKED BY", M + 5 * kx, y(112)), head("APPROVED BY", X, y(82)), head("PROJECT NO.", M + 5 * kx, y(82)),
-      { text: SWID >= 160 ? "This drawing is the property of Samaya Factory. Do not scale. Check all dimensions on site before fabrication." : "Property of Samaya Factory. Do not scale." + NL + "Check all dimensions on site.", at: P(X, y(51)), size_mm: 2, color: BLACK },
-      { text: "samaya-factory.com", at: P(X, y(20)), size_mm: 3, color: BLACK, bold: true },
-    ],
-    labels: [
-      lab("Client Name", X, y(722), 3.5), lab("Project Name", X, y(265), 3.5, true), lab("Sheet Name", X, y(225), 4, true), lab("A101", X, y(172), 7, true),
-      lab("Current Revision", x(1154), y(172), 5, true), lab('1/8" = 1\'-0"', X, y(132), 3), lab("Project Issue Date", M + 5 * kx, y(132), 3.1),
-      lab("DSG", X, y(102), 3.2), lab("CHK", M + 5 * kx, y(102), 3.3), lab("APR", X, y(72), 3.4), lab("Project Number", M + 5 * kx, y(72), 3.6),
-    ],
-    revSchedule: (() => { const rev = Math.max(12, Math.round(16 * kx)), date = Math.max(24, Math.round(38 * kx)); return { location: P(L + 1, y(362)), fields: [{ name: "Revision Number", heading: "REV", width_mm: rev }, { name: "Revision Description", heading: "DESCRIPTION", width_mm: SWID - 2 - rev - date }, { name: "Revision Date", heading: "DATE", width_mm: date }] }; })(),
-  };
-}
+// Title block layout: tools/title_block_spec.mjs (shared with client-factory title blocks).
+const BRAND = { owner: "Samaya Factory", footer: "samaya-factory.com", logo: OUT_DIR + "Title Blocks/samaya-factory-logo-black.png" };
+const spec = (name, SW, SH, SWID) => tbSpec({ name, SW, SH, SWID, source_rfa: SOURCE, save_path: `${OUT_DIR}Title Blocks/${name}.rfa`, brand: BRAND });
 
 // 1. A new project from the metric template (an earlier build is replaced).
 for (const f of [TEMPLATE_RVT, TEMPLATE_RTE]) { try { (await import("node:fs")).unlinkSync(f); } catch {} }
