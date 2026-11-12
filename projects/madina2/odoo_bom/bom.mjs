@@ -33,6 +33,9 @@ const area = (d) => (d[1] * d[2]) / 1e6, len = (d) => d[2] / 1000, vol = (d) => 
 const sheet = (c, A = SH) => ({ c, q: (d) => area(d) / A * WASTE });
 const paint = { c: P.NCPAINT, q: (d) => area(d) };
 const rule = (m, t, dd = [0, 0, 0]) => {
+  // MEP is not factory scope (user 12 Nov 2026: "all MEP component not in our factory scope do not add to the bom or request"):
+  // lighting (LED strips, drivers), power / data (cable duct, cable tray, grommets), plumbing (sink) are by the MEP contractor.
+  if (/LED Strip|Driver|Cable Duct|Cable Tray|Grommet|Sink|Socket|Switch|Downlight|Spot Light|Track Light/i.test(m)) return [];
   if (/Steel Painted Black/.test(m)) {
     const [a, b, c] = dd;
     if (c < 15 || (a <= 3 && c <= 25)) return [];       // nuts and washers                                                                 // nuts and washers: consumables
