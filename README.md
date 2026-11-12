@@ -4,6 +4,7 @@ Samaya Factory's Revit system for every factory project. It holds the bridge tha
 
 | Folder | Contents |
 |---|---|
+| `skills/samaya-furniture-shop-drawing/` | Claude skill: a designer's furniture piece to a buildable model and four workshop sheets (shop drawing, assembly, junctions, finishes), carpenter-first, bilingual; learned on the Endura side table |
 | `skills/samaya-revit/` | Claude skill: project questions, stakeholders, revisions, title blocks, modelling defaults, bridge lessons |
 | `skills/technical-drafting-ksa/` | Claude skill: AutoCAD/DWG/DXF drafting to Saudi practice (ISO via SASO/GSO, SBC 2024 checks, bilingual title blocks, Hijri dates, release DRC) and the AutoCAD-to-Revit handover through the bridge |
 | `title-blocks/` | Title block families and logos |
