@@ -89,3 +89,8 @@ They are printed in the title block's NOTES panel, so they are on every sheet wi
 - **A title block's own image draws over everything on the sheet,** viewports and sheet images included. A fixed key plan image in the family therefore hides any per-sheet key plan. Blank the family image (`replace_family_image` with a transparent PNG) and give every sheet its own key plan: an image or view in a drafting view, placed in the KEY PLAN panel (`Showcase Template\scripts\add_key_plan.ps1`).
 - **Filled regions cannot be made on a sheet through the API** ("can't be created in this document or view"). Put table fills and header bands in a 1:1 drafting view drawn at sheet coordinates and place it on the sheet; sheet text draws over viewports.
 - **AutoCAD dimension objects are not text or lines:** a read of a CAD sheet's texts and lines misses them. Rebuild them as Revit dimensions.
+
+## Designer logo and bilingual project name (Endura, 12 Nov 2026)
+
+- DESIGNER panel: the designer's name on the left, their logo on the right, cut from their own drawing (source named).
+- PROJECT panel: the Arabic project name as a text note under the English label (the label holds one line). Example `indora-furniture/revit/sample-side-table/tb_extras.mjs`.

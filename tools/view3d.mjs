@@ -48,6 +48,7 @@ export async function unit3d(call, { name, ids, sheet = null, area = null, dir =
   if (isolate) await call("isolate_in_view", { view_id: view, element_ids: ids });
   await call("set_view_categories", { view_id: view, hide: ["OST_RvtLinks", "OST_SectionBox", "OST_Levels", "OST_Grids", "OST_CLines"] }).catch(() => {});
   await call("set_parameter", { element_id: view, parameter_name: "Detail Level", value: 3 }).catch(() => {});
+  await call("set_parameter", { element_id: view, parameter_name: "Crop Region Visible", value: 0 }).catch(() => {}); // no border on sheets
   const counts = (await call("view_category_counts", { view_id: view })).counts ?? {};
   const shown = Object.entries(counts).filter(([k]) => !["Cameras", "Element", "Section Boxes"].includes(k)).reduce((a, [, n]) => a + n, 0);
   if (!shown) throw new Error(`3D view "${name}" shows nothing: check the section box and the isolated ids`);

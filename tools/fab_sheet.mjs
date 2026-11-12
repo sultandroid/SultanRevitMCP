@@ -458,6 +458,8 @@ if (t.cutPlan) {
 // dimensions after isolation (isolate_in_view hides whatever exists when it runs, dimensions too)
 if (vL) for (const ch of [[P(xA, b.y0, b.z0 - 15), P(xA, b.y0 + 20, b.z0 - 15)], [P(xA, b.y0 - 15, b.z0), P(xA, b.y0 - 15, b.z0 + 20)]]) await call("create_dimension_string", { view_id: vL, points: ch, tick_mm: 12 }).catch((e) => console.log("L dim", e.message.slice(0, 80)));
 if (vL) await place(vL, t.lDetail.at[0], t.lDetail.at[1]);
+// No crop border on any view of the sheet (user, Endura, 12 Nov 2026).
+for (const v of [vFront, vSide, vA, vB, vTop, vDT, vDB, vL, v3].filter(Boolean)) await setv(v, "Crop Region Visible", 0);
 log[key_] = { sheet, sheetNumber: SN, scale: s, scale3d: s3, keyPlanMarks: marks, location: { scale: sL, NB }, views: { vFront, vSide, vA, vB, vTop, vDT, vDB, vL, kp, v3 } };
 writeFileSync(LOG, JSON.stringify(log, null, 1));
 await call("save_document", { title: C.doc });
