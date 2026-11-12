@@ -12,13 +12,15 @@
 //  - Flower mesh: its 2 bars hang on 4 M8 bolts to the cross members (cf1_mesh.mjs).
 // History: first built with SHS posts + M8 bolts into ply blocks, changed the same day.
 // Family "Madina2 Ceiling Steel Frame CF-1", Generic Models, mark "Ceiling Steel Frame".
+// ALL STEEL PAINTED BLACK (user 12 Nov 2026: "no steel galvanize or powder coated all painted steel black"): rods, nuts, cleats,
+// flat bars, SHS, mesh and angles, one material "Steel Painted Black".
 import { call } from "file:///C:/Users/user/samaya-revit-standards/tools/rvt.mjs";
 const D = { document: "Madina2_ARCH_01" };
 const FAM = "Madina2 Ceiling Steel Frame CF-1", MARK = "Ceiling Steel Frame";
 const DIR = "C:/Users/user/OneDrive - SAMAYA INVESTMENT/Samaya/Technical Office/Bim Unit/Knowledge Econmic City_ShopFit projects/Madina 2/Revit Files/Rfa";
 const RFT = String.raw`C:\ProgramData\Autodesk\RVT 2026\Family Templates\English\Metric Generic Model.rft`;
-const blk = (await call("ensure_material", { ...D, name: "Steel SHS Black Primer", color: { r: 60, g: 60, b: 64 } })).id;
-const galv = (await call("ensure_material", { ...D, name: "Steel Galvanised", color: { r: 170, g: 175, b: 180 } })).id;
+const blk = (await call("ensure_material", { ...D, name: "Steel Painted Black", color: { r: 35, g: 35, b: 35 } })).id;
+const galv = (await call("ensure_material", { ...D, name: "Steel Painted Black", color: { r: 35, g: 35, b: 35 } })).id;
 const ply = (await call("ensure_material", { ...D, name: "Plywood 18", color: { r: 214, g: 184, b: 140 } })).id;
 const up = { x: 0, y: 0, z: 1 };
 const box = (x0, y0, z0, x1, y1, z1, m) => ({ profile: [{ x: x0, y: y0, z: z0 }, { x: x1, y: y0, z: z0 }, { x: x1, y: y1, z: z0 }, { x: x0, y: y1, z: z0 }], direction: up, length_mm: z1 - z0, material_id: m });
@@ -74,5 +76,5 @@ if (old.length) await call("delete_elements", { ...D, element_ids: old });
 const ds = (await call("create_direct_shape", { ...D, category: "OST_GenericModel", name: FAM, solids: S })).id;
 const r = await call("make_unit_family", { ...D, template_path: RFT, family_name: FAM, save_dir: DIR, level_id: lv, mark: MARK, element_ids: [ds] });
 await call("set_parameter", { ...D, element_id: r.id, parameter_name: "Comments", value:
-  "One steel frame carries the centre ceiling (user 12 Nov 2026): SHS 40x40x2 grid, black primer, lying on the rattan board +3.2125..+3.2525: ring on the Ceiling Wood Frame centre lines 2320 x 1670, 2 cross members x 2940 / 3700, middle member y 2855, all welded. HANGERS: threaded rods only: 10 M10 galvanised rods from drop-in anchors in the slab soffit +3.70 to angle cleats 40x40x4 x 50 welded to the inner face of the ring, nut + washer above and below (level the grid on the nuts); no diagonal bracing. BOX FRAME: 10 flat bars 40x6 welded to the SHS, through 45x10 slots in the rattan board, fixed with 2 no. 4.8x30 pan screws through a 6 ply packer into the box inner side board, hidden inside the open-top box (levelling is on the M10 rod nuts only). Middle rattan board screwed up into the grid @ 300. Flower mesh bars on 4 M8 rods to the cross members. ~115 kg on 10 rods. Shift flat bars <=100 to clear downlights GL-1..8." });
+  "One steel frame carries the centre ceiling (user 12 Nov 2026): SHS 40x40x2 grid, painted black, lying on the rattan board +3.2125..+3.2525: ring on the Ceiling Wood Frame centre lines 2320 x 1670, 2 cross members x 2940 / 3700, middle member y 2855, all welded. HANGERS: threaded rods only: 10 M10 rods from drop-in anchors in the slab soffit +3.70 to angle cleats 40x40x4 x 50 welded to the inner face of the ring, nut + washer above and below (level the grid on the nuts); no diagonal bracing. BOX FRAME: 10 flat bars 40x6 welded to the SHS, through 45x10 slots in the rattan board, fixed with 2 no. 4.8x30 pan screws through a 6 ply packer into the box inner side board, hidden inside the open-top box (levelling is on the M10 rod nuts only). Middle rattan board screwed up into the grid @ 300. Flower mesh bars on 4 M8 rods to the cross members. ~115 kg on 10 rods. Shift flat bars <=100 to clear downlights GL-1..8." });
 console.log("steel frame", r.id, S.length, "solids; removed hangers", old);

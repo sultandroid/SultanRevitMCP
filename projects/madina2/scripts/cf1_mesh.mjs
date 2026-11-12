@@ -1,18 +1,20 @@
 // Madina 2 centre ceiling field inside CF-1 (user 12 Nov 2026: "model the steel mesh net that will hold the rattan inside
 // and the artificial plants follow the design"). Design Rev-02 Renders 1 + 3: black welded grid in the centre field inside the
 // oak frame, artificial bougainvillea (pink / magenta, some green) hanging through it 0.3..0.8 m.
-//  1. "Madina2 Ceiling Flower Mesh FM-1" (mark "Ceiling Flower Mesh"): black powder-coated welded mesh 4 mm wire @ 100,
+//  1. "Madina2 Ceiling Flower Mesh FM-1" (mark "Ceiling Flower Mesh"): painted black welded mesh 4 mm wire @ 100,
 //     top flush +3.200 under the rattan, on a 25x25x3 angle frame screwed to the frame's inner sides; 2 cross bars 40x8 on
 //     edge, each hung on 2 M8 rods to the slab soffit +3.70. The rattan weave lies on the mesh.
 //  2. The artificial plants are NOT modelled (user 12 Nov 2026): outline + note on sheet A-2702 only.
 // Each family is placed by make_unit_family and checked by direct probes (fitToSolids misreads thin/mixed solids: CF-1
 // hangers 12 Nov 2026 moved 42.5 / 25.5 the wrong way).
+// ALL STEEL PAINTED BLACK (user 12 Nov 2026: "no steel galvanize or powder coated all painted steel black"): rods, nuts, cleats,
+// flat bars, SHS, mesh and angles, one material "Steel Painted Black".
 import { call } from "file:///C:/Users/user/samaya-revit-standards/tools/rvt.mjs";
 const D = { document: "Madina2_ARCH_01" };
 const DIR = "C:/Users/user/OneDrive - SAMAYA INVESTMENT/Samaya/Technical Office/Bim Unit/Knowledge Econmic City_ShopFit projects/Madina 2/Revit Files/Rfa";
 const RFT = String.raw`C:\ProgramData\Autodesk\RVT 2026\Family Templates\English\Metric Generic Model.rft`;
-const blk = (await call("ensure_material", { ...D, name: "Steel Powder Coated Black RAL 9005", color: { r: 30, g: 30, b: 30 } })).id;
-const galv = (await call("ensure_material", { ...D, name: "Steel Galvanised", color: { r: 170, g: 175, b: 180 } })).id;
+const blk = (await call("ensure_material", { ...D, name: "Steel Painted Black", color: { r: 35, g: 35, b: 35 } })).id;
+const galv = (await call("ensure_material", { ...D, name: "Steel Painted Black", color: { r: 35, g: 35, b: 35 } })).id;
 const up = { x: 0, y: 0, z: 1 };
 const box = (x0, y0, z0, x1, y1, z1, m) => ({ profile: [{ x: x0, y: y0, z: z0 }, { x: x1, y: y0, z: z0 }, { x: x1, y: y1, z: z0 }, { x: x0, y: y1, z: z0 }], direction: up, length_mm: z1 - z0, material_id: m });
 const oct = (cx, cy, z0, r, h, m, n = 8) => ({ profile: Array.from({ length: n }, (_, i) => ({ x: cx + r * Math.cos((2 * Math.PI * i) / n), y: cy + r * Math.sin((2 * Math.PI * i) / n), z: z0 })), direction: up, length_mm: h, material_id: m });
@@ -41,5 +43,5 @@ async function build(fam, mark, cat, sols, comment) {
   return r.id;
 }
 const meshId = await build("Madina2 Ceiling Flower Mesh FM-1", "Ceiling Flower Mesh", "OST_GenericModel", mesh,
-  "Steel mesh in the centre field inside the Ceiling Wood Frame CF-1 (user 12 Nov 2026, design Rev-02 renders): welded mesh 4 mm wire @ 100 x 100, black powder coat RAL 9005, 2180 x 1530, top +3.140, ~60 below the Ceiling Rattan Panel: the artificial flowers are tied in that gap and hang through the mesh. Frame of angle 25x25x3 black, screwed to the inner side boards of CF-1 @ 300 (4.2 x 25 screws); 2 cross bars flat 30x8 on edge at x 2940 / 3700, each hung on 2 M8 rods through the rattan panel to the SHS cross members of the Ceiling Steel Frame. Made in 1 piece or 2 halves for the door; weight ~25 kg + flowers.");
+  "Steel mesh in the centre field inside the Ceiling Wood Frame CF-1 (user 12 Nov 2026, design Rev-02 renders): welded mesh 4 mm wire @ 100 x 100, painted black, 2180 x 1530, top +3.140, ~60 below the Ceiling Rattan Panel: the artificial flowers are tied in that gap and hang through the mesh. Frame of angle 25x25x3 black, screwed to the inner side boards of CF-1 @ 300 (4.2 x 25 screws); 2 cross bars flat 30x8 on edge at x 2940 / 3700, each hung on 2 M8 rods through the rattan panel to the SHS cross members of the Ceiling Steel Frame. Made in 1 piece or 2 halves for the door; weight ~25 kg + flowers.");
 console.log("mesh", meshId, mesh.length, "solids");
