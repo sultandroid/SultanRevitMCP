@@ -5,7 +5,7 @@ const P = { FR8: 22597, FR12: 24432, FR18: 24433, MR18: 24430, U775: 27526, W8: 
   TRAV: 29219, GLASS: 21273, SHS40: 23670, MS5: 24153, MS6: 24928, MS10: 25933, SS15: 24157, EDGE: 21214, HINGE_H: 24543, HINGE_I: 21223, LED: 21215, GYP: 25326, NCPAINT: 23454, WBPAINT: 22184,
   H1145: 29380, H1145_8: 29476, PLY18: 24438, M8ROD: 27758, ANCH: 27759 };
 const NEW = (en, ar, uom) => ({ new: true, en, ar, uom });
-const N = { H1113_8: NEW("MFC Sheet 8 mm [Egger H1113-ST10]", "لوح MFC إيجر H1113 سماكة 8 مم", "Sheet [205X280]"), SINK: NEW("Stainless steel sink 304", "حوض ستانلس 304", "Units"),
+const N = { H1113_8: NEW("MFC Sheet 8 mm [Egger H1113-ST10]", "لوح MFC إيجر H1113 سماكة 8 مم", "Sheet [205X280]"), U775_8: NEW("MFC Sheet 8 mm [Egger U775-ST9 White Grey]", "لوح MFC إيجر U775 أبيض رمادي سماكة 8 مم", "Sheet [205X280]"), SINK: NEW("Stainless steel sink 304", "حوض ستانلس 304", "Units"),
   HSS: NEW("Bar handle stainless 304 brushed", "مقبض بار ستانلس 304 مصنفر", "Units"), HWD: NEW("Hardwood bar handle", "مقبض بار خشب صلب", "Units"), HISL: NEW("Wood baton handle (island)", "مقبض خشب (الجزيرة)", "Units"),
   GROM: NEW("Cable grommet 60 mm black", "فتحة كابلات 60 مم سوداء", "Units"), PIN: NEW("Shelf pin 5 mm nickel", "مسمار رف 5 مم نيكل", "Units"), LEG: NEW("Adjustable cabinet leg 50", "رجل خزانة قابلة للضبط 50", "Units"),
   PLAST: NEW("Earth plaster finish (as approved)", "تشطيب لياسة طينية (حسب المعتمد)", "m²"), VEN: NEW("Wood veneer finish (island, as approved)", "قشرة خشب (الجزيرة، حسب المعتمد)", "m²"),
@@ -46,15 +46,15 @@ const rule = (m, t, dd = [0, 0, 0]) => {
   if (/^MR MDF/.test(m)) return [{ ...sheet(P.MR18), note: "16 mm door core; MR 18 in Odoo" }];
   if (/Stainless Steel 304 Brushed Kick/.test(m)) return [sheet(P.SS15), sheet(P.MR18)];
   if (/Stainless Steel 304 Brushed/.test(m)) return [{ ...sheet(P.SS15), note: "1.2 mm drawn; 1.5 mm in Odoo - confirm" }];
-  if (/White Carcass/.test(m)) return [{ ...sheet(P.U775, SHE), note: "carcass colour U775 - confirm" }];
-  if (/White Back 8|Pegboard Face White/.test(m)) return [sheet(P.W8, SHE)];
-  if (/Oak Frame 18/.test(m)) return [{ c: P.H1113, q: (d) => area(d) / SHE * WASTE * (t > 30 ? 2 : 1) }];
-  if (/Oak Back 8/.test(m)) return [sheet(N.H1113_8, SHE)];
-  if (/Shelf 18 Approved Decor/.test(m)) return [{ ...sheet(P.H1113, SHE), note: "shelf decor - confirm" }];
-  if (/H3710/.test(m)) return [sheet(t <= 8 ? P.H3710_8 : P.H3710, SHE)];
-  if (/Pegboard Face Approved Oak/.test(m)) return [{ ...sheet(P.H3710_8, SHE), note: "oak pegboard face decor - confirm" }];
+  if (/White Carcass/.test(m)) return [sheet(P.U775, SHE)];
+  if (/White Back 8|Pegboard Face White/.test(m)) return [sheet(N.U775_8, SHE)];
+  if (/Oak Frame 18/.test(m)) return [{ c: P.H1145, q: (d) => area(d) / SHE * WASTE * (t > 30 ? 2 : 1) }];
+  if (/Oak Back 8/.test(m)) return [sheet(P.H1145_8, SHE)];
+  if (/Shelf 18 Approved Decor/.test(m)) return [sheet(P.H1145, SHE)];
+  if (/H3710/.test(m)) return [{ ...sheet(t <= 8 ? P.H1145_8 : P.H1145, SHE), note: "model says H3710 walnut (Makkah copy): not approved for Madina 2, H1145" }];
+  if (/Pegboard Face Approved Oak/.test(m)) return [sheet(P.H1145_8, SHE)];
   if (/U775/.test(m)) return [sheet(P.U775, SHE)];
-  if (/U968/.test(m)) return [sheet(P.U968, SHE)];
+  if (/U968/.test(m)) return [{ ...sheet(P.U775, SHE), note: "model says U968 (Makkah copy): not approved for Madina 2, U775 - confirm" }];
   if (/Solid Oak/.test(m)) return [{ c: P.OAK, q: (d) => vol(d) * WASTE }];
   if (/Softwood|Ceiling Wood Frame/.test(m)) return [{ c: P.PINE, q: (d) => vol(d) * WASTE }];
   if (/Travertine/.test(m)) return [{ c: P.TRAV, q: (d) => area(d) * WASTE, note: "Odoo item looks like a sale item - confirm raw slab" }];
@@ -105,7 +105,7 @@ const T = [[/Ceiling Steel Frame/, "STF", "Steel Frame SHS 40", "هيكل SHS 40
   [/Services Cabinet/, "FS", "Services Cabinet", "خزانة خدمات", 238], [/Carpet Hanger/, "CH", "Carpet Hanger", "علاقة سجاد", 232], [/Continuous Shelf/, "SH", "Wall Shelf", "رف حائطي", 236], [/Back Cladding/, "CLD", "Cladding Panel", "تجاليد", 239],
   [/Steel Structure/, "STF", "Steel Frame SHS 40", "هيكل SHS 40", 231], [/Arch Hangers/, "HG", "Steel Arch Hanger Set", "طقم علاقات للارشات", 232], [/Tray Wood Frame|Ceiling Wood Frame/, "CF", "Ceiling Wood Frame", "إطار خشبي للسقف", 611],
   [/Island Display/, "ID", "Island Display Unit", "وحدة عرض جزيرة", 237], [/Display Fridge/, "FP", "Display Fridge Plinth", "قاعدة ثلاجة عرض", 236]];
-const MAT = [[/Rattan/, "RAT", "Rattan", "راتان"], [/Oak Veneer/, "OVN", "Oak Veneer", "قشرة بلوط"], [/H1145/, "BOK", "Bardolino Oak MFC", "MFC بلوط باردولينو"], [/H1113|Oak Frame/, "OAK", "Oak MFC", "MFC بلوط"], [/H3710/, "WAL", "Walnut MFC", "MFC جوز"], [/U775/, "WG", "White Grey MFC", "MFC أبيض رمادي"], 
+const MAT = [[/Rattan/, "RAT", "Rattan", "راتان"], [/Oak Veneer/, "OVN", "Oak Veneer", "قشرة بلوط"], [/H1145/, "BOK", "Bardolino Oak MFC", "MFC بلوط باردولينو"], [/H1113|Oak Frame/, "OAK", "Oak MFC", "MFC بلوط"], [/H3710/, "BOK", "Bardolino Oak MFC", "MFC بلوط باردولينو"], [/U775/, "WG", "White Grey MFC", "MFC أبيض رمادي"], 
   [/Stainless/, "SS", "Stainless Steel", "ستانلس ستيل"], [/SHS|Steel/, "STL", "Steel", "حديد"], [/FR MDF Painted|Painted/, "PNT", "Painted FR MDF", "MDF مقاوم حريق مدهون"], [/Travertine/, "TRV", "Travertine", "ترافرتين"], [/Plaster/, "PLS", "Earth Plaster", "لياسة طينية"], [/Softwood|Wood Frame/, "SW", "Softwood", "خشب صنوبر"]];
 // Arch assembly (user, 11 Nov 2026): one arch product holds its back panel, back legs, fascia lunette + soffit and marble L
 // head; only cabinets and shelf units stay apart. Children by name: LF-B -> AW-A, LF-E -> AW-B, LF-D -> RA-A, LF-C -> RA-B,
