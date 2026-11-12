@@ -4,6 +4,7 @@
 // panel with every unit of the type in red; isolated 3D view fitted under the notes. Generalised from Madina 1 j_gen.mjs.
 //
 // Usage: node tools/fab_sheet.mjs <config.json> <key> [x0,x1,y0,top for the 3D view]
+// Unit options for loose furniture: scale (main views, e.g. 4), detailScale (e.g. 2), location: false, cnc: false.
 // Config: { doc, prefix ("MAK-SF-ZZ-GF-DR-A-"), titleBlock ("Samaya Factory A0"), planView ("A-GF-PLAN-New"),
 //           signoff: [["Designed By", "..."], ...], revisions: [ids], log: "path.json",
 //           units: { KEY: { no: 2201, title, group ("2 Fab: Open Shelf Units"), ref: "<Mark of the drawn unit>",
@@ -157,7 +158,8 @@ const pb = (await call("get_element", { element_id: vTop })).bounding_box;
 const m_ = M + (SIDEW ? 150 : 0), B0 = FACE ? Bw : b;
 await call("extend_view_crop", { view_id: vTop, left_mm: pb.min.x - (B0.x0 - m_), right_mm: B0.x1 + m_ - pb.max.x, bottom_mm: pb.min.y - (B0.y0 - m_), top_mm: B0.y1 + m_ - pb.max.y });
 await call("set_view_range", { view_id: vTop, top_mm: b.z1 + 300, cut_mm: b.z1 + 200, bottom_mm: 0 }).catch((e) => console.log("range", e.message.slice(0, 90)));
-const big = t.details !== false && s >= 8 && W / 5 <= 360 ? 5 : 0; // 1:5 details when the unit is no wider than 360 mm on paper at 1:5
+// t.detailScale: details at another scale (loose furniture at 1:4 takes 1:2 details; the default 1:5 would be smaller than the views).
+const big = t.details === false ? 0 : t.detailScale ?? (s >= 8 && W / 5 <= 360 ? 5 : 0); // 1:5 details when the unit is no wider than 360 mm on paper at 1:5
 // Details are corner details: the right-hand 350 mm of the unit plus 100 clear (full-width 1:5 sections overlapped on A-2002).
 const dx0 = Math.max(b.x0 - 100, b.x1 - 350);
 const vDT = big ? await sec("Detail Top", "Detail: Top", P(dx0, yc), P(b.x1 + 100, yc), P(0, 1, 0), 40, big, b.z1 + 60, b.z1 - 460) : null;
@@ -182,7 +184,7 @@ await dim(vFront, levels.map((z) => P(b.x0 - off, yf, z)));
 await dim(vFront, floorDim.map((z) => P(b.x0 - off - gap, yf, z)));
 await dim(vSide, [P(xs, b.y1, -off), P(xs, b.y0, -off)]);
 await dim(vSide, floorDim.map((z) => P(xs, b.y1 + off, z)));
-await dim(vSide, [0, 1700].map((z) => P(xs, b.y0 - F + 30, z)));
+// No dimension on the standing figure (user, 12 Nov 2026): it is a scale reference only.
 await dim(vA, [P(xA, b.y1, za + off), P(xA, b.y0, za + off)]);
 await dim(vA, levels.map((z) => P(xA, b.y0 - off, z)));
 await dim(vB, [P(b.x0, yL, za + off), P(b.x1, yL, za + off)]);
@@ -285,7 +287,7 @@ for (const [k, [m]] of mats.entries()) {
 }
 const lgv = await call("place_view_on_sheet", { sheet_id: sheet, view_id: vLg, location: P(NOTES + 8, 757 - ((mats.length - 1) * RW + 6) / 2) }).catch((e) => console.log("legend", e.message.slice(0, 80)));
 if (lgv?.id) await call("set_viewport_no_title", { viewport_id: lgv.id }).catch(() => {});
-await txt(NOTES + 20, 757 - mats.length * RW + 0.5, "Grey: 1700 mm figure, indicative");
+await txt(NOTES + 20, 757 - mats.length * RW + 0.5, "Grey figure: for scale only");
 const y2 = 757 - (mats.length + 1) * RW - 20;
 await txt(NOTES, y2, "MATERIAL QUANTITIES", bold);
 await txt(NOTES, y2 - 12, "(per unit, net, no waste, approx.)");
@@ -294,7 +296,7 @@ await txt(NOTES, y2 - 12, "(per unit, net, no waste, approx.)");
 const shortQ = (m) => shortM(m).replace(/ Natural Carini Walnut/, " Walnut").replace(/\bPainted\b/, "ptd.").slice(0, 40);
 await txt(NOTES, y2 - 28, ["MATERIAL", ...mats.map(([m]) => shortQ(m))].join("\n"));
 await txt(975, y2 - 28, ["QTY", ...mats.map(([m, q]) => qty(m, q))].join("\n"));
-const notesTxt = `${t.note ? t.note + "\n" : ""}${nearCeiling ? `Top +${(b.z1 / 1000).toFixed(3)}: ${r(CEIL - b.z1)} shadow gap\nto the ceiling (${GAP} min.).\n` : ""}All dimensions in mm.\nCheck on site before cutting.${t.cnc === false ? "" : "\nCurved parts: cut from the CNC file."}`;
+const notesTxt = `${t.note ? t.note + "\n" : ""}${nearCeiling ? `Top +${(b.z1 / 1000).toFixed(3)}: ${r(CEIL - b.z1)} shadow gap\nto the ceiling (${GAP} min.).\n` : ""}${t.noteTail ?? C.noteTail ?? "All dimensions in mm.\nCheck on site before cutting."}${t.cnc === false ? "" : "\nCurved parts: cut from the CNC file."}`;
 await txt(NOTES, y2 - 28 - (mats.length + 2) * 7.8 - 8, notesTxt);
 const notesBottom = y2 - 28 - (mats.length + 2) * 7.8 - 8 - (notesTxt.split("\n").length + 1) * 7.8;
 // Key plan: every unit of this type in red.
@@ -362,7 +364,8 @@ const row2Bot = Math.min(py - hTop / 2, big ? pyD - 520 / big / 2 : Infinity) - 
 const gx0 = LEFT, gx1 = NOTES - 35 - 125, gy1 = row2Bot - 10, gy0 = 50;
 const sBand = SCALES.find((q) => (LX1 - LX0) / q + wPl / q + 30 <= gx1 - gx0 && Math.max(LZ1 + 150, hPlan) / q + 40 <= gy1 - gy0);
 const BAND = sBand != null && (sStack == null || sBand < sStack);
-const sL = BAND ? sBand : sStack;
+// t.location === false: loose furniture (Endura side table) has no fixed place, so no location views or SPACE note.
+const sL = t.location === false ? null : BAND ? sBand : sStack;
 let locNote = "";
 if (sL) {
   const vLS = await sec("Location Section", "Location Section", P(LX0, yL), P(LX1, yL), P(0, 1, 0), (yB ?? b.y1 + 300) - yL + 80, sL, LZ1, -150);
@@ -406,7 +409,7 @@ if (sL) {
   // the location column is about 110 mm wide at 5 mm text: wrap each line at 26 characters, or it runs into the notes column
   // (Madina 2 D-02, 11 Nov 2026: "SPACE: 3796 wide x - deep x 3000 high" ran over the material quantities)
   else await txt(rx0, Math.max(ry1 - hS - 30 - hPl - 22, 95), locNote.split("\n").map((ln) => ln.split(" ").reduce((o, wd) => { const last = o[o.length - 1]; if (last && (last + " " + wd).length <= 26) o[o.length - 1] = last + " " + wd; else o.push(wd); return o; }, []).join("\n  ")).join("\n"));
-} else console.log("location views: no room on the sheet, scale not found");
+} else console.log(t.location === false ? "location views: off (t.location false)" : "location views: no room on the sheet, scale not found");
 // Cut plan through a unit that wraps existing structure (user, Makkah FS-1, 10 Nov 2026: "a plan showing where the existing
 // column touches the unit from inside"). Config t.cutPlan = { z, at: [x, y] on the sheet, scale, title, margin,
 // dims: [[[x, y], ...], ...] chains in WORLD mm, labels: [{ at: [x, y], text }] in world mm }. The existing structure shows
