@@ -3798,10 +3798,43 @@ namespace RevitMcp
             {
                 var material = new FilteredElementCollector(doc).OfClass(typeof(Material)).Cast<Material>().FirstOrDefault(m => m.Name == name)
                                ?? (Material)doc.GetElement(Material.Create(doc, name));
-                material.Color = color;
+                // RULE (user 12 Nov 2026): different materials, different colours. Unless exact_color is set, move the colour
+                // to the nearest free colour: no other material in the model within RGB distance 24. Candidates round the
+                // requested colour, cheapest first (distance, x3 off the grey axis so the hue is kept); a candidate outside
+                // 0..255 is dropped, never clamped (clamping turned clashes white, 12 Nov 2026). No free colour: keep it.
+                // Same search as client/materialColors.mjs nearestFree.
+                var requested = color; var adjusted = false;
+                if (color != null && !(p["exact_color"]?.GetValue<bool>() ?? false))
+                {
+                    var taken = new FilteredElementCollector(doc).OfClass(typeof(Material)).Cast<Material>()
+                        .Where(m => m.Name != name && m.Color != null && m.Color.IsValid).Select(m => (r: (int)m.Color.Red, g: (int)m.Color.Green, b: (int)m.Color.Blue)).ToList();
+                    bool Free(int r, int g, int b) => taken.All(t => Math.Sqrt((t.r - r) * (t.r - r) + (t.g - g) * (t.g - g) + (t.b - b) * (t.b - b)) >= 24);
+                    int R0 = requested.Red, G0 = requested.Green, B0 = requested.Blue;
+                    if (!Free(R0, G0, B0))
+                    {
+                        var cands = new List<(double cost, int r, int g, int b)>();
+                        for (int dx = -1; dx <= 1; dx++) for (int dy = -1; dy <= 1; dy++) for (int dz = -1; dz <= 1; dz++)
+                        {
+                            if (dx == 0 && dy == 0 && dz == 0) continue;
+                            double l = Math.Sqrt(dx * dx + dy * dy + dz * dz), off = 1 - Math.Abs(dx + dy + dz) / l / Math.Sqrt(3);
+                            for (int rad = 6; rad <= 160; rad += 3)
+                            {
+                                int r = (int)Math.Round(R0 + dx / l * rad), g = (int)Math.Round(G0 + dy / l * rad), b = (int)Math.Round(B0 + dz / l * rad);
+                                if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) continue;
+                                cands.Add((rad * (1 + 2 * off), r, g, b));
+                            }
+                        }
+                        foreach (var q in cands.OrderBy(q => q.cost))
+                            if (Free(q.r, q.g, q.b)) { color = new Color((byte)q.r, (byte)q.g, (byte)q.b); adjusted = true; break; }
+                    }
+                }
+                if (color != null) material.Color = color;
                 material.Shininess = (int)(Num(p, "shininess") ?? material.Shininess);
                 material.Smoothness = (int)(Num(p, "smoothness") ?? material.Smoothness);
-                return new JsonObject { ["id"] = material.Id.Value, ["name"] = material.Name };
+                var o = new JsonObject { ["id"] = material.Id.Value, ["name"] = material.Name };
+                if (color != null) o["color"] = new JsonObject { ["r"] = color.Red, ["g"] = color.Green, ["b"] = color.Blue };
+                if (adjusted) o["color_adjusted"] = true;
+                return o;
             });
         }
 

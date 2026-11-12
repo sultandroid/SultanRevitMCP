@@ -11,6 +11,7 @@
 // The unit's frame comes from its instance rotation: 0 = faces +x (west wall), 180 = faces -x (east), 270 = faces -y (rear).
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { call as rawC } from "./rvt.mjs";
+import { readColors, enforceColors } from "./matcolor_lib.mjs";
 
 const [cfgPath, key_, box3d] = process.argv.slice(2);
 const C = JSON.parse(readFileSync(cfgPath, "utf8")), t = C.units[key_];
@@ -128,6 +129,11 @@ const HATCH = (m) => /Steel|Metal|Alumin|LED|Profile|Rail\b/i.test(m) ? { solid:
   : /MDF|Display Bars|Slat/i.test(m) ? { angle_degrees: 135, spacing_mm: 1.5 }
   : { angle_degrees: 45, spacing_mm: 1.5 };                                            // EGGER and other boards
 const hatchName = (h) => h.solid ? null : `Hatch ${h.cross ? "Cross " : ""}${h.angle_degrees} ${h.spacing_mm}`;
+// RULE (user 12 Nov 2026): different materials, different colours. Every material of the unit gets its own shading colour
+// before the views are made (approved colour codes keep theirs; matcolor_lib.mjs).
+const MCOL = new Map();
+{ const all = await readColors(C.doc); for (const ch of await enforceColors(C.doc, [...new Set(parts.map((f) => f.m))], all)) console.log("colour", JSON.stringify(ch));
+  for (const [n, v] of all) MCOL.set(n, v.rgb); }
 for (const m of new Set(parts.map((f) => f.m))) await call("set_material_hatch", { material: m, ...HATCH(m) }).catch((e) => console.log("hatch", m, e.message.slice(0, 80)));
 const sec = async (name, title, start, end, look, depth, scale, top, bottom) => {
   const v = await call("create_section", { start, end, look_direction: look, bottom_mm: bottom, top_mm: top, depth_mm: depth });
@@ -264,13 +270,15 @@ const shortM = (m) => m.replace(/\s*\(.*?\)/, "").slice(0, 52);
 const qty = (m, q) => /Rail\b/.test(m) ? "1 set" : /LED|PVC|Edge|Softwood|Angle|Peg\b|Hardwood Peg/.test(m) ? (/Peg/.test(m) ? `${q.n} no.` : `${q.len.toFixed(2)} m`) : /Handle|Support/.test(m) && q.n < 20 ? `${q.n} no.` : `${q.area.toFixed(2)} m2`;
 await txt(NOTES, 812, `${t.title.toUpperCase()}   QTY ${t.marks.length}\n${t.size ?? `${r(dx)} x ${r(dy)} x ${r(b.z1 - b.z0)}`}\nUnits: ${t.marks.join(", ")}`, bold);
 // Materials legend: each keynote with its ISO 128 cut hatch swatch (the same hatch the sections show).
-await txt(NOTES, 770, "MATERIALS (KEYNOTE, CUT HATCH)", bold);
+await txt(NOTES, 770, "MATERIALS (KEYNOTE, CUT HATCH, COLOUR)", bold);
 // Filled regions cannot be drawn on a sheet, so the swatches live in a 1:1 drafting view placed beside the rows.
 const RW = 9;
 const lg = await call("create_drafting_view", { name: P_ + "Materials Legend", scale: 1 }), vLg = lg.id;
 for (const [k, [m]] of mats.entries()) {
   const yk = -k * RW, h = HATCH(m);
-  await call("create_swatch", { view_id: vLg, min: P(0, yk - 6), max: P(16, yk), color: h.solid ? { r: 0, g: 0, b: 0 } : { r: 128, g: 128, b: 128 }, ...(h.solid ? {} : { fill_pattern: hatchName(h) }) }).catch((e) => console.log("swatch", e.message.slice(0, 80)));
+  await call("create_swatch", { view_id: vLg, min: P(0, yk - 6), max: P(11, yk), color: h.solid ? { r: 0, g: 0, b: 0 } : { r: 128, g: 128, b: 128 }, ...(h.solid ? {} : { fill_pattern: hatchName(h) }) }).catch((e) => console.log("swatch", e.message.slice(0, 80)));
+  // the material's own shading colour beside its hatch (colour rule, 12 Nov 2026): solid hatches (steel, veneer) differ here
+  const mc = MCOL.get(m); if (mc) await call("create_swatch", { view_id: vLg, min: P(12, yk - 6), max: P(17, yk), color: { r: mc[0], g: mc[1], b: mc[2] } }).catch((e) => console.log("chip", e.message.slice(0, 80)));
   // the legend rows start 20 mm right of the text column: keep them clear of the title block (about 46 characters)
   const lab = shortM(m); if (lab.length > 46) console.log("LEGEND NAME TOO LONG, shorten the material name:", lab);
   await txt(NOTES + 20, 757 - k * RW + 0.5, `${k + 1}   ${lab.slice(0, 46)}`);

@@ -9,6 +9,8 @@
 import net from "node:net";
 import fs from "node:fs";
 import path from "node:path";
+import { distinctColor } from "./materialColors.mjs";
+export { distinctColor, clashes } from "./materialColors.mjs";
 
 const DIR = path.join(process.env.LOCALAPPDATA ?? "", "SultanRevitMCP", "instances");
 let defaultDocument = process.env.REVIT_DOC || null;
@@ -51,6 +53,9 @@ export async function call(command, params = {}) {
     const other = instances().find((i) => i.port !== port && i.documents?.some((d) => d.path && path.resolve(d.path).toLowerCase() === want));
     if (other && !params.read_only_ok) throw new Error(`${params.path} is already open in Revit pid ${other.pid} (port ${other.port}). Work there (REVIT_MCP_PORT=${other.port}); opening it here gives a read-only copy.`);
   }
+  // RULE: different materials, different colours (user 12 Nov 2026). Every ensure_material gets a colour no other material
+  // has (materialColors.mjs registry); pass exact_color: true only to set an approved colour on purpose.
+  if (command === "ensure_material" && params.name && !params.exact_color) params = { ...params, color: distinctColor(params.name, params.color) };
   const until = Date.now() + 1000 * Number(process.env.REVIT_MCP_WAIT_S ?? 600);
   for (;;) {
     try { return await call1(command, params); } catch (e) {
