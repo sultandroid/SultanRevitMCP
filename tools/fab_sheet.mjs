@@ -226,7 +226,8 @@ const kx = b.x1 + 0.7 * M;
 const tg = mats.map(([, q]) => { const f = q.big; return { f, z: (f.z0 + f.z1) / 2, x: Math.min(f.x1 - 2, Math.max(f.x0 + 2, (f.x0 + f.x1) / 2)) }; });
 const lab = tg.map((q) => q.z);
 for (let k = lab.length - 2; k >= 0; k--) lab[k] = Math.max(lab[k], lab[k + 1] + 12 * s);
-for (let k = 0; k < tg.length; k++) await key(vFront, P(kx, yf, lab[k]), P(tg[k].x, yf, tg[k].z), k + 1);
+// t.keynotes3d: the material numbers go on the 3D view only, not on the front elevation (user, Endura, 12 Nov 2026).
+if (!t.keynotes3d) for (let k = 0; k < tg.length; k++) await key(vFront, P(kx, yf, lab[k]), P(tg[k].x, yf, tg[k].z), k + 1);
 
 // Saudi figure on the side view only, 1700 mm, grey shade.
 const seg = (a, c) => ({ start: a, end: c }), chain = (pts) => pts.slice(1).map((p, k) => seg(pts[k], p));
@@ -324,6 +325,24 @@ const wb = { min: [Bw.x0, Bw.y0, Bw.z0], max: [Bw.x1, Bw.y1, Bw.z1] };
 const dirW = FACE === "+x" ? [-1, 1, -1] : FACE === "-x" ? [1, -1, -1] : rot === 90 ? [-1, -1, -1] : [1, 1, -1];
 const r3 = await unit3d(call, { name: P_ + "3D View", ids: IDS, sheet, area: [X0, X1, Y0, Ytop], dir: dirW, style: STYLE, box: wb });
 const v3 = r3.view, s3 = r3.scale;
+// t.keynotes3d: number each material on the 3D view. Sheet point of a model point = viewport centre + (projection - projected
+// box centre) / scale (the viewport frames the section box: the unit box + 30). Numbers in one column left of the view,
+// top to bottom, 12 mm apart, leaders to the centre of each material's largest part.
+if (t.keynotes3d) {
+  const un = (v) => { const l = Math.hypot(...v); return v.map((c) => c / l); }, cr = (a, c) => [a[1] * c[2] - a[2] * c[1], a[2] * c[0] - a[0] * c[2], a[0] * c[1] - a[1] * c[0]];
+  const fw = un(dirW), rt = un(cr(fw, [0, 0, 1])), up = un(cr(rt, fw)), dt = (a, c) => a[0] * c[0] + a[1] * c[1] + a[2] * c[2];
+  const lo = wb.min.map((v) => v - 30), hi = wb.max.map((v) => v + 30), cs = [];
+  for (const x of [lo[0], hi[0]]) for (const y of [lo[1], hi[1]]) for (const z of [lo[2], hi[2]]) cs.push([dt([x, y, z], rt), dt([x, y, z], up)]);
+  const mu = (Math.min(...cs.map((q) => q[0])) + Math.max(...cs.map((q) => q[0]))) / 2, mv = (Math.min(...cs.map((q) => q[1])) + Math.max(...cs.map((q) => q[1]))) / 2;
+  const left = (Math.min(...cs.map((q) => q[0])) - mu) / s3;
+  const vc = [(X0 + X1) / 2, (Y0 + Ytop) / 2 + 10];
+  // leader end on the face towards the viewer, along it: a tray or plinth ring is empty in the middle.
+  const fr = (k) => 0.25 + 0.25 * (k % 3); // parts on the same face (a strip frame, its cane, its trim) get their own leader ends
+  const pts = tg.map((q, k) => { const f = q.f, p = [dirW[0] > 0 ? f.x0 + (f.x1 - f.x0) * fr(k) : f.x1 - (f.x1 - f.x0) * fr(k), dirW[1] > 0 ? f.y0 : f.y1, (f.z0 + f.z1) / 2]; return { n: k + 1, x: vc[0] + (dt(p, rt) - mu) / s3, y: vc[1] + (dt(p, up) - mv) / s3 }; }).sort((a, c) => c.y - a.y);
+  let last = Infinity;
+  for (const p of pts) { const ly = Math.min(p.y, last - 12); last = ly; await rawC("create_keynote", { document: C.doc, view_id: sheet, at: P(vc[0] + left - 12, ly + 3), to: P(p.x, p.y), text: String(p.n), text_type_id: num }).catch((e) => console.log("key3d", p.n, e.message.slice(0, 80))); } // sheet points: not turned into the unit frame
+
+}
 // Location: every item drawn in its place, not alone (user, 6 Nov 2026). A section through the unit's bay and a plan, NOT
 // isolated, with the unit in red, its neighbours, wall, floor and ceiling, and dimensions of the space it has: width between
 // its neighbours, height to whatever is above it, depth to the wall and the clear walkway in front. Neighbours are found by
