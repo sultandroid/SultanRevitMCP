@@ -12,6 +12,14 @@ Write `STUDY.md` beside the piece's scripts and copy it to the client's Drive fo
 - Loose parts (glass): what stops them sliding; how they are cleaned.
 - Delivery and access: largest size against a 900 door and the lift; total weight; make it knock-down (bolts, inserts, barrel nuts) when it does not pass whole.
 
+- Brass trim on wood: a flat bar (e.g. 5 x 3) rolled to the curve and glued with epoxy in a groove after the wood is assembled and finished; never a wide ring cut from sheet (waste) (CT-01).
+
+## 1b. Clash check before sheets (CT-01, 12 Nov 2026)
+- Check every curved member against the notch it sits in at the top and bottom of each layer: a leaning, curved leg moves inward below the top, so the notch must be cut to that curve (per layer). A flat member needs parallel notch sides, not radial ones.
+- Every "housed" end (rails into a ring) gets its housing cut in the model, not an overlap.
+- Screws drawn to size (shank, head, point) and checked to stay inside the member for their full length (a leaning leg: place them toward its outer side).
+- A round piece: one exploded view and one 3D angle are enough; more angles only crowd the sheet.
+
 ## 2. Proportions
 - Compare every member with its neighbours (legs against ring and column, rails against panels). A thin member reads weak: match widths where the design allows; keep one member clearly the strongest.
 - Check the designer's own numbers against the model (arc lengths, overall sizes): a mismatch shows a detail you missed (CT-01: arc 842/852 against 816 meant the legs sit 20 into the base).
