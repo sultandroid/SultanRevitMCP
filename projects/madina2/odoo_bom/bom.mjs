@@ -35,13 +35,13 @@ const paint = { c: P.NCPAINT, q: (d) => area(d) };
 const rule = (m, t, dd = [0, 0, 0]) => {
   if (/Steel Painted Black/.test(m)) {
     const [a, b, c] = dd;
-    if (c < 15) return [];                                                                 // nuts and washers: consumables
+    if (c < 15 || (a <= 3 && c <= 25)) return [];       // nuts and washers                                                                 // nuts and washers: consumables
     if (a >= 38 && b <= 42) return [{ c: P.SHS40, q: (d) => len(d) / 6 * WASTE, note: "bar = 6 m" }];
     if (a <= 4.5 && b <= 4.5) return [{ c: N.MESH, q: (d) => len(d) / 20 * WASTE, note: "mesh m2 = wire length / 20" }];
     if (a <= 10.5 && b <= 10.5) return a >= 9 ? [{ c: N.M10, q: (d) => len(d) / 3 * WASTE }, { c: P.ANCH, q: () => 1 }] : [{ c: P.M8ROD, q: (d) => len(d) / 3 * WASTE, note: "3 m rod" }];
-    if (a <= 4.5 && b <= 41 && c <= 60) return [{ c: P.L40, q: (d) => len(d) / 2 / 6 * WASTE, note: "cleats; bar = 6 m" }];      // cleat leg, 2 legs per angle
-    if (a <= 6.5 && b >= 39 && b <= 41) return [{ c: P.FB405, q: (d) => len(d) / 6 * WASTE, note: "drawn 40x6: stock FB 40x5; bar = 6 m" }];
-    if (a <= 8.5 && b >= 29 && b <= 31) return [{ c: P.FB405, q: (d) => len(d) / 6 * WASTE, note: "drawn 30x8 on edge: stock FB 40x5; bar = 6 m" }];
+    if (a <= 4.5 && b >= 38 && b <= 41 && c <= 60) return [{ c: P.L40, q: (d) => len(d) / 2 / 6 * WASTE, note: "cleats; bar = 6 m" }];      // cleat leg, 2 legs per angle
+    if (a <= 6.5 && b >= 39 && b <= 41) return [{ c: P.FB405, q: (d) => len(d) / 6 * WASTE, note: "bar = 6 m" }];
+    if (a <= 8.5 && b >= 29 && b <= 31) return [{ c: P.FB405, q: (d) => len(d) / 6 * WASTE, note: "bar = 6 m" }];
     if (a <= 3.5 && b <= 26) return [{ c: P.L25, q: (d) => len(d) / 2 / 6 * WASTE, note: "bar = 6 m" }];          // 2 legs per angle
   }
   if (/^FR MDF \d+ Oak Veneer/.test(m)) return [t <= 9 ? sheet(P.FR8) : sheet(P.FR18), { c: P.VNOAK, q: (d) => area(d) * WASTE, note: "natural oak veneer to match EGGER H1145" }];

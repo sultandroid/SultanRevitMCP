@@ -27,11 +27,15 @@ for (const [a, b, c, d] of [[X0, Y0, X1, Y0 + 25], [X0, Y1 - 25, X1, Y1], [X0, Y
 // welded mesh 4 wire @ 100: wires along x on the bottom layer, along y on top, top of mesh = TOPZ
 for (let y = Y0 + 65; y < Y1 - 20; y += 100) mesh.push(box(X0 + 3, y - 2, TOPZ - 8, X1 - 3, y + 2, TOPZ - 4, blk));
 for (let x = X0 + 40; x < X1 - 20; x += 100) mesh.push(box(x - 2, Y0 + 3, TOPZ - 4, x + 2, Y1 - 3, TOPZ, blk));
-// 2 cross bars 30x8 on edge (bottom +3.102, above the box soffit line) under the mesh, between the angles, each on 2 M8 rods to the slab
+// 2 cross bars FB 40x5 on edge (stock, user 12 Nov 2026) ON TOP of the mesh (welded to it), in the plant gap +3.140..+3.180;
+// each M8 rod takes the bar through a 25x25x3 angle cleat (50 long) welded to the bar side
 const BX = [2940, 3700], BY = [2600, 3110];   // under the SHS cross members of the Ceiling Steel Frame
 for (const x of BX) {
-  mesh.push(box(x - 4, Y0 + 28, TOPZ - 38, x + 4, Y1 - 28, TOPZ - 8, blk));
-  for (const y of BY) mesh.push(box(x - 4, y - 4, TOPZ - 38, x + 4, y + 4, 3264.5, galv));   // M8 rod up through the rattan panel and the SHS cross member
+  mesh.push(box(x - 2.5, Y0 + 28, TOPZ, x + 2.5, Y1 - 28, TOPZ + 40, blk));                       // FB 40x5 on edge
+  for (const y of BY) {
+    mesh.push(box(x + 2.5, y - 25, TOPZ + 37, x + 27.5, y + 25, TOPZ + 40, blk), box(x + 2.5, y - 25, TOPZ + 15, x + 5.5, y + 25, TOPZ + 40, blk));   // cleat L 25x25x3
+    mesh.push(box(x + 11, y - 4, TOPZ + 27, x + 19, y + 4, 3264.5, galv));   // M8 rod: nut under the cleat, up through the rattan panel and the SHS cross member
+  }
 }
 // remove the earlier mesh and the modelled flowers (user 12 Nov 2026: "dont model the artificial plant ... outline annotation only")
 for (const mk of ["Ceiling Flower Mesh", "Ceiling Flowers"]) { const o = (await call("query_elements", { ...D, parameter_name: "Mark", parameter_value: mk })).elements.filter((e) => /Flower/.test(e.name)).map((e) => e.id); if (o.length) await call("delete_elements", { ...D, element_ids: o }); }
@@ -43,5 +47,5 @@ async function build(fam, mark, cat, sols, comment) {
   return r.id;
 }
 const meshId = await build("Madina2 Ceiling Flower Mesh FM-1", "Ceiling Flower Mesh", "OST_GenericModel", mesh,
-  "Steel mesh in the centre field inside the Ceiling Wood Frame CF-1 (user 12 Nov 2026, design Rev-02 renders): welded mesh 4 mm wire @ 100 x 100, painted black, 2180 x 1530, top +3.140, ~60 below the Ceiling Rattan Panel: the artificial flowers are tied in that gap and hang through the mesh. Frame of angle 25x25x3 black, screwed to the inner side boards of CF-1 @ 300 (4.2 x 25 screws); 2 cross bars flat 30x8 on edge at x 2940 / 3700, each hung on 2 M8 rods through the rattan panel to the SHS cross members of the Ceiling Steel Frame. Made in 1 piece or 2 halves for the door; weight ~25 kg + flowers.");
+  "Steel mesh in the centre field inside the Ceiling Wood Frame CF-1 (user 12 Nov 2026, design Rev-02 renders): welded mesh 4 mm wire @ 100 x 100, painted black, 2180 x 1530, top +3.140, ~60 below the Ceiling Rattan Panel: the artificial flowers are tied in that gap and hang through the mesh. Frame of angle 25x25x3 black, screwed to the inner side boards of CF-1 @ 300 (4.2 x 25 screws); 2 cross bars FB 40x5 on edge (stock) on top of the mesh at x 2940 / 3700, each hung on 2 M8 rods via 25x25x3 cleats through the rattan panel to the SHS cross members of the Ceiling Steel Frame. Made in 1 piece or 2 halves for the door; weight ~25 kg + flowers.");
 console.log("mesh", meshId, mesh.length, "solids");
