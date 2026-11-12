@@ -9,16 +9,17 @@ metadata:
 
 Prerequisites: Revit open with the SultanRevitMCP bridge; read `../samaya-revit/SKILL.md` "Always" rules and `../samaya-revit/references/views-and-sheets.md` before any sheet. This skill adds what a single furniture piece needs on top of them.
 
-The worked example to copy is `indora-furniture/revit/sample-side-table/` (GitHub `sultandroid/indora-furniture`): every script below exists there and runs in that order. Read `references/pipeline.md` when you start building, to reuse it instead of writing new scripts.
+The worked example to copy is `indora-furniture/revit/sample-side-table/` (GitHub `sultandroid/indora-furniture`): every script below exists there and runs in that order. Read `references/study.md` before modelling and `references/pipeline.md` when you start building, to reuse it instead of writing new scripts.
 
 ## Workflow
 
 1. **Read the designer's sheet properly.** Render the PDF at 6x (`pdf-to-png-converter`), crop each view and read every dimension. Extract its text with `pdfjs-dist`: Arabic in CAD PDFs comes out with each word reversed (حجر comes out as رجح); decode before deciding. Never guess a material from a render's texture.
 2. **Ask before modelling** (one question set): which piece, client/project names (EN + AR) for the title block, sign-off, and every material you could not read. Use the designer's own materials; never swap one in.
-3. **Plan the parts like a carpenter** in one `parts.mjs` list (sizes, material, assembly step, exploded offset, junctions). For each part answer: what holds it, what screw goes where (into real wood), in what order can every screw be reached. See the build rules below.
-4. **Model** one Casework family (sections cut it) plus separate elements for parts fitted last (glass). Probe with rays and move it to its true place: families from `make_unit_family` land about 44.7 off.
-5. **Sheets**, all on the client's title block: 2101 shop drawing (`fab_sheet.mjs` + finishing script), 2102 assembly (exploded), 2103 junction details, 2104 finishes and paints. Render every sheet and read it before saying it is done.
-6. **Issue**: export one PDF, save the model, commit and push the client repo; every new lesson goes into this skill or `samaya-revit` references in the same session.
+3. **Study before modelling** (user rule): function for the end user (height for the use, edges, stability and tipping, delivery, knock-down), proportions, the fabrication process and machine for every part (CNC, hot press, cold press, bending, trades), veneer work, assembly order. Write `STUDY.md`, copy it to the client Drive folder, and agree its decisions first. Read `references/study.md` for the checklist.
+4. **Plan the parts like a carpenter** in one `parts.mjs` list (sizes, material, assembly step, exploded offset, junctions). For each part answer: what holds it, what screw goes where (into real wood), in what order can every screw be reached. See the build rules below.
+5. **Model** one Casework family (sections cut it) plus separate elements for parts fitted last (glass). Probe with rays and move it to its true place: families from `make_unit_family` land about 44.7 off.
+6. **Sheets**, all on the client's title block: 2101 shop drawing (`fab_sheet.mjs` + finishing script), 2102 assembly (exploded), 2103 junction details, 2104 finishes and paints. Render every sheet and read it before saying it is done.
+7. **Issue**: export one PDF, save the model, commit and push the client repo; every new lesson goes into this skill or `samaya-revit` references in the same session.
 
 ## Build rules (the carpenter's way)
 
@@ -28,6 +29,7 @@ The worked example to copy is `indora-furniture/revit/sample-side-table/` (GitHu
 - **Glass is laid loose** on 2 mm clear rubber pads in its rebate, flush with the frame, never glued (it lifts out for cleaning). Mirror is glued with neutral mirror adhesive. Glass shown see-through in every view (`surface_transparency` 70).
 - **Flush means flush**: when the design shows a shelf level with its frame, size the rebate, board and plinth so it is; check with a section.
 - **Fixings**: draw each screw at its real height through real wood; cut a fixing detail where the fixing really is (not through a window or void).
+- **Curved members are bent laminations**, never cut from a straight blank (short grain breaks). **Round frames are segments** in two layers, joints staggered. **Solid wood moves**: slotted fixings, never glued full face to metal or glass.
 - **Skins on frames** (stone alternative clay sheet, veneer panels): glued on an MDF backing, edges hidden under a mitred trim that stands proud.
 
 ## Sheet rules (on top of views-and-sheets.md)
@@ -52,4 +54,6 @@ The worked example to copy is `indora-furniture/revit/sample-side-table/` (GitHu
 - Revit ignores Unicode direction marks; only `arLine()` (visual order plus U+200E between runs) prints mixed Arabic correctly.
 - Inline `node -e` with Arabic or nested quotes can trip the shell safety check: put edits in a `.cjs` file and run it.
 - Revit can close your model if another session is working: check `list_documents` and reopen before a long run.
+- Hard-coded piece names in nine scripts made the second piece slow to start: keep names, marks, sheet numbers and the piece box in one place when you copy the pipeline.
+- The designer's own derived numbers (arc lengths, totals) are checks: a mismatch means a missed detail (legs sitting in base pockets).
 - Edits to CRLF files with `\n` patterns miss silently in scripts; use the Edit tool or match per line.
