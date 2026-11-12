@@ -12,6 +12,7 @@ Write `STUDY.md` beside the piece's scripts and copy it to the client's Drive fo
 - Loose parts (glass): what stops them sliding; how they are cleaned.
 - Delivery and access: largest size against a 900 door and the lift; total weight; make it knock-down (bolts, inserts, barrel nuts) when it does not pass whole.
 
+- Hanging a removable board or panel (crowns, wall panels): the factory uses a solid wood French cleat (البتينجانة, 2 strips at 45 deg + a foot spacer), not aluminium Z-clips (TV-01, 12 Nov 2026).
 - Brass trim on wood: a flat bar (e.g. 5 x 3) rolled to the curve and glued with epoxy in a groove after the wood is assembled and finished; never a wide ring cut from sheet (waste) (CT-01).
 
 ## 1b. Clash check before sheets (CT-01, 12 Nov 2026)
