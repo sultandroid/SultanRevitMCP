@@ -17,19 +17,19 @@ const up = { x: 0, y: 0, z: 1 };
 const box = (x0, y0, z0, x1, y1, z1, m) => ({ profile: [{ x: x0, y: y0, z: z0 }, { x: x1, y: y0, z: z0 }, { x: x1, y: y1, z: z0 }, { x: x0, y: y1, z: z0 }], direction: up, length_mm: z1 - z0, material_id: m });
 const oct = (cx, cy, z0, r, h, m, n = 8) => ({ profile: Array.from({ length: n }, (_, i) => ({ x: cx + r * Math.cos((2 * Math.PI * i) / n), y: cy + r * Math.sin((2 * Math.PI * i) / n), z: z0 })), direction: up, length_mm: h, material_id: m });
 // opening inside CF-1 (outline 2130..4510 x 1990..3720, members 100)
-const X0 = 2230, X1 = 4410, Y0 = 2090, Y1 = 3620, TOPZ = 3200, SLAB = 3700;
+const X0 = 2230, X1 = 4410, Y0 = 2090, Y1 = 3620, TOPZ = 3140, SLAB = 3700;   // top +3.140 (user 12 Nov 2026): ~60 gap under the rattan panel (+3.2015) to tie the plants
 const mesh = [];
 // angle 25x25x3: vertical leg against the inner side face, horizontal leg at the top inward
 for (const [a, b, c, d] of [[X0, Y0, X1, Y0 + 3], [X0, Y1 - 3, X1, Y1], [X0, Y0, X0 + 3, Y1], [X1 - 3, Y0, X1, Y1]]) mesh.push(box(a, b, TOPZ - 33, c, d, TOPZ - 8, blk));
 for (const [a, b, c, d] of [[X0, Y0, X1, Y0 + 25], [X0, Y1 - 25, X1, Y1], [X0, Y0, X0 + 25, Y1], [X1 - 25, Y0, X1, Y1]]) mesh.push(box(a, b, TOPZ - 11, c, d, TOPZ - 8, blk));
-// welded mesh 4 wire @ 100: wires along x on the bottom layer, along y on top, top of mesh = +3.200
+// welded mesh 4 wire @ 100: wires along x on the bottom layer, along y on top, top of mesh = TOPZ
 for (let y = Y0 + 65; y < Y1 - 20; y += 100) mesh.push(box(X0 + 3, y - 2, TOPZ - 8, X1 - 3, y + 2, TOPZ - 4, blk));
 for (let x = X0 + 40; x < X1 - 20; x += 100) mesh.push(box(x - 2, Y0 + 3, TOPZ - 4, x + 2, Y1 - 3, TOPZ, blk));
-// 2 cross bars 40x8 on edge under the mesh, between the angles, each on 2 M8 rods to the slab
+// 2 cross bars 30x8 on edge (bottom +3.102, above the box soffit line) under the mesh, between the angles, each on 2 M8 rods to the slab
 const BX = [2940, 3700], BY = [2600, 3110];   // under the SHS cross members of the Ceiling Steel Frame
 for (const x of BX) {
-  mesh.push(box(x - 4, Y0 + 28, TOPZ - 48, x + 4, Y1 - 28, TOPZ - 8, blk));
-  for (const y of BY) mesh.push(box(x - 4, y - 4, TOPZ - 48, x + 4, y + 4, 3264.5, galv));   // M8 bolt up through the board and the SHS cross member
+  mesh.push(box(x - 4, Y0 + 28, TOPZ - 38, x + 4, Y1 - 28, TOPZ - 8, blk));
+  for (const y of BY) mesh.push(box(x - 4, y - 4, TOPZ - 38, x + 4, y + 4, 3264.5, galv));   // M8 rod up through the rattan panel and the SHS cross member
 }
 // remove the earlier mesh and the modelled flowers (user 12 Nov 2026: "dont model the artificial plant ... outline annotation only")
 for (const mk of ["Ceiling Flower Mesh", "Ceiling Flowers"]) { const o = (await call("query_elements", { ...D, parameter_name: "Mark", parameter_value: mk })).elements.filter((e) => /Flower/.test(e.name)).map((e) => e.id); if (o.length) await call("delete_elements", { ...D, element_ids: o }); }
@@ -41,5 +41,5 @@ async function build(fam, mark, cat, sols, comment) {
   return r.id;
 }
 const meshId = await build("Madina2 Ceiling Flower Mesh FM-1", "Ceiling Flower Mesh", "OST_GenericModel", mesh,
-  "Steel mesh in the centre field inside the Ceiling Wood Frame CF-1 (user 12 Nov 2026, design Rev-02 renders): welded mesh 4 mm wire @ 100 x 100, black powder coat RAL 9005, 2180 x 1530, top +3.200; the rattan weave lies on it and the artificial flowers are tied under it. Frame of angle 25x25x3 black, screwed to the inner side boards of CF-1 @ 300 (4.2 x 25 screws); 2 cross bars flat 40x8 on edge at x 2940 / 3700, each hung on 2 M8 bolts through the board to the SHS cross members of the Ceiling Steel Frame. Made in 1 piece or 2 halves for the door; weight ~25 kg + flowers.");
+  "Steel mesh in the centre field inside the Ceiling Wood Frame CF-1 (user 12 Nov 2026, design Rev-02 renders): welded mesh 4 mm wire @ 100 x 100, black powder coat RAL 9005, 2180 x 1530, top +3.140, ~60 below the Ceiling Rattan Panel: the artificial flowers are tied in that gap and hang through the mesh. Frame of angle 25x25x3 black, screwed to the inner side boards of CF-1 @ 300 (4.2 x 25 screws); 2 cross bars flat 30x8 on edge at x 2940 / 3700, each hung on 2 M8 rods through the rattan panel to the SHS cross members of the Ceiling Steel Frame. Made in 1 piece or 2 halves for the door; weight ~25 kg + flowers.");
 console.log("mesh", meshId, mesh.length, "solids");

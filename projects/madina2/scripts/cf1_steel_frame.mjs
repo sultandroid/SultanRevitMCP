@@ -4,8 +4,8 @@
 //  - SHS 40x40x2 grid lying on the rattan board (+3.2125..+3.2525): ring on the CF-1 member centre lines (x 2180 / 4460,
 //    y 2040 / 3670), 2 cross members x 2940 / 3700, 1 middle member y 2855 -> board supported at <= 815.
 //  - Hangers: 10 M10 threaded rods only (user 12 Nov 2026), drop-in anchors in the slab soffit +3.70, down to angle cleats
-//    welded to the inner face of the SHS ring, nut + washer each side (the site levels the grid on these nuts); 4 M10 rods at
-//    45 as sway bracing.
+//    welded to the inner face of the SHS ring, nut + washer each side (the site levels the grid on these nuts);
+//    no diagonal bracing (user).
 //  - CF-1 box frame: 10 flat bars 40x6 welded to the SHS, through slots in the rattan board, screwed inside the open-top
 //    boxes to the inner side board through a 6 ply packer (user 12 Nov 2026: "the connection ... flat bar").
 //  - Middle rattan ceiling board: screwed up into the SHS grid (self-drilling screws @ 300).
@@ -49,13 +49,7 @@ for (const [x, y, ix, iy] of RODS) {
   S.push(cyl(rx, ry, Z1, 10, 2.5, galv), cyl(rx, ry, Z1 + 2.5, 9.5, 8, galv, 6));                      // washer + nut on top
   rodAt.push({ x: rx, y: ry, ix, iy });
 }
-// sway bracing, also threaded rods: 4 M10 rods at 45 from a cleat up to the slab, one per side, alternating directions
-for (const [k, dx, dy] of [[0, -1, 0], [5, 1, 0], [7, 0, 1], [8, 0, -1]]) {
-  const r0 = rodAt[k], z0 = Z1 + 10.5, L = (SLAB - z0) * Math.SQRT2;
-  const ac = dx ? { x: 0, y: 1 } : { x: 1, y: 0 }, n = { x: -dx / Math.SQRT2, y: -dy / Math.SQRT2, z: 1 / Math.SQRT2 };
-  const c = { x: r0.x + dx * 30, y: r0.y + dy * 30, z: z0 };
-  S.push({ profile: [[-5, -5], [5, -5], [5, 5], [-5, 5]].map(([u, v]) => ({ x: c.x + u * ac.x + v * n.x, y: c.y + u * ac.y + v * n.y, z: c.z + v * n.z })), direction: { x: dx / Math.SQRT2, y: dy / Math.SQRT2, z: 1 / Math.SQRT2 }, length_mm: L, material_id: galv });
-}
+// No sway bracing (user 12 Nov 2026: "there is diagonal hanger no need"): rods ~440 short, the grid is boxed in by the C02 tray.
 // CF-1 bolts: ply block in the box, M8 through the board and the SHS
 const XS = [2180, 2940, 3700, 4460], pts = [...[2040, 3670].flatMap((y) => XS.map((x) => ({ x, y, ax: "x" }))), ...[2180, 4460].map((x) => ({ x, y: 2855, ax: "y" }))];
 // CF-1 connection = FLAT BAR (user 12 Nov 2026: "the connection between the frame and the box frame flat bar"):
@@ -80,5 +74,5 @@ if (old.length) await call("delete_elements", { ...D, element_ids: old });
 const ds = (await call("create_direct_shape", { ...D, category: "OST_GenericModel", name: FAM, solids: S })).id;
 const r = await call("make_unit_family", { ...D, template_path: RFT, family_name: FAM, save_dir: DIR, level_id: lv, mark: MARK, element_ids: [ds] });
 await call("set_parameter", { ...D, element_id: r.id, parameter_name: "Comments", value:
-  "One steel frame carries the centre ceiling (user 12 Nov 2026): SHS 40x40x2 grid, black primer, lying on the rattan board +3.2125..+3.2525: ring on the Ceiling Wood Frame centre lines 2320 x 1670, 2 cross members x 2940 / 3700, middle member y 2855, all welded. HANGERS: threaded rods only: 10 M10 galvanised rods from drop-in anchors in the slab soffit +3.70 to angle cleats 40x40x4 x 50 welded to the inner face of the ring, nut + washer above and below (level the grid on the nuts); 4 M10 rods at 45 as sway bracing. BOX FRAME: 10 flat bars 40x6 welded to the SHS, through 45x10 slots in the rattan board, fixed with 2 no. 4.8x30 pan screws through a 6 ply packer into the box inner side board, hidden inside the open-top box (levelling is on the M10 rod nuts only). Middle rattan board screwed up into the grid @ 300. Flower mesh bars on 4 M8 rods to the cross members. ~115 kg on 10 rods. Shift flat bars <=100 to clear downlights GL-1..8." });
+  "One steel frame carries the centre ceiling (user 12 Nov 2026): SHS 40x40x2 grid, black primer, lying on the rattan board +3.2125..+3.2525: ring on the Ceiling Wood Frame centre lines 2320 x 1670, 2 cross members x 2940 / 3700, middle member y 2855, all welded. HANGERS: threaded rods only: 10 M10 galvanised rods from drop-in anchors in the slab soffit +3.70 to angle cleats 40x40x4 x 50 welded to the inner face of the ring, nut + washer above and below (level the grid on the nuts); no diagonal bracing. BOX FRAME: 10 flat bars 40x6 welded to the SHS, through 45x10 slots in the rattan board, fixed with 2 no. 4.8x30 pan screws through a 6 ply packer into the box inner side board, hidden inside the open-top box (levelling is on the M10 rod nuts only). Middle rattan board screwed up into the grid @ 300. Flower mesh bars on 4 M8 rods to the cross members. ~115 kg on 10 rods. Shift flat bars <=100 to clear downlights GL-1..8." });
 console.log("steel frame", r.id, S.length, "solids; removed hangers", old);

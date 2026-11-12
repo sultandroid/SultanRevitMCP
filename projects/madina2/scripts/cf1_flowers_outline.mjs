@@ -7,7 +7,7 @@ const D = { document: "Madina2_ARCH_01" }, call = (n, a = {}) => raw(n, { ...D, 
 const views = (await call("list_views")).views;
 const V = (re) => views.find((v) => re.test(v.name))?.id;
 const LS = "Outline Only - By Others", TT = 374611;   // Sheet Note 5
-const TOP = 3190, LOW = 2400;
+const TOP = 3132, LOW = 2400;
 // scalloped bottom: heavier cascade near the frame (render), every 110 mm, never below +2.40
 function outline(u0, u1, P) {
   const pts = [P(u0, TOP)]; let seed = 7;
