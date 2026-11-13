@@ -229,6 +229,9 @@ namespace RevitMcp
             ["cloud_model_links"] = CloudModelLinks,
             ["create_columns"] = CreateColumns,
             ["create_beams"] = CreateBeams,
+            ["ensure_connection_types"] = EnsureConnectionTypes,
+            ["list_connection_types"] = ListConnectionTypes,
+            ["create_structural_connections"] = CreateStructuralConnections,
         };
 
         public static bool Has(string command) => Table.ContainsKey(command);
