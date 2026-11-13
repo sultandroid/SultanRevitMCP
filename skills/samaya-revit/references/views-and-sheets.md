@@ -255,6 +255,8 @@ A study that changes a design element gets two sheets in the item's fabrication 
 
 ## Every sheet uses a grid
 
+After a sheet set is built, run `node tools/grid_balance.mjs <doc> <sheet numbers..>` (TV-01, 13 Nov 2026: "balance the sheets layout to be in grids without any overflow"): it keeps each view with its labels, stands each row on one bottom line with even gutters snapped to the 6-column grid, keeps rows clear of views parked under the notes, moves the notes column to the 847 line only where the widest line still fits, and reports anything outside the drawing area or overlapping. Sheets drawn straight on the sheet (images, tables, schematics) keep their layout. Use --dry first; zoom-check the busy rows after.
+
 Every sheet, of any kind, is laid out on one grid: A1 drawing area x 20 to 1012, 6 columns of 165 mm, lines at 20, 186, 351, 516, 682, 847, 1012, centres at 103, 268, 434, 599, 764, 929. Views centre on a column or a column line. Views in a row share a level, so the same height reads across them. Notes and tables start on a column line. Never place by eye.
 
 **Fill the sheet (user, DAS, 5 Nov 2026: "manage the views to fit in the sheet size, no big white spaces").** After placing views, look at the render for any empty block bigger than about a quarter of a column by a row:
