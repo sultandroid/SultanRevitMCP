@@ -194,6 +194,19 @@ namespace RevitMcp
                     foreach (var o in parts)
                     {
                         XYZ a = MmVec(o["min"]) - origin, b = MmVec(o["max"]) - origin;
+                        // A sloped or shaped part: profile [[x, z], ...] (project mm) extruded along y from min to max.
+                        if (o["profile"] is JsonArray prof && prof.Count >= 3)
+                        {
+                            var pts = prof.Select(n => new XYZ(FromMm(Dbl(n[0])) - origin.X, a.Y, FromMm(Dbl(n[1])) - origin.Z)).ToList();
+                            var loop = new CurveArray();
+                            for (var i = 0; i < pts.Count; i++) loop.Append(Line.CreateBound(pts[i], pts[(i + 1) % pts.Count]));
+                            var cpa = new CurveArrArray(); cpa.Append(loop);
+                            var sp = SketchPlane.Create(fdoc, Plane.CreateByNormalAndOrigin(XYZ.BasisY, new XYZ(0, a.Y, 0)));
+                            var ex = fdoc.FamilyCreate.NewExtrusion(true, cpa, sp, b.Y - a.Y);
+                            ex.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.Set(Mat(o["mat"]?.ToString()));
+                            placed++;
+                            continue;
+                        }
                         var inst = fdoc.FamilyCreate.NewFamilyInstance(a, sym, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                         void Set(string pn, Action<Parameter> act) { var pr = inst.get_Parameter(Guid.Parse(PartParams.First(x => x.Name == pn).Guid)); if (pr != null && !pr.IsReadOnly) act(pr); }
                         Set("SF_SizeX", pr => pr.Set(b.X - a.X)); Set("SF_SizeY", pr => pr.Set(b.Y - a.Y)); Set("SF_SizeZ", pr => pr.Set(b.Z - a.Z));
