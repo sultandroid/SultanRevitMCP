@@ -146,8 +146,10 @@ namespace RevitMcp
                 OrientToView = true,
                 VisibleLayersOnly = true,
             };
-            // custom_scale: file units are millimetres times this factor (a sheet cut to sheet mm, imported into a 1:n view).
-            if (Num(p, "custom_scale") is double cs) opts.CustomScale = cs / 304.8;
+            // custom_scale: one file unit becomes this many millimetres (e.g. 5 for a plan drawn at 1 unit = 5 mm).
+            // With ImportUnit.Custom, Revit 2026 applies CustomScale as millimetres per file unit: checked 13 Nov 2026,
+            // 5/304.8 gave x0.0164 and 1524/304.8 gave x5. It was divided by 304.8 before, which shrank every import.
+            if (Num(p, "custom_scale") is double cs) opts.CustomScale = cs;
             return InTransaction(doc, "Import CAD", () =>
             {
                 if (!doc.Import(path, opts, view, out ElementId id)) throw new InvalidOperationException("Revit did not import the file.");

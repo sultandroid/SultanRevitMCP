@@ -66,6 +66,26 @@ Claude Desktop (`claude_desktop_config.json`):
 | UI | `select_elements`, `open_view` |
 | Create | `create_project`, `create_level`, `create_grid`, `create_wall`, `create_floor`, `create_room`, `place_family_instance`, `create_floor_plan`, `create_section`, `create_sheet`, `place_view_on_sheet`, `duplicate_view`, `create_detail_lines`, `create_text_note`, `create_direct_shape`, `copy_instance_scaled`, `list_family_text`, `set_family_text`, `add_titleblock_revision_schedule`, `create_revision`, `set_sheet_revisions`, `create_sheet_list`, `set_schedule_format`, `view_category_counts`, `set_view_overrides`, `ensure_line_style`, `ensure_text_type`, `load_family`, `place_on_face`, `ensure_reference_plane`, `place_on_reference_plane`, `create_circuit`, `ensure_distribution_system`, `set_panel_system`, `set_view_categories`, `set_view_range`, `create_schedule`, `create_panel_schedule`, `ensure_project_parameters`, `ensure_material`, `create_pipe_run` |
 | Change | `set_parameter`, `move_elements`, `delete_elements`, `extend_view_crop`, `enable_void_cut`, `create_void_family`, `make_unit_family`, `build_title_block`, `cut_with_voids`, `extract_nested_family`, `set_family_material` |
+| Families | `family_report`, `family_types`, `family_forms`, `family_dimensions`, `family_type_extents` (read), `set_family_parameters` (change) |
+
+## Family documents
+
+The `family_*` tools read a family from one of three sources, so a check never has to take over the active document:
+
+- `path`: an `.rfa` on disk. Revit opens it in the background (never shown, never active), reads it and closes it without saving. `expect_sha256` (a prefix is enough) refuses the wrong build before anything is read. Cloud-only OneDrive / ACC placeholders are reported as such, instead of Revit's "does not exist".
+- `element_id`: an instance in the model; its family is opened for editing, read and closed.
+- `document`: a family already open in Revit, by title or path (else the active document).
+
+What they return, in mm and degrees:
+
+- `family_types`: category, types, and every family parameter with its value in each type, formula, group and shared GUID.
+- `family_forms`: every solid, void and nested family with extents, material, visibility, driving parameters, extrusion start/end, and each sketch loop measured in its own plane (minimum-area rectangle w x h, area, centre, holes flagged). A 100 x 100 tube shows as `100 x 100` plus `90 x 90 (hole)`, so the wall thickness reads straight off.
+- `family_dimensions`: dimensions with their label parameter and value; reference planes with name, plane and Is Reference.
+- `family_type_extents`: switches to each type, measures it and rolls back; `match_height_mm` finds the type of a given height.
+- `family_report`: all of the above from one open of the file.
+- `set_family_parameters`: switch to or create a type and set values or formulas in an open family (one undo step, not saved).
+
+Every MCP tool now also takes `document` (title or path of an open document) to work on that document instead of the active one. The add-in already supported this; the server used to drop the argument.
 
 ## Behaviour
 

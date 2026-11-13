@@ -57,6 +57,15 @@ const paging = {
   offset: z.number().int().min(0).optional(),
 };
 
+// Where a family_* tool reads the family from. Give one: path (opened in the background, never made active, closed
+// without saving), element_id (an instance in the model), or document (an open family by title); else the active document.
+const familySource = {
+  path: z.string().optional().describe("Absolute path to an .rfa; opened in the background and closed without saving"),
+  expect_sha256: z.string().optional().describe("With path: refuse unless the file's SHA-256 starts with this"),
+  element_id: id.optional().describe("An instance in the model whose family to read"),
+};
+const typeNames = z.array(z.string()).optional().describe("Only these family types; all when omitted");
+
 const read = { readOnlyHint: true };
 const ui = { readOnlyHint: false, destructiveHint: false };
 const additive = { readOnlyHint: false, destructiveHint: false };
@@ -145,7 +154,14 @@ const tools = [
   ["create_text_notes", "Add many text notes to a view or sheet in one step. Each note: location, text (\r for line breaks), text_type_id?, width_mm? (wraps, paper mm), align? left|center|right, valign? top|middle|bottom.", { view_id: id, notes: z.array(z.object({ location: point, text: z.string(), text_type_id: id.optional(), width_mm: z.number().positive().optional(), align: z.enum(["left", "center", "right"]).optional(), valign: z.enum(["top", "middle", "bottom"]).optional() })) }, additive],
   ["place_image", "Place an image in a 2D view or on a sheet, centred on a point, at a width (sheet mm on sheets, model mm in views). height_mm stretches it to an exact box; foreground draws it over model surfaces.", { view_id: id, path: z.string(), center: point, width_mm: z.number().positive(), height_mm: z.number().positive().optional(), foreground: z.boolean().optional() }, additive],
   ["set_family_text_size", "Give the texts or labels in an instance's family that contain match their own text type at size_mm, and reload the family. Fixes a title block label that overflows its cell.", { element_id: id, match: z.string(), size_mm: z.number().positive(), save_path: z.string().optional() }, { readOnlyHint: false, destructiveHint: true, idempotentHint: true }],
-  ["import_cad", "Import a DWG into a view (mm, origin to origin, this view only, colours kept). Use a plan view when the import must be cropped. Returns the import id and extents.", { view_id: id, path: z.string(), color: z.enum(["preserve", "black"]).optional(), custom_scale: z.number().positive().optional() }, additive],
+  ["import_cad", "Import a DWG into a view (mm, origin to origin, this view only, colours kept). Use a plan view when the import must be cropped. Returns the import id and extents.", { view_id: id, path: z.string(), color: z.enum(["preserve", "black"]).optional(), custom_scale: z.number().positive().optional().describe("Millimetres per file unit, e.g. 5 for a plan drawn at 1 unit = 5 mm") }, additive],
+  ["file_links", "Read the external references (Revit links, CAD links) saved in an .rvt on disk, without opening it. Changes nothing.", { path: z.string() }, read],
+  ["cloud_model_links", "Open an ACC / Autodesk Docs model in the background (worksets closed, never shown), list its Revit links with their cloud project and model GUIDs and placement, and close it without syncing. Use the GUIDs with save_cloud_copy.", { region: z.string().optional(), project_guid: z.string(), model_guid: z.string() }, read],
+  ["create_columns", "Place structural columns of one type on a level in one undo step: items [{x, y, rotation_deg?, mark?, comments?}], base and top offsets in mm above the same level.", { type_id: id, level_id: id, base_offset_mm: z.number().optional(), top_offset_mm: z.number(), items: z.array(z.object({ x: z.number(), y: z.number(), rotation_deg: z.number().optional(), mark: z.string().optional(), comments: z.string().optional() })).min(1) }, additive],
+  ["create_beams", "Place structural beams of one type on a level along straight centrelines in one undo step; beam top at top_mm above the level. Ends are not joined unless allow_join, so each beam keeps the length given.", { type_id: id, level_id: id, top_mm: z.number(), allow_join: z.boolean().optional(), items: z.array(z.object({ start: point, end: point, mark: z.string().optional(), comments: z.string().optional() })).min(1) }, additive],
+  ["ensure_connection_types", "Create (or reuse) Revit Steel Connection types by Autodesk class GUID, like Steel tab > Connection Settings > Add. GUIDs are in the Steel Connections LocalDB (HRLDefinition.ClassID), e.g. Tube base plate {0AE8BF0C-E00D-48C6-94D3-1075FA614CE7}.", { types: z.array(z.object({ name: z.string(), guid: z.string(), family: z.string().optional() })).min(1) }, additive],
+  ["list_connection_types", "List the steel connection types in the model and how many connections exist. Changes nothing.", {}, read],
+  ["create_structural_connections", "Apply one steel connection type to many member sets in one undo step; element_ids in the order the connection expects (column; column + beam; main beam + secondary). Failures are reported per set.", { type_id: id, items: z.array(z.object({ element_ids: ids })).min(1) }, additive],
   ["save_cloud_copy", "Open an ACC / Autodesk Docs model by region and GUIDs and save a standalone central copy on disk, without synchronising, to link into a local host.", { region: z.string().optional(), project_guid: z.string(), model_guid: z.string(), save_path: z.string() }, additive],
   ["set_family_text", "Replace matching text notes in an instance's family and reload it.", { element_id: id, old_text: z.string(), new_text: z.string() }, { readOnlyHint: false, destructiveHint: true, idempotentHint: true }],
   ["add_titleblock_revision_schedule", "Add a revision schedule to a title block family's sheet and reload it. Location is in sheet mm.", { element_id: id, location: point, fields: z.array(z.object({ name: z.string(), heading: z.string().optional(), width_mm: z.number().positive() })) }, { readOnlyHint: false, destructiveHint: true, idempotentHint: false }],
@@ -173,6 +189,31 @@ const tools = [
   ["inspect_family", "List the geometry and nested families inside an instance's family. Changes nothing.", {
     element_id: id,
   }, read],
+  ["family_types", "A family's category, types and every family parameter with its value in each type (lengths mm, angles deg), formulas, groups and shared GUIDs. Reads from a path, an instance or an open family. Changes nothing.", {
+    ...familySource, types: typeNames, name_contains: z.string().optional(),
+  }, read],
+  ["family_forms", "Every solid, void and nested family in a family: kind, extents, material, visibility, driving parameters, extrusion start/end, and each sketch loop measured in its own plane (w x h, area, centre; holes flagged), so section sizes read directly. Changes nothing.", {
+    ...familySource,
+    kinds: z.array(z.string()).optional().describe("Extrusion, Sweep, Blend, Revolution, SweptBlend, FreeFormElement, FamilyInstance"),
+    solid_only: z.boolean().optional(),
+    include_curves: z.boolean().optional().describe("Add each loop's raw curves in model mm"),
+    ...paging,
+  }, read],
+  ["family_dimensions", "A family's dimensions (value, label parameter, view) and reference planes (name, normal, offset, Is Reference). Changes nothing.", {
+    ...familySource, labelled_only: z.boolean().optional(),
+  }, read],
+  ["family_type_extents", "Switch to each family type, regenerate, measure solid extents and length parameters, then roll back, so the family is left as it was. Use match_height_mm to find the type of a given height.", {
+    ...familySource, types: typeNames,
+    match_height_mm: z.number().optional(), tolerance_mm: z.number().optional().describe("Default 1"),
+  }, read],
+  ["family_report", "One call, one open of the file: family_types + family_forms (no raw curves) + family_dimensions + family_type_extents. Best start for a model-vs-drawing check.", {
+    ...familySource, types: typeNames,
+    include: z.array(z.enum(["types", "forms", "dimensions", "extents"])).optional(),
+  }, read],
+  ["set_family_parameters", "In an open family (document or active): optionally switch to or create a type, then set family parameter values (mm, deg, true/false, names for ids) or formulas. One undo step; not saved.", {
+    type: z.string().optional(), create_type: z.boolean().optional(),
+    values: z.array(z.object({ name: z.string(), value: z.union([z.number(), z.string(), z.boolean()]).optional(), formula: z.string().optional() })).min(1),
+  }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["enable_void_cut", "Turn on 'cut with voids when loaded' in an instance's family and reload it, keeping project type values.", {
     element_id: id,
   }, { readOnlyHint: false, destructiveHint: true, idempotentHint: true }],
@@ -466,7 +507,12 @@ const server = new McpServer({ name: "revit", version: "1.0.0" });
 
 const errorResult = (err) => ({ isError: true, content: [{ type: "text", text: err.message }] });
 
-for (const [name, description, inputSchema, annotations] of tools) {
+// The add-in already runs any command against a named open document ("document": title or path) instead of the active
+// one, so agents sharing one Revit never have to switch the active model. Offer it on every tool.
+const documentParam = z.string().optional().describe("Open document (title or path) to work on instead of the active one");
+
+for (const [name, description, schema, annotations] of tools) {
+  const inputSchema = "document" in schema ? schema : { ...schema, document: documentParam };
   server.registerTool(name, { description, inputSchema, annotations }, async (args) => {
     try {
       const result = await callRevit(name, args);

@@ -72,6 +72,22 @@ test("forwards the command and arguments to the bridge", async () => {
   assert.deepEqual(received.at(-1), { command: "create_wall", params: { start, end, level_id: 311 } });
 });
 
+test("family tools forward their source, and every tool accepts document", async () => {
+  const { tools } = await client.listTools();
+  const byName = Object.fromEntries(tools.map((t) => [t.name, t]));
+  for (const name of ["family_types", "family_forms", "family_dimensions", "family_type_extents", "family_report"])
+    assert.equal(byName[name].annotations.readOnlyHint, true, name);
+  assert.equal(byName.set_family_parameters.annotations.readOnlyHint, false);
+  assert.ok(byName.list_levels.inputSchema.properties.document, "document param on every tool");
+
+  const args = { path: "C:\\f\\pergola.rfa", expect_sha256: "5a5e1333", match_height_mm: 3500 };
+  await client.callTool({ name: "family_type_extents", arguments: args });
+  assert.deepEqual(received.at(-1), { command: "family_type_extents", params: args });
+
+  await client.callTool({ name: "list_levels", arguments: { document: "Other model" } });
+  assert.deepEqual(received.at(-1), { command: "list_levels", params: { document: "Other model" } });
+});
+
 test("surfaces bridge errors as tool errors", async () => {
   const result = await client.callTool({ name: "get_element", arguments: { element_id: 404 } });
   assert.equal(result.isError, true);
