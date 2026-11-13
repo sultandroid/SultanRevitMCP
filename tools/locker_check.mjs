@@ -1,4 +1,4 @@
-// Locker rule audit (references/lockers.md, rules L01-L12). Input: the result of locker_system.mjs buildLockers()
+﻿// Locker rule audit (references/lockers.md, rules L01-L12). Input: the result of locker_system.mjs buildLockers()
 // (doors, comps, fittings, spec). Output: [{ id, rule, result: PASS|WARN|FAIL, detail }].
 // Usage: node tools/locker_check.mjs <result.json> [<result2.json> ...]   (prints a table per item)
 //        import { checkLockers } from "./locker_check.mjs"
@@ -13,7 +13,7 @@ export function checkLockers(R) {
   add("L01", "Board thickness exists on the market", !bad.length, bad.length ? bad.map(([k, m]) => `${k}: ${m.kind} ${m.t} mm not made`).join("; ") : "all thicknesses available");
   // L02 hinge suits door thickness
   const t = doors[0]?.t ?? 0, hinge = doors[0]?.hinge ?? "cup35";
-  const l02 = hinge === "cup35" ? t >= 16 : hinge === "cup26" ? t >= 10 && t <= 13 : true;
+  const l02 = hinge === "cup35" ? t >= 16 : hinge === "thin35" ? t >= 10 && t <= 19 : hinge === "cup26" ? t >= 10 && t <= 13 : true;
   add("L02", "Hinge type suits door thickness", l02, `${hinge} on ${t} mm ${doors[0]?.kind ?? ""} door` + (l02 ? "" : hinge === "cup35" ? " (35 mm cup needs 16 mm or more)" : ""));
   // L03 hinge count by height and weight
   const short = doors.filter((d) => d.hinges < hingeCount(d.h, d.kg));
@@ -57,3 +57,4 @@ if (process.argv[1]?.endsWith("locker_check.mjs") && process.argv.length > 2) {
     for (const r of res) console.log(`  ${r.id} ${r.result.padEnd(4)} ${r.rule} - ${r.detail}`);
   }
 }
+

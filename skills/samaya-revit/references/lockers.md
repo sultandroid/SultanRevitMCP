@@ -1,4 +1,4 @@
-# Lockers
+﻿# Lockers
 
 Read this before modelling, detailing or pricing any locker: staff and visitor lockers, changing room lockers, bag stores,
 lobby lockers. It holds the rules locker makers build to, and the checks our tool runs. Plain English, site-engineer tone.
@@ -28,8 +28,9 @@ Repeat one compartment size wherever possible: one door size, one hinge set, one
 ## Doors
 
 - **Door gap 3 mm** all round and between doors (2 to 4 mm accepted). Keep the same gap at bands and laterals.
-- **Door thickness must suit the hinge.** A standard 35 mm cup hinge needs a door about 16 mm or thicker. Thinner doors
-  (10 to 13 mm compact laminate, Viroc 12) need a hinge made for thin doors (26 mm cup) or a knuckle / piano hinge.
+- **Door thickness must suit the hinge.** A standard 35 mm cup hinge (cup about 11 to 13 deep) needs a door 16 mm or
+  thicker (Blum CLIP top 71B3550: 16 to 26 mm). Thinner doors (10 to 13 mm compact laminate, Viroc 12) take a **thin-door
+  35 mm cup hinge with a shallow cup** (Hettich Sensys 8646i / 8676: doors 10 to 19 mm, cup 7.8 deep) or a knuckle / piano hinge.
 - **Weight:** door weight = W x H x t x density. Viroc 1350 kg/m3, compact HPL about 1400, MDF 750, plywood 600. Use it to count hinges.
 - **Edges:** sanded and sealed on cement board and MDF; compact laminate edges are left as cut (polished).
 - **Number:** every door carries its number (recessed oval plate, max 4 digits, or engraved), same corner on every door.
@@ -49,7 +50,7 @@ The checker fails a door or panel whose thickness is not on this list for its ma
 | Door | Hinge | Count (factory default, check the maker's chart) |
 |---|---|---|
 | 16 to 26 mm board (Viroc 16/19, MDF, plywood) | Concealed 35 mm cup, 110 deg, soft close | 2 up to 900 high and 6 kg; 3 up to 1600 or 12 kg; 4 up to 2000 |
-| 10 to 13 mm compact HPL or Viroc | Thin-door concealed hinge (26 mm cup) or stainless 5-knuckle | Same counts |
+| 10 to 15 mm compact HPL or Viroc | Thin-door concealed hinge, 35 mm cup 7.8 deep (Hettich Sensys 8646i), or stainless 5-knuckle | Same counts |
 | Heavy use (schools, sport) | Stainless piano hinge, full height | 1 |
 
 - Hinge centres 80 to 100 mm from the top and bottom of the door; a third hinge in the middle.
@@ -124,7 +125,11 @@ The checker fails a door or panel whose thickness is not on this list for its ma
 - [ADA reach ranges and lockers](https://www.access-board.gov/ada/guides/chapter-3-operable-parts/), [lockers.com ADA guide](https://lockers.com/salsbury-locker-blog/what-makes-a-locker-ada-compliant)
 - [Leisure centre guide: 10 % full-height lockers (Sport England)](https://www.barbourproductsearch.info/CubicleCentre-leisure-centre-guide%20UPDATED%20pdf-file089476.pdf)
 - [Viroc data sheet: thicknesses, sheet sizes, density](https://www.eboss.co.nz/assets/literature/67/35808/data-sheet-viroc-dossier-tecnico-en-2.pdf)
-- [Blum hinge planning: count by front height and weight](https://publications.blum.com/2024/catalogue/id/123/)
+- [Blum hinge planning: count by front height and weight](https://publications.blum.com/2024/catalogue/id/123/), [Blum CLIP top BLUMOTION](https://www.blum.com/au/en/products/hingesystems/clip-top-blumotion/overview/)
+- [Hettich Sensys thin-door hinge 8646i (doors 10 to 19 mm, cup 35 x 7.8)](https://www.ostermann.eu/en_GB/product/thin-door-hinge-hettich-sensys-8646i-with-silent-system-with-self-closing-feature-110-nickel-plated)
+- [ASSA ABLOY locker camlock 8450](https://www.assaabloy.com/se/en/solutions/products/cabinet-locks/locker-locks/camlocks/medium-security/camlock-8450), [Hafele cylinder cam lock 235.03, master key options](https://files.hafele.co.uk/CatalogFiles/www/18T8-39.PDF)
+- [Salsbury / lockers.com wood lockers (hat shelf, shoe shelf, double-prong hook per tier)](https://www.lockers.com/assets/2/6/locker_wood.pdf)
 
 Values without a source (hinge positions, vent holes, screw edge distance, lock offset) are factory practice: say so on the
 sheet as assumed until the hardware supplier confirms.
+

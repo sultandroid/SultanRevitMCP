@@ -66,7 +66,7 @@ export function buildLockers(S) {
       B("DR", `Locker door ${R(h)} high`, "door", a, b, 0, doorT, za, zb, `${n} hinges + lock`);
       const hingeSide = (run.hingeSide ?? "L") === "L" ? a : b, lockSide = hingeSide === a ? b : a, sgn = hingeSide === a ? 1 : -1;
       const hz = n === 2 ? [za + 90, zb - 90] : [za + 90, (za + zb) / 2, zb - 90].concat(n > 3 ? [za + (zb - za) * 0.66] : []).slice(0, n);
-      for (const z of hz) Fi("HG", D.hinge === "cup26" ? "Hinge, thin-door 26 cup" : D.hinge === "knuckle" ? "Hinge, stainless knuckle" : "Hinge, 35 cup 110 deg soft close", hingeSide + sgn * 3, hingeSide + sgn * 40, doorT, doorT + 16, z - 22, z + 22);
+      for (const z of hz) Fi("HG", D.hinge === "thin35" ? "Hinge, thin-door 35 cup 7.8 deep" : D.hinge === "cup26" ? "Hinge, thin-door 26 cup" : D.hinge === "knuckle" ? "Hinge, stainless knuckle" : "Hinge, 35 cup 110 deg soft close", hingeSide + sgn * 3, hingeSide + sgn * 40, doorT, doorT + 16, z - 22, z + 22);
       const lh = K.height === "centre" || K.height == null ? (za + zb) / 2 : za + K.height;
       Fi("LK", "Key cam lock", lockSide - sgn * (K.fromEdge ?? 30) - 10, lockSide - sgn * (K.fromEdge ?? 30) + 10, -2, doorT + 18, lh - 10, lh + 10, { lockZ: R(lh) });
       if (K.keeper !== false) Fi("KP", "Keeper plate 2 mm", lockSide - sgn * 6, lockSide - sgn * 46, doorT + gap, doorT + gap + 40, lh - 25, lh + 25);
@@ -116,7 +116,7 @@ export function buildLockers(S) {
 
   // hardware list (counts) from the fittings and rules
   const n = (c) => fittings.filter((f) => f.code === c).length;
-  const hingeName = D.hinge === "cup26" ? "Concealed hinge for 10-13 mm doors, 26 mm cup, 110 deg (make approved)" : D.hinge === "knuckle" ? "Stainless 5-knuckle locker hinge (make approved)" : "Concealed hinge 35 mm cup, 110 deg, soft close (make approved)";
+  const hingeName = D.hinge === "thin35" ? "Thin-door concealed hinge, 35 mm cup 7.8 deep, doors 10-19 mm, 110 deg, soft close (Hettich Sensys 8646i or equal)" : D.hinge === "cup26" ? "Concealed hinge for 10-13 mm doors, 26 mm cup, 110 deg (make approved)" : D.hinge === "knuckle" ? "Stainless 5-knuckle locker hinge (make approved)" : "Concealed hinge 35 mm cup, 110 deg, soft close (make approved)";
   const hardware = [
     { item: hingeName, qty: n("HG"), unit: "nr", note: "count by door height and weight (lockers.md)" },
     { item: "Key cam lock, master keyed (make approved)", qty: n("LK"), unit: "nr", note: "lock height " + [...new Set(doors.map((d) => d.lockZ))].join(" / ") + " from FFL" },
@@ -158,5 +158,6 @@ if (process.argv[1]?.endsWith("locker_system.mjs") && process.argv.length > 3) {
   console.log(res.item, "parts", res.parts.length, "fittings", res.fittings.length, "doors", res.doorsCount, "tall", res.tall, "front", res.front, "inside", res.inside);
   for (const h of res.hardware) console.log(" ", h.qty, h.unit, h.item);
 }
+
 
 
