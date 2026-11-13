@@ -95,7 +95,8 @@ The checker fails a door or panel whose thickness is not on this list for its ma
 ## Viroc specifics
 
 - Density 1350 +/- 50 kg/m3 (EN 323). Heavy: count hinges by weight.
-- Pre-drill every fixing. Keep screws at least 15 mm from a board edge (check the Viroc manual for the exact value).
+- Pre-drill every fixing. Viroc installation guide (2020, cladding): fixings at least **35 mm from long edges and 50 mm
+  from ends**, max 600 c/c. Use it for joinery too; where a hinge or lock must sit closer, bond it or use an insert and ask Viroc.
 - Seal cut edges. Use inserts for hinges and locks.
 
 ## What the checker tests (`locker_check.mjs`)
@@ -124,6 +125,7 @@ The checker fails a door or panel whose thickness is not on this list for its ma
 - [EN 16121:2023 non-domestic storage furniture](https://standards.iteh.ai/catalog/standards/cen/2cc5e087-c513-4571-aa5e-58a14f98c1d8/pren-16121)
 - [ADA reach ranges and lockers](https://www.access-board.gov/ada/guides/chapter-3-operable-parts/), [lockers.com ADA guide](https://lockers.com/salsbury-locker-blog/what-makes-a-locker-ada-compliant)
 - [Leisure centre guide: 10 % full-height lockers (Sport England)](https://www.barbourproductsearch.info/CubicleCentre-leisure-centre-guide%20UPDATED%20pdf-file089476.pdf)
+- [Viroc installation guidelines 2020 (edge distances)](https://public.bowens.com.au/product-info-files/V/VIROC123012B_C22C8C41F83DA37C45FA765AF7F3CD149C72DAB9_INSTALLATION-GUIDELINES.PDF)
 - [Viroc data sheet: thicknesses, sheet sizes, density](https://www.eboss.co.nz/assets/literature/67/35808/data-sheet-viroc-dossier-tecnico-en-2.pdf)
 - [Blum hinge planning: count by front height and weight](https://publications.blum.com/2024/catalogue/id/123/), [Blum CLIP top BLUMOTION](https://www.blum.com/au/en/products/hingesystems/clip-top-blumotion/overview/)
 - [Hettich Sensys thin-door hinge 8646i (doors 10 to 19 mm, cup 35 x 7.8)](https://www.ostermann.eu/en_GB/product/thin-door-hinge-hettich-sensys-8646i-with-silent-system-with-self-closing-feature-110-nickel-plated)
@@ -132,4 +134,5 @@ The checker fails a door or panel whose thickness is not on this list for its ma
 
 Values without a source (hinge positions, vent holes, screw edge distance, lock offset) are factory practice: say so on the
 sheet as assumed until the hardware supplier confirms.
+
 
