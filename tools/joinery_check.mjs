@@ -88,24 +88,61 @@ export function checkJoinery(D, cfg = {}) {
   // J03 shelf / top deflection under a uniform load, panel as bonded layers (transformed section)
   const verts = P.filter((p) => p.axis !== 2);
   const shelfRes = [];
+  const zFloor = Math.min(...parts.map((p) => p.min[2]));
   for (const s of P.filter((p) => p.axis === 2 && !/drawer|DB/i.test(`${p.code} ${p.name}`))) {
-    const ax = s.max[0] - s.min[0] >= s.max[1] - s.min[1] ? 0 : 1, cr = 1 - ax, len = s.max[ax] - s.min[ax], b = s.max[cr] - s.min[cr];
-    if (len < C.shelf.min_len) continue;
-    const sup = verts.filter((v) => v.axis === ax && v.max[2] >= s.min[2] - 1 && v.min[2] <= s.max[2] + 1
-      && Math.min(v.max[cr], s.max[cr]) - Math.max(v.min[cr], s.min[cr]) > 0.5 * b
-      && v.max[ax] > s.min[ax] - 50 && v.min[ax] < s.max[ax] + 50).map((v) => [v.min[ax], v.max[ax]]).sort((x, y) => x[0] - y[0]);
-    if (sup.length < 2) continue;
-    let span = 0; for (let i = 1; i < sup.length; i++) span = Math.max(span, sup[i][0] - sup[i - 1][1]);
-    const L = s.layers, Es = L.map((l) => C.E[kindOf(l.mat)] ?? 4000), ts = L.map((l) => l.max[2] - l.min[2]), zs = L.map((l) => (l.min[2] + l.max[2]) / 2);
+    if (Math.max(s.max[0] - s.min[0], s.max[1] - s.min[1]) < C.shelf.min_len) continue;
+    if (Math.min(s.max[0] - s.min[0], s.max[1] - s.min[1]) < 100) continue;          // trims, caps and edging strips
+    if (s.min[2] - zFloor < 60) continue;                 // base on feet / floor: carried all over
+    // one entry per layer level (a core cut in two pieces is still one layer)
+    const L = [...new Map(s.layers.map((l) => [`${l.min[2]}|${l.max[2]}`, l])).values()];
+    const Es = L.map((l) => C.E[kindOf(l.mat)] ?? 4000), ts = L.map((l) => l.max[2] - l.min[2]), zs = L.map((l) => (l.min[2] + l.max[2]) / 2);
     const zc = Es.reduce((a, E, i) => a + E * ts[i] * zs[i], 0) / Es.reduce((a, E, i) => a + E * ts[i], 0);
-    const EI = Es.reduce((a, E, i) => a + E * (b * ts[i] ** 3 / 12 + b * ts[i] * (zs[i] - zc) ** 2), 0);
-    const w = C.shelf.q_kN_m2 * 1e-3 * b, d = (5 * w * span ** 4) / (384 * EI);
-    shelfRes.push({ name: `${s.code} ${s.name}`, span: r(span), t: r(ts.reduce((a, x) => a + x, 0)), d: r(d, 2), ratio: d > 0 ? r(span / d) : Infinity });
+    const EIu = Es.reduce((a, E, i) => a + E * (ts[i] ** 3 / 12 + ts[i] * (zs[i] - zc) ** 2), 0);   // per mm of width
+    const q = C.shelf.q_kN_m2 * 1e-3;
+    // A support carries the shelf from below: a vertical panel reaching below the shelf top (a panel standing ON the shelf
+    // is a load). Point supports across the span: panels normal to the span. Edge supports: a panel or a wall rail (code BR,
+    // under the shelf or over it with the shelf screwed up into it) along a long edge. Both directions are tried; the
+    // stiffest way wins.
+    let best = null;
+    for (const ax of [0, 1]) {
+      const cr = 1 - ax, len = s.max[ax] - s.min[ax], b = s.max[cr] - s.min[cr];
+      const sup = verts.filter((v) => v.axis === ax && v.max[2] >= s.min[2] - 1 && v.min[2] < s.max[2] - 1
+        && Math.min(v.max[cr], s.max[cr]) - Math.max(v.min[cr], s.min[cr]) > 0.5 * b
+        && v.max[ax] > s.min[ax] - 50 && v.min[ax] < s.max[ax] + 50).map((v) => [v.min[ax], v.max[ax]]).sort((x, y) => x[0] - y[0]);
+      const along = (o) => Math.min(o.max[ax], s.max[ax]) - Math.max(o.min[ax], s.min[ax]) > 0.8 * len;
+      const edges = new Set();
+      // frame members (softwood, steel, any part) right under the shelf: across the span = point support, along an edge = edge support
+      for (const p of parts) {
+        if (s.layers.includes(p) || p.max[2] > s.min[2] + 1 || s.min[2] - p.max[2] > 15) continue;   // up to 15 mm packers / bond line
+        const ov = [0, 1].map((i) => Math.min(p.max[i], s.max[i]) - Math.max(p.min[i], s.min[i]));
+        if (ov[0] <= 0 || ov[1] <= 0) continue;
+        if (ov[cr] > 0.5 * b) sup.push([p.min[ax], p.max[ax]]);
+        else if (ov[ax] > 0.8 * len) { if (p.min[cr] - s.min[cr] < 60) edges.add("lo"); if (s.max[cr] - p.max[cr] < 60) edges.add("hi"); }
+      }
+      sup.sort((x, y) => x[0] - y[0]);
+      // side panels along a long edge count only when structural (not a back or a lining)
+      for (const v of verts) if (v.axis === cr && !/^(BK|LF|LN)$/.test(v.code) && v.max[cr] - v.min[cr] >= 30
+        && v.max[2] >= s.min[2] - 1 && v.min[2] < s.max[2] - 1 && along(v)) {
+        if (Math.abs(v.max[cr] - s.min[cr]) < 2 || (v.min[cr] <= s.min[cr] + 1 && v.max[cr] >= s.min[cr])) edges.add("lo");
+        if (Math.abs(v.min[cr] - s.max[cr]) < 2 || (v.min[cr] <= s.max[cr] && v.max[cr] >= s.max[cr] - 1)) edges.add("hi");
+      }
+      for (const p of parts) if (p.code === "BR" && (Math.abs(p.max[2] - s.min[2]) < 2 || Math.abs(p.min[2] - s.max[2]) < 2) && along(p))
+        edges.add(Math.abs(p.max[cr] - s.max[cr]) < Math.abs(p.min[cr] - s.min[cr]) ? "hi" : "lo");
+      const ways = [];
+      if (sup.length >= 2) { let span = 0; for (let i = 1; i < sup.length; i++) span = Math.max(span, sup[i][0] - sup[i - 1][1]);
+        ways.push({ span, d: (5 * q * span ** 4) / (384 * EIu), how: "between supports" }); }
+      if (len < b) edges.clear();                       // edge support only along a long edge
+      if (edges.size === 2) ways.push({ span: b, d: (5 * q * b ** 4) / (384 * EIu), how: "on both long edges" });
+      else if (edges.size === 1) ways.push({ span: b, d: (q * b ** 4) / (8 * EIu), how: "cantilever off one edge / wall rail" });
+      for (const w of ways) if (!best || w.d < best.d) best = w;
+    }
+    if (!best) { shelfRes.push({ name: `${s.code} ${s.name}`, span: 0, t: r(s.max[2] - s.min[2]), d: Infinity, ratio: 0, how: "NO SUPPORT found under it" }); continue; }
+    shelfRes.push({ name: `${s.code} ${s.name}`, span: r(best.span), t: r(ts.reduce((a, x) => a + x, 0)), d: r(best.d, 2), ratio: best.d > 0 ? r(best.span / best.d) : Infinity, how: best.how });
   }
   if (shelfRes.length) {
     const worst = shelfRes.reduce((a, x) => (x.ratio < a.ratio ? x : a));
     add("J03", `Shelf deflection under ${C.shelf.q_kN_m2} kN/m2 (span/${C.shelf.limit})`, worst.ratio < C.shelf.limit ? "FAIL" : worst.ratio < C.shelf.warn ? "WARN" : "PASS",
-      `${shelfRes.length} spans; worst ${worst.name}: span ${worst.span}, ${worst.t} thick, sag ${worst.d} mm = span/${worst.ratio}`);
+      `${shelfRes.length} spans; worst ${worst.name} (${worst.how}): span ${worst.span}, ${worst.t} thick, sag ${worst.d} mm = span/${worst.ratio}`);
   } else add("J03", "Shelf deflection", "INFO", "no shelf spans between two supports found");
 
   // J04 / J05 doors: hinge type for the door thickness, hinges per door by height and weight
@@ -184,3 +221,4 @@ if (process.argv[1]?.endsWith("joinery_check.mjs") && process.argv.length > 2) {
   }
   if (json) writeFileSync(json, JSON.stringify(all, null, 1));
 }
+
