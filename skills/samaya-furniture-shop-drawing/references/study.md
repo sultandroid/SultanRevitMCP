@@ -42,6 +42,12 @@ For each part write the process and the machine:
 - Order: glue up, flatten, hot-press, CNC (cuts the veneer clean), edge veneer, sand flush, then cut hidden notches.
 - Finish: grain filler on open grain, sealer, sand 320, top coat to the approved sample.
 
+## 4a. Thick shelves and panels (torsion box)
+- A thick fixed shelf (40 to 60) is a hollow box: oak-veneered MDF 12 skins top and bottom on a softwood core frame all round (back, front, ends) with inner rails no more than 250 apart.
+- Solid front edge = lipping (قشاط), usually 12 thick, glued onto the softwood front rail and the skin edges. Lipping never sits over a void: there is always softwood behind it.
+- Model it as built (skins, core rails, lipping) so every section shows the hollow, and give one typical detail for all of them; the cut list keeps the lipping as its own part.
+- LED groove under a hollow shelf: in the bottom skin under the softwood front rail; the lead goes up into the void and out at the back.
+
 ## 5. Assembly
 Order of assembly, every fixing reachable, which joints are glued (permanent) and which bolted (knock-down), what is fitted last (glass).
 
