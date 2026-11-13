@@ -21,6 +21,7 @@ Write `STUDY.md` beside the piece's scripts and copy it to the client's Drive fo
 - Screws on sheets: one line each, head to point (factory: "only line"); check each stays inside the member for its full length (a leaning leg: place them toward its outer side).
 - A notch that holds a curved member follows its curve (cut layer by layer from the member's template): no stepped gaps.
 - A round piece: one exploded view and one 3D angle are enough; more angles only crowd the sheet.
+- Face frames and doors (TV-01, 13 Nov 2026): every carcass side, rib, divider, bottom and top behind a face frame ends EXACTLY at the frame back, and behind a door at the door back: no gap (shows in plan), no clash (a part running into the frame or showing in a door gap). When a frame depth or a setback changes, move the carcass with it. Check with a script before any sheet (indora-furniture revit/tv-unit/frame_gap_check.mjs).
 
 ## 2. Proportions
 - Compare every member with its neighbours (legs against ring and column, rails against panels). A thin member reads weak: match widths where the design allows; keep one member clearly the strongest.
