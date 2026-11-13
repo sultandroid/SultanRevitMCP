@@ -194,15 +194,37 @@ namespace RevitMcp
                     foreach (var o in parts)
                     {
                         XYZ a = MmVec(o["min"]) - origin, b = MmVec(o["max"]) - origin;
-                        // A sloped or shaped part: profile [[x, z], ...] (project mm) extruded along y from min to max.
-                        if (o["profile"] is JsonArray prof && prof.Count >= 3)
+                        // A shaped part, extruded along "extrude" (x, y default, or z) from min to max:
+                        //   profile [[p, q], ...] in project mm in the other two axes (y: [x, z]; x: [y, z]; z: [x, y]), or
+                        //   circle [cx, cy, r] (z only) for round tops.
+                        var axis = o["extrude"]?.ToString() ?? "y";
+                        var prof = o["profile"] as JsonArray; var circ = o["circle"] as JsonArray;
+                        if ((prof != null && prof.Count >= 3) || circ != null)
                         {
-                            var pts = prof.Select(n => new XYZ(FromMm(Dbl(n[0])) - origin.X, a.Y, FromMm(Dbl(n[1])) - origin.Z)).ToList();
+                            XYZ normal = axis == "x" ? XYZ.BasisX : axis == "z" ? XYZ.BasisZ : XYZ.BasisY;
+                            double a0 = axis == "x" ? a.X : axis == "z" ? a.Z : a.Y, b0 = axis == "x" ? b.X : axis == "z" ? b.Z : b.Y;
+                            XYZ Pt(double p, double q)
+                            {
+                                double P = FromMm(p), Q = FromMm(q);
+                                return axis == "x" ? new XYZ(a0, P - origin.Y, Q - origin.Z)
+                                     : axis == "z" ? new XYZ(P - origin.X, Q - origin.Y, a0)
+                                     : new XYZ(P - origin.X, a0, Q - origin.Z);
+                            }
                             var loop = new CurveArray();
-                            for (var i = 0; i < pts.Count; i++) loop.Append(Line.CreateBound(pts[i], pts[(i + 1) % pts.Count]));
+                            if (circ != null)
+                            {
+                                var c = Pt(Dbl(circ[0]), Dbl(circ[1])); var rr = FromMm(Dbl(circ[2]));
+                                loop.Append(Arc.Create(c, rr, 0, Math.PI, XYZ.BasisX, XYZ.BasisY));
+                                loop.Append(Arc.Create(c, rr, Math.PI, 2 * Math.PI, XYZ.BasisX, XYZ.BasisY));
+                            }
+                            else
+                            {
+                                var pts = prof.Select(n => Pt(Dbl(n[0]), Dbl(n[1]))).ToList();
+                                for (var i = 0; i < pts.Count; i++) loop.Append(Line.CreateBound(pts[i], pts[(i + 1) % pts.Count]));
+                            }
                             var cpa = new CurveArrArray(); cpa.Append(loop);
-                            var sp = SketchPlane.Create(fdoc, Plane.CreateByNormalAndOrigin(XYZ.BasisY, new XYZ(0, a.Y, 0)));
-                            var ex = fdoc.FamilyCreate.NewExtrusion(true, cpa, sp, b.Y - a.Y);
+                            var sp = SketchPlane.Create(fdoc, Plane.CreateByNormalAndOrigin(normal, normal * a0));
+                            var ex = fdoc.FamilyCreate.NewExtrusion(true, cpa, sp, b0 - a0);
                             ex.get_Parameter(BuiltInParameter.MATERIAL_ID_PARAM)?.Set(Mat(o["mat"]?.ToString()));
                             placed++;
                             continue;
