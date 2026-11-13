@@ -7,12 +7,13 @@ import { BOARD_KINDS, DENSITY, hingeCount } from "./locker_system.mjs";
 
 // Defaults; a project config overrides any key. Values marked (confirm) are to check with the supplier or on site.
 export const DEFAULTS = {
-  stock: {   // sheet sizes L x W, first = normal stock; later ones = larger sheets that exist but may need ordering (confirm)
+  stock: {   // sheet sizes L x W, first = normal stock; later ones = larger standard sheets (check local stock)
     viroc: [[2600, 1250], [3000, 1250]], plywood: [[2440, 1220]], mdf: [[2440, 1220], [2800, 2070]],
     compact: [[3050, 1300]], egger: [[2800, 2070]], solid_surface: [[3660, 760]], softwood: 4800,
   },
   thickness: { solid_surface: [6, 12, 19] },
-  E: { viroc: 4500, plywood: 5000, mdf: 2500, compact: 9000, egger: 3000, solid_surface: 8000, softwood: 11000 },   // MPa bending, conservative
+  // Viroc: Investwood TDS 2022.1 - sheets 2600 / 3000 x 1250 (all colours), E class 1 >= 4500, class 2 4000-4500 MPa.
+  E: { viroc: 4000, plywood: 5000, mdf: 2500, compact: 9000, egger: 3000, solid_surface: 8000, softwood: 11000 },   // MPa bending, conservative
   density: { solid_surface: 1700, steel: 7850 },
   shelf: { q_kN_m2: 1.5, limit: 300, warn: 400, min_len: 300 },   // uniform load; deflection limit span / limit (FAIL), / warn (WARN)
   access: { door_w: 1000, door_h: 2100, max_kg_two_men: 100 },     // site door (confirm) and two-person lift
@@ -77,7 +78,7 @@ export function checkJoinery(D, cfg = {}) {
   const uniq = (a) => [...new Set(a)];
   add("J01", "Every part fits a stock board or length", big.length ? "FAIL" : larger.length ? "WARN" : "PASS",
     big.length ? `${big.length} parts bigger than any board, need a joint: ${uniq(big).slice(0, 4).join("; ")}`
-      : larger.length ? `${larger.length} parts need the larger sheet (confirm supply): ${uniq(larger).slice(0, 4).join("; ")}` : "all parts fit the normal sheets");
+      : larger.length ? `${larger.length} parts need the larger standard sheet (check local stock): ${uniq(larger).slice(0, 4).join("; ")}` : "all parts fit the normal sheets");
 
   // J02 thickness made for the material
   const badT = uniq(parts.filter((p) => { const k = kindOf(p.mat), t = r(Math.min(...sz(p)), 1), list = C.thickness[k] ?? BOARD_KINDS[k]; return list && !list.includes(t); })
