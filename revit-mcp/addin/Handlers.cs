@@ -218,6 +218,13 @@ namespace RevitMcp
             ["set_dimension_rounding"] = SetDimensionRounding,
             ["create_annotation_symbol"] = CreateAnnotationSymbol,
             ["nest_annotation_in_family"] = NestAnnotationInFamily,
+            // Family documents, from a path (background open), an instance or an open family (Handlers.Families.cs)
+            ["family_types"] = FamilyTypes,
+            ["family_forms"] = FamilyForms,
+            ["family_dimensions"] = FamilyDimensions,
+            ["family_type_extents"] = FamilyTypeExtents,
+            ["family_report"] = FamilyReport,
+            ["set_family_parameters"] = SetFamilyParameters,
         };
 
         public static bool Has(string command) => Table.ContainsKey(command);

@@ -57,6 +57,15 @@ const paging = {
   offset: z.number().int().min(0).optional(),
 };
 
+// Where a family_* tool reads the family from. Give one: path (opened in the background, never made active, closed
+// without saving), element_id (an instance in the model), or document (an open family by title); else the active document.
+const familySource = {
+  path: z.string().optional().describe("Absolute path to an .rfa; opened in the background and closed without saving"),
+  expect_sha256: z.string().optional().describe("With path: refuse unless the file's SHA-256 starts with this"),
+  element_id: id.optional().describe("An instance in the model whose family to read"),
+};
+const typeNames = z.array(z.string()).optional().describe("Only these family types; all when omitted");
+
 const read = { readOnlyHint: true };
 const ui = { readOnlyHint: false, destructiveHint: false };
 const additive = { readOnlyHint: false, destructiveHint: false };
@@ -173,6 +182,31 @@ const tools = [
   ["inspect_family", "List the geometry and nested families inside an instance's family. Changes nothing.", {
     element_id: id,
   }, read],
+  ["family_types", "A family's category, types and every family parameter with its value in each type (lengths mm, angles deg), formulas, groups and shared GUIDs. Reads from a path, an instance or an open family. Changes nothing.", {
+    ...familySource, types: typeNames, name_contains: z.string().optional(),
+  }, read],
+  ["family_forms", "Every solid, void and nested family in a family: kind, extents, material, visibility, driving parameters, extrusion start/end, and each sketch loop measured in its own plane (w x h, area, centre; holes flagged), so section sizes read directly. Changes nothing.", {
+    ...familySource,
+    kinds: z.array(z.string()).optional().describe("Extrusion, Sweep, Blend, Revolution, SweptBlend, FreeFormElement, FamilyInstance"),
+    solid_only: z.boolean().optional(),
+    include_curves: z.boolean().optional().describe("Add each loop's raw curves in model mm"),
+    ...paging,
+  }, read],
+  ["family_dimensions", "A family's dimensions (value, label parameter, view) and reference planes (name, normal, offset, Is Reference). Changes nothing.", {
+    ...familySource, labelled_only: z.boolean().optional(),
+  }, read],
+  ["family_type_extents", "Switch to each family type, regenerate, measure solid extents and length parameters, then roll back, so the family is left as it was. Use match_height_mm to find the type of a given height.", {
+    ...familySource, types: typeNames,
+    match_height_mm: z.number().optional(), tolerance_mm: z.number().optional().describe("Default 1"),
+  }, read],
+  ["family_report", "One call, one open of the file: family_types + family_forms (no raw curves) + family_dimensions + family_type_extents. Best start for a model-vs-drawing check.", {
+    ...familySource, types: typeNames,
+    include: z.array(z.enum(["types", "forms", "dimensions", "extents"])).optional(),
+  }, read],
+  ["set_family_parameters", "In an open family (document or active): optionally switch to or create a type, then set family parameter values (mm, deg, true/false, names for ids) or formulas. One undo step; not saved.", {
+    type: z.string().optional(), create_type: z.boolean().optional(),
+    values: z.array(z.object({ name: z.string(), value: z.union([z.number(), z.string(), z.boolean()]).optional(), formula: z.string().optional() })).min(1),
+  }, { readOnlyHint: false, destructiveHint: false, idempotentHint: true }],
   ["enable_void_cut", "Turn on 'cut with voids when loaded' in an instance's family and reload it, keeping project type values.", {
     element_id: id,
   }, { readOnlyHint: false, destructiveHint: true, idempotentHint: true }],
@@ -466,7 +500,12 @@ const server = new McpServer({ name: "revit", version: "1.0.0" });
 
 const errorResult = (err) => ({ isError: true, content: [{ type: "text", text: err.message }] });
 
-for (const [name, description, inputSchema, annotations] of tools) {
+// The add-in already runs any command against a named open document ("document": title or path) instead of the active
+// one, so agents sharing one Revit never have to switch the active model. Offer it on every tool.
+const documentParam = z.string().optional().describe("Open document (title or path) to work on instead of the active one");
+
+for (const [name, description, schema, annotations] of tools) {
+  const inputSchema = "document" in schema ? schema : { ...schema, document: documentParam };
   server.registerTool(name, { description, inputSchema, annotations }, async (args) => {
     try {
       const result = await callRevit(name, args);
