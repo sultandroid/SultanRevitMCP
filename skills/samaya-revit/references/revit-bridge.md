@@ -355,3 +355,11 @@ Open-model rules met on the way: a model linked into an open model cannot be ope
 - A unit family made from the Furniture template is not cut in sections or plans (outline only). Use the Generic Model template, or set_family_category OST_GenericModel, for anything that needs cut details. Each make_unit_family rebuild resets the category from the template.
 - A detail section made with create_section drew no CF-1 at all while the fab_sheet Section A did (same template, phase and clip); duplicating the working section and cropping it in view coordinates (set_view_crop takes view-local mm on sections) worked. set_element_overrides hide_patterns shows the joint lines that a solid cut fill hides.
 - Deleting a revision renumbers every later one in its sequence: never delete one that is on someone else's sheets.
+
+## Joinery parts as nested part families (Aseer setwork, 13 Nov 2026)
+
+- `build_part_family` makes `SF_Part_Box.rfa`: a Generic Model box, faces locked to reference planes, labelled SF_SizeX / Y / Z, material parameter, part code and name, and SF_Cut L / W / T by formula (longest, middle, shortest side). Its flex test runs on every build.
+- `build_part_assembly_family` nests one box per part from a parts list (project mm) into an item family. It saves the family under the old name and reloads it, so the existing instance keeps its id and the sheets and views keep working. The parts generator script stays the parametric source: change it, then rebuild.
+- **Shared nested parts are not cut in plan.** The host draws in projection from above (tops above the cut plane show), while sections still cut. Build items with `shared: false` (`SF_Part_Box_U.rfa`) and take the BOM from the parts list, not from a Revit schedule.
+- Revit 2026.5 runs on .NET 10: build the handlers with `%LOCALAPPDATA%\RevitMcp\dotnet-sdk10`. .NET 8 fails with CS1705 (System.Runtime 10.0).
+- Before `reload_handlers`, check the live build with `handlers_info`. If it was built from uncommitted files in another checkout, build from that same source plus your file. A build from your branch alone drops the other commands for everyone.

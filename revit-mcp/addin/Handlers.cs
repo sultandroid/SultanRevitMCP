@@ -232,6 +232,9 @@ namespace RevitMcp
             ["ensure_connection_types"] = EnsureConnectionTypes,
             ["list_connection_types"] = ListConnectionTypes,
             ["create_structural_connections"] = CreateStructuralConnections,
+            // Joinery parts as schedulable nested families (Handlers.JoineryParts.cs)
+            ["build_part_family"] = BuildPartFamily,
+            ["build_part_assembly_family"] = BuildPartAssemblyFamily,
         };
 
         public static bool Has(string command) => Table.ContainsKey(command);
