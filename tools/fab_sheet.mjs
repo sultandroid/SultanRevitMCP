@@ -279,7 +279,11 @@ const txt = (x, y, tx, type = note) => call("create_text_note", { view_id: sheet
 const shortM = (m) => m.replace(/\s*\(.*?\)/, "").slice(0, 52);
 // A rail ring plus its posts is one welded set for the metal factory: count it as a set, not by area.
 const qty = (m, q) => /Rail\b/.test(m) ? "1 set" : /LED|PVC|Edge|Softwood|Angle|Peg\b|Hardwood Peg/.test(m) ? (/Peg/.test(m) ? `${q.n} no.` : `${q.len.toFixed(2)} m`) : /Handle|Support/.test(m) && q.n < 20 ? `${q.n} no.` : `${q.area.toFixed(2)} m2`;
-await txt(NOTES, 812, `${t.title.toUpperCase()}   QTY ${t.marks.length}\n${t.size ?? `${r(dx)} x ${r(dy)} x ${r(b.z1 - b.z0)}`}\nUnits: ${t.marks.join(", ")}`, bold);
+// Units line: the project prefix all marks share is dropped (it is in the title), so the line stays in the notes column
+// (TV-01, 13 Nov 2026: "Units: TV-01 U02 Shelving bay L, TV-01 U06 ..." ran into the title block). t.unitsText overrides.
+const pre = t.marks.length > 1 && t.marks.every((m) => m.split(" ")[0] === t.marks[0].split(" ")[0]) ? t.marks[0].split(" ")[0] + " " : "";
+const unitsLine = t.unitsText ?? `Units: ${t.marks.map((m) => m.slice(pre.length)).join(", ")}`;
+await txt(NOTES, 812, `${t.title.toUpperCase()}   QTY ${t.marks.length}\n${t.size ?? `${r(dx)} x ${r(dy)} x ${r(b.z1 - b.z0)}`}\n${unitsLine}`, bold);
 // Materials legend: each keynote with its ISO 128 cut hatch swatch (the same hatch the sections show).
 await txt(NOTES, 770, "MATERIALS (KEYNOTE, CUT HATCH, COLOUR)", bold);
 // Filled regions cannot be drawn on a sheet, so the swatches live in a 1:1 drafting view placed beside the rows.
