@@ -48,6 +48,15 @@ For each part write the process and the machine:
 - Model it as built (skins, core rails, lipping) so every section shows the hollow, and give one typical detail for all of them; the cut list keeps the lipping as its own part.
 - LED groove under a hollow shelf: in the bottom skin under the softwood front rail; the lead goes up into the void and out at the back.
 
+## 4b. Use study for screens (TV units, media walls)
+- Study the use, not only the box: a SEATED viewer (sofa seat about 430, eye about 1150) at the distance from the furniture plan, never a standing figure.
+- Distance for a 4K screen: horizontal field 40 deg (near) to 30 deg (far): D = (screen width / 2) / tan(20 or 15 deg). 65 inch: 2.0 to 2.7 m.
+- Height: screen centre not more than 15 deg above the seated eye line; side seats within 30 deg of the axis; check how much a recessed screen edge is hidden at 30 and 45 deg.
+- Put it on its own sheet (section with sight lines and angles, plan with the viewing zone, size vs distance table) and send red questions to the designer when the sofa distance, height or screen size does not fit. Tool: indora-furniture revit/tv-unit/viewing.mjs.
+
+## 4c. Detail sheets show where each cut is taken
+- Every detail sheet carries a key elevation with cut marks (section line + look arrows, plan cut line, callout box) tagged with the detail ids. Tool: indora-furniture revit/tv-unit/keymarks.mjs. Tags never sit on drawing lines.
+
 ## 5. Assembly
 Order of assembly, every fixing reachable, which joints are glued (permanent) and which bolted (knock-down), what is fitted last (glass).
 
