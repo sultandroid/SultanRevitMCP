@@ -1,0 +1,554 @@
+{
+ "item": "LB1.01_SW_04",
+ "title": "Main Entrance Lobby lockers - V-01 as designed (NRS Rev A)",
+ "origin": [
+  124697.475,
+  26943.5,
+  14800
+ ],
+ "build": "lined",
+ "levels": {
+  "soft": [
+   0,
+   40
+  ],
+  "base": [
+   40,
+   58
+  ],
+  "bandBottom": [
+   15,
+   58
+  ],
+  "rows": [
+   [
+    70,
+    447
+   ],
+   [
+    471,
+    846
+   ],
+   [
+    870,
+    1245
+   ],
+   [
+    1269,
+    2045
+   ]
+  ],
+  "topPly": [
+   2057,
+   2075
+  ],
+  "topCap": [
+   2088,
+   2100
+  ],
+  "height": 2100
+ },
+ "depth": {
+  "overall": 570,
+  "keep": "overall"
+ },
+ "lock": {
+  "type": "cam",
+  "fromEdge": 30,
+  "height": "centre",
+  "keeper": true
+ },
+ "runs": [
+  {
+   "id": "N",
+   "p0": [
+    0,
+    2112
+   ],
+   "u": [
+    1,
+    0
+   ],
+   "v": [
+    0,
+    1
+   ],
+   "u0": 0,
+   "u1": 2997,
+   "comps": {
+    "first": 55,
+    "n": 8,
+    "step": 364,
+    "w": 340
+   },
+   "doors": {
+    "start": 46,
+    "widths": [
+     359,
+     361,
+     361,
+     361,
+     361,
+     361,
+     361,
+     359
+    ]
+   },
+   "endsExposed": [
+    "L"
+   ]
+  },
+  {
+   "id": "S",
+   "p0": [
+    0,
+    570
+   ],
+   "u": [
+    1,
+    0
+   ],
+   "v": [
+    0,
+    -1
+   ],
+   "u0": 1092,
+   "u1": 2997,
+   "comps": {
+    "first": 1147,
+    "n": 5,
+    "step": 364,
+    "w": 340
+   },
+   "doors": {
+    "start": 1138,
+    "widths": [
+     361,
+     361,
+     361,
+     361,
+     361
+    ]
+   },
+   "endsExposed": [
+    "L"
+   ]
+  },
+  {
+   "id": "E",
+   "p0": [
+    2998,
+    0
+   ],
+   "u": [
+    0,
+    1
+   ],
+   "v": [
+    1,
+    0
+   ],
+   "u0": 570,
+   "u1": 2112,
+   "comps": [
+    [
+     625,
+     965
+    ],
+    [
+     989,
+     1329
+    ],
+    [
+     1353,
+     1693
+    ],
+    [
+     1717,
+     2057
+    ]
+   ],
+   "doors": {
+    "start": 616,
+    "widths": [
+     359,
+     361,
+     361,
+     361
+    ]
+   },
+   "cavity": {
+    "gap": 69,
+    "post": 40
+   }
+  }
+ ],
+ "blocks": [
+  {
+   "run": "NE",
+   "code": "PC",
+   "name": "Corner structure top",
+   "mat": "body",
+   "min": [
+    2997,
+    2112,
+    2057
+   ],
+   "max": [
+    3677,
+    2682,
+    2075
+   ]
+  },
+  {
+   "run": "NE",
+   "code": "TP",
+   "name": "Top cladding",
+   "mat": "lining",
+   "min": [
+    2997,
+    2112,
+    2088
+   ],
+   "max": [
+    3677,
+    2682,
+    2100
+   ]
+  },
+  {
+   "run": "NE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    2997,
+    2112,
+    40
+   ],
+   "max": [
+    3037,
+    2152,
+    2075
+   ]
+  },
+  {
+   "run": "NE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    2997,
+    2642,
+    40
+   ],
+   "max": [
+    3037,
+    2682,
+    2075
+   ]
+  },
+  {
+   "run": "NE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3227,
+    2112,
+    40
+   ],
+   "max": [
+    3267,
+    2152,
+    2075
+   ]
+  },
+  {
+   "run": "NE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3227,
+    2642,
+    40
+   ],
+   "max": [
+    3267,
+    2682,
+    2075
+   ]
+  },
+  {
+   "run": "NE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3527,
+    2112,
+    40
+   ],
+   "max": [
+    3567,
+    2152,
+    2075
+   ]
+  },
+  {
+   "run": "NE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3527,
+    2642,
+    40
+   ],
+   "max": [
+    3567,
+    2682,
+    2075
+   ]
+  },
+  {
+   "run": "NE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3637,
+    2112,
+    40
+   ],
+   "max": [
+    3677,
+    2152,
+    2075
+   ]
+  },
+  {
+   "run": "NE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3637,
+    2642,
+    40
+   ],
+   "max": [
+    3677,
+    2682,
+    2075
+   ]
+  },
+  {
+   "run": "SE",
+   "code": "PC",
+   "name": "Corner structure top",
+   "mat": "body",
+   "min": [
+    2997,
+    0,
+    2057
+   ],
+   "max": [
+    3677,
+    570,
+    2075
+   ]
+  },
+  {
+   "run": "SE",
+   "code": "TP",
+   "name": "Top cladding",
+   "mat": "lining",
+   "min": [
+    2997,
+    0,
+    2088
+   ],
+   "max": [
+    3677,
+    570,
+    2100
+   ]
+  },
+  {
+   "run": "SE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    2997,
+    0,
+    40
+   ],
+   "max": [
+    3037,
+    40,
+    2075
+   ]
+  },
+  {
+   "run": "SE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    2997,
+    530,
+    40
+   ],
+   "max": [
+    3037,
+    570,
+    2075
+   ]
+  },
+  {
+   "run": "SE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3227,
+    0,
+    40
+   ],
+   "max": [
+    3267,
+    40,
+    2075
+   ]
+  },
+  {
+   "run": "SE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3227,
+    530,
+    40
+   ],
+   "max": [
+    3267,
+    570,
+    2075
+   ]
+  },
+  {
+   "run": "SE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3527,
+    0,
+    40
+   ],
+   "max": [
+    3567,
+    40,
+    2075
+   ]
+  },
+  {
+   "run": "SE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3527,
+    530,
+    40
+   ],
+   "max": [
+    3567,
+    570,
+    2075
+   ]
+  },
+  {
+   "run": "SE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3637,
+    0,
+    40
+   ],
+   "max": [
+    3677,
+    40,
+    2075
+   ]
+  },
+  {
+   "run": "SE",
+   "code": "SP",
+   "name": "Corner post",
+   "mat": "frame",
+   "min": [
+    3637,
+    530,
+    40
+   ],
+   "max": [
+    3677,
+    570,
+    2075
+   ]
+  }
+ ],
+ "source": "NRS A2742-1747A/1748A/1749A Rev A",
+ "materials": {
+  "door": {
+   "name": "Viroc 12 CZ Grey FI_CO_03",
+   "kind": "viroc",
+   "t": 12
+  },
+  "clad": {
+   "name": "Viroc 12 CZ Grey FI_CO_03",
+   "kind": "viroc",
+   "t": 12
+  },
+  "edge": {
+   "name": "Viroc 12 CZ Grey FI_CO_03",
+   "kind": "viroc",
+   "t": 12
+  },
+  "body": {
+   "name": "Plywood 18 structure",
+   "kind": "plywood",
+   "t": 18
+  },
+  "lining": {
+   "name": "Plywood 12 lining",
+   "kind": "plywood",
+   "t": 12
+  },
+  "frame": {
+   "name": "Softwood 40x40 FR",
+   "kind": "softwood",
+   "t": 40
+  }
+ },
+ "door": {
+  "gap": 3,
+  "edging": 12,
+  "hinge": "cup35"
+ },
+ "fittings": {
+  "coatRail": false,
+  "hooks": false,
+  "vents": false,
+  "numbers": true,
+  "inserts": false,
+  "wallFixingsPerColumn": 0
+ }
+}

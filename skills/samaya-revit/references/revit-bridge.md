@@ -355,3 +355,12 @@ Open-model rules met on the way: a model linked into an open model cannot be ope
 - A unit family made from the Furniture template is not cut in sections or plans (outline only). Use the Generic Model template, or set_family_category OST_GenericModel, for anything that needs cut details. Each make_unit_family rebuild resets the category from the template.
 - A detail section made with create_section drew no CF-1 at all while the fab_sheet Section A did (same template, phase and clip); duplicating the working section and cropping it in view coordinates (set_view_crop takes view-local mm on sections) worked. set_element_overrides hide_patterns shows the joint lines that a solid cut fill hides.
 - Deleting a revision renumbers every later one in its sequence: never delete one that is on someone else's sheets.
+
+## Lockers and Aseer joinery (13 Nov 2026)
+
+- **Never delete the last revision of a model.** Revit refuses (managed exception), and a `create_revision` sent straight after crashed Revit (coreclr 0xc0000005 in ProjectRevision.create). Create the new revision first, move the sheets to it, then delete the template's placeholder. Its description and date are read-only once numbered, so renaming it does not work either.
+- A Casework family made by `make_unit_family` (Metric Casework.rft) cuts in sections but **not in plan**: plans show only the top. Use Generic Model (`set_family_category` OST_GenericModel or the Generic Model template) for joinery that needs cut plans; `tools/locker_system.mjs` `placeInRevit` does this.
+- `make_unit_family` placed the instance with Elevation from Level equal to the level's height (base at twice the level): set it to 0 after placing.
+- Filled regions (`create_swatch`) are refused on sheets. A solid key-plan mark on a sheet is close heavy lines (0.7 mm apart) plus a ring.
+- `replace_family_image` on a title block in a project did not stay: the project kept the old picture. Load the copy it saved (`save_path`) as its own family and use that type.
+- An NRS (Revit-exported) DWG keeps each view in a scaled nested block and explodes its dimensions: convert with `accoreconsole` `_.DXFOUT "<file>" 16` (the console does not quit after it: stop it once the DXF ends in EOF), then flatten with ezdxf `virtual_entities` and calibrate on a known dimension.
