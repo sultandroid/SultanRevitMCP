@@ -227,6 +227,8 @@ namespace RevitMcp
             ["set_family_parameters"] = SetFamilyParameters,
             ["file_links"] = FileLinks,
             ["cloud_model_links"] = CloudModelLinks,
+            ["create_columns"] = CreateColumns,
+            ["create_beams"] = CreateBeams,
         };
 
         public static bool Has(string command) => Table.ContainsKey(command);
