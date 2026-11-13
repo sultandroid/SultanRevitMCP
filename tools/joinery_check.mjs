@@ -31,7 +31,7 @@ const r = (n, d = 0) => Math.round(n * 10 ** d) / 10 ** d;
 
 /** Groups layers bonded face to face (same footprint, touching through the thickness) into panels: a 43 sandwich = 1 panel. */
 export function panels(parts) {
-  const boards = parts.filter((p) => !p.profile && !["steel", "other", "softwood"].includes(kindOf(p.mat)));   // shaped parts are not grouped
+  const boards = parts.filter((p) => !p.profile && !p.circle && !["steel", "other", "softwood"].includes(kindOf(p.mat)));   // shaped parts are not grouped
   const used = new Set(), out = [];
   for (const p of boards) {
     if (used.has(p)) continue;
@@ -192,7 +192,7 @@ export function checkJoinery(D, cfg = {}) {
   const clashes = [], joints = [];
   for (let i = 0; i < parts.length; i++) for (let j = i + 1; j < parts.length; j++) {
     const a = parts[i], b = parts[j], o = [0, 1, 2].map((k) => Math.min(a.max[k], b.max[k]) - Math.max(a.min[k], b.min[k]));
-    if (a.profile || b.profile || !o.every((x) => x > 0.5)) continue;   // shaped parts: bounding boxes overlap by nature
+    if (a.profile || b.profile || a.circle || b.circle || !o.every((x) => x > 0.5)) continue;   // shaped parts: bounding boxes overlap by nature
     const ta = Math.min(...sz(a)), tb = Math.min(...sz(b)), os = [...o].sort((x, y) => x - y);
     const txt = `${a.name} / ${b.name} (${o.map((x) => r(x)).join("x")})`;
     if (os[0] <= Math.min(ta, tb) + 0.5 && os[1] <= Math.max(ta, tb) + 0.5) joints.push(txt); else clashes.push(txt);
