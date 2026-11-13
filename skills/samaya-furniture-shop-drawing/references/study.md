@@ -55,7 +55,7 @@ For each part write the process and the machine:
 - Put it on its own sheet (section with sight lines and angles, plan with the viewing zone, size vs distance table) and send red questions to the designer when the sofa distance, height or screen size does not fit. Tool: indora-furniture revit/tv-unit/viewing.mjs.
 
 ## 4c. Detail sheets show where each cut is taken
-- Every detail sheet carries a key elevation with cut marks (section line + look arrows, plan cut line, callout box) tagged with the detail ids. Tool: indora-furniture revit/tv-unit/keymarks.mjs. Tags never sit on drawing lines.
+- Every detail sheet carries a key elevation with cut marks (section line + look arrows, plan cut line, callout box) tagged with the detail ids. Each cut ends in a bubble: detail id over sheet number (like the view title), placed OUTSIDE the drawn object (section heads in a row above, plan cuts in a column at the side, pushed apart, leader to the cut). Tool: indora-furniture revit/tv-unit/keymarks.mjs. Bubbles and tags never sit on drawing lines.
 
 ## 5. Assembly
 Order of assembly, every fixing reachable, which joints are glued (permanent) and which bolted (knock-down), what is fitted last (glass).
