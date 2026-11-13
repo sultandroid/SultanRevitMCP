@@ -25,13 +25,13 @@ export const kindOf = (mat = "") => /viroc/i.test(mat) ? "viroc" : /valchromat|m
   : /softwood|timber|batten/i.test(mat) ? "softwood" : /steel|foot/i.test(mat) ? "steel" : "other";
 
 const merge = (a, b) => { const o = { ...a }; for (const k in b ?? {}) o[k] = b[k] && typeof b[k] === "object" && !Array.isArray(b[k]) ? merge(a[k] ?? {}, b[k]) : b[k]; return o; };
-const sz = (p) => [0, 1, 2].map((i) => p.max[i] - p.min[i]);
+const sz = (p) => (p.cut ? [...p.cut].map(Number) : [0, 1, 2].map((i) => p.max[i] - p.min[i]));   // shaped parts carry their cut size
 const thinAxis = (p) => { const s = sz(p); return s.indexOf(Math.min(...s)); };
 const r = (n, d = 0) => Math.round(n * 10 ** d) / 10 ** d;
 
 /** Groups layers bonded face to face (same footprint, touching through the thickness) into panels: a 43 sandwich = 1 panel. */
 export function panels(parts) {
-  const boards = parts.filter((p) => !["steel", "other", "softwood"].includes(kindOf(p.mat)));
+  const boards = parts.filter((p) => !p.profile && !["steel", "other", "softwood"].includes(kindOf(p.mat)));   // shaped parts are not grouped
   const used = new Set(), out = [];
   for (const p of boards) {
     if (used.has(p)) continue;
@@ -61,7 +61,7 @@ export function checkJoinery(D, cfg = {}) {
   const add = (id, rule, result, detail) => out.push({ id, rule, result, detail });
   const P = panels(parts);
   const dens = (k) => C.density[k] ?? DENSITY[k] ?? 700;
-  const kg = (p) => (sz(p).reduce((a, b) => a * b, 1) / 1e9) * dens(kindOf(p.mat));
+  const kg = (p) => (sz(p).reduce((a, b) => a * b, 1) / 1e9) * dens(kindOf(p.mat));   // uses the cut size for shaped parts
 
   // J01 every part fits a board (or a length) of its material
   const big = [], larger = [];
@@ -192,7 +192,7 @@ export function checkJoinery(D, cfg = {}) {
   const clashes = [], joints = [];
   for (let i = 0; i < parts.length; i++) for (let j = i + 1; j < parts.length; j++) {
     const a = parts[i], b = parts[j], o = [0, 1, 2].map((k) => Math.min(a.max[k], b.max[k]) - Math.max(a.min[k], b.min[k]));
-    if (!o.every((x) => x > 0.5)) continue;
+    if (a.profile || b.profile || !o.every((x) => x > 0.5)) continue;   // shaped parts: bounding boxes overlap by nature
     const ta = Math.min(...sz(a)), tb = Math.min(...sz(b)), os = [...o].sort((x, y) => x - y);
     const txt = `${a.name} / ${b.name} (${o.map((x) => r(x)).join("x")})`;
     if (os[0] <= Math.min(ta, tb) + 0.5 && os[1] <= Math.max(ta, tb) + 0.5) joints.push(txt); else clashes.push(txt);
