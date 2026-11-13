@@ -651,7 +651,8 @@ namespace RevitMcp
             if (include.Contains("types")) r["types"] = FamilyTypesOf(doc, p);
             if (include.Contains("forms"))
             {
-                var fp = new JsonObject { ["limit"] = MaxLimit };
+                // Num() reads doubles; an int-backed JsonValue would throw there.
+                var fp = new JsonObject { ["limit"] = (double)MaxLimit };
                 r["forms"] = FamilyFormsOf(doc, fp);
             }
             if (include.Contains("dimensions")) r["dimensions"] = FamilyDimensionsOf(doc, p);
