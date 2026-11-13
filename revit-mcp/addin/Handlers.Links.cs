@@ -66,6 +66,24 @@ namespace RevitMcp
                     }
                     catch (Exception ex) { map.Add(ex.Message); }
                     o["phase_map"] = map;
+                    // Where the link comes from. For an ACC / Autodesk Docs model this gives the region and the project and
+                    // model GUIDs that save_cloud_copy needs, so the live cloud version can be saved locally and linked.
+                    try
+                    {
+                        var ext = type.GetExternalFileReference();
+                        var mp = ext?.GetAbsolutePath() ?? ext?.GetPath();
+                        if (mp != null)
+                        {
+                            o["path"] = ModelPathUtils.ConvertModelPathToUserVisiblePath(mp);
+                            if (mp.CloudPath)
+                            {
+                                o["cloud_region"] = mp.Region;
+                                o["cloud_project_guid"] = mp.GetProjectGUID().ToString();
+                                o["cloud_model_guid"] = mp.GetModelGUID().ToString();
+                            }
+                        }
+                    }
+                    catch (Exception ex) { o["path_error"] = ex.Message; }
                 }
                 links.Add(o);
             }

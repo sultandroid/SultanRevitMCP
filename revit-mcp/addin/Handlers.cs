@@ -225,6 +225,8 @@ namespace RevitMcp
             ["family_type_extents"] = FamilyTypeExtents,
             ["family_report"] = FamilyReport,
             ["set_family_parameters"] = SetFamilyParameters,
+            ["file_links"] = FileLinks,
+            ["cloud_model_links"] = CloudModelLinks,
         };
 
         public static bool Has(string command) => Table.ContainsKey(command);
