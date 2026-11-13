@@ -41,10 +41,11 @@ export function panels(parts) {
       for (const q of boards) {
         if (used.has(q) || thinAxis(q) !== a) continue;
         // Same kit piece (module tag) and overlapping footprint, so a core cut in two still joins its faces;
-        // without tags the footprints must match.
+        // without tags the footprints must overlap by 90 % of the smaller one (a plywood layer set back from a front edge).
         const ov = others.every((i) => Math.min(q.max[i], p.max[i]) - Math.max(q.min[i], p.min[i]) > 1);
-        if (p.module && q.module ? !(p.module === q.module && ov)
-          : !others.every((i) => Math.abs(q.min[i] - p.min[i]) < 2 && Math.abs(q.max[i] - p.max[i]) < 2)) continue;
+        const area = (r) => others.reduce((acc, i) => acc * (r.max[i] - r.min[i]), 1);
+        const common = others.reduce((acc, i) => acc * Math.max(0, Math.min(q.max[i], p.max[i]) - Math.max(q.min[i], p.min[i])), 1);
+        if (p.module && q.module ? !(p.module === q.module && ov) : common < 0.9 * Math.min(area(p), area(q))) continue;
         if (layers.some((l) => Math.abs(l.max[a] - q.min[a]) < 0.6 || Math.abs(q.max[a] - l.min[a]) < 0.6)) { layers.push(q); used.add(q); grew = true; }
       }
     }
@@ -116,11 +117,11 @@ export function checkJoinery(D, cfg = {}) {
     const clash = said.length && !said.includes(Math.round(t));
     add("J04", "Hinge type suits the door thickness", t < 10 || t > 32 || clash ? "FAIL" : t > 26 ? "WARN" : "PASS",
       `${doors.length} doors ${t} thick -> ${cls}` + (clash ? `; hardware says ${said.join("/")} mm door` : ""));
-    const per = Math.floor(hinges / doors.length);
-    const short = doors.filter((d) => { const h = d.max[2] - d.min[2], m = d.layers.reduce((a, l) => a + kg(l), 0); return per < hingeCount(h, m); });
+    const need = doors.reduce((a, d) => a + hingeCount(d.max[2] - d.min[2], d.layers.reduce((x, l) => x + kg(l), 0)), 0), per = r(hinges / doors.length, 1);
+    const short = hinges < need ? doors : [];
     const heavy = doors.reduce((a, d) => { const m = d.layers.reduce((x, l) => x + kg(l), 0); return m > a.m ? { m, h: d.max[2] - d.min[2] } : a; }, { m: 0, h: 0 });
     add("J05", "Hinges per door by height and weight", short.length ? "FAIL" : "PASS",
-      `${hinges} hinges for ${doors.length} doors (${per} each); heaviest door ${r(heavy.m, 1)} kg, ${r(heavy.h)} high needs ${hingeCount(heavy.h, heavy.m)}` + (short.length ? `; ${short.length} doors short` : ""));
+      `${hinges} hinges for ${doors.length} doors (${per} each on average, ${need} needed); heaviest door ${r(heavy.m, 1)} kg, ${r(heavy.h)} high needs ${hingeCount(heavy.h, heavy.m)}` + (short.length ? `; ${need - hinges} hinges short` : ""));
   } else { add("J04", "Hinge type suits the door thickness", "INFO", "no hinged doors"); add("J05", "Hinges per door", "INFO", "no hinged doors"); }
 
   // J06 the item (or each module) goes through the site door and can be carried
