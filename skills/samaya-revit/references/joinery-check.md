@@ -26,6 +26,7 @@ Bonded layers with the same footprint count as one panel (a 43 mm Viroc + plywoo
 Viroc (checked, Investwood Technical Data Sheet 2022.1): 2600 x 1250 and 3000 x 1250 are both standard for every colour;
 grey and black 8, 10, 12, 16, 19, 22 mm (25, 28, 32 on request, no 18); white, ochre, yellow, red 12 mm only; E class 2
 4000-4500 MPa (the check uses 4000); 12 mm weighs 16.2 kg/m2; sheet +/- 3 mm, 12 mm thickness +/- 1.0.
+Valchromat (checked, data sheet 2023.1): 2440 x 1220, 2440 x 1830, 3660 x 1220, 3660 x 2440; 8, 12, 16, 19, 30 mm in all colours.
 Defaults still to confirm per project: MR plywood 2440 x 1220; solid surface 3660 x 760; softwood 4800; E plywood 5000,
 MDF 2500, solid surface 8000 MPa; site door 1000 x 2100.
 
