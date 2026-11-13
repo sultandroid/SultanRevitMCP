@@ -40,7 +40,11 @@ export function panels(parts) {
       grew = false;
       for (const q of boards) {
         if (used.has(q) || thinAxis(q) !== a) continue;
-        if (!others.every((i) => Math.abs(q.min[i] - p.min[i]) < 2 && Math.abs(q.max[i] - p.max[i]) < 2)) continue;
+        // Same kit piece (module tag) and overlapping footprint, so a core cut in two still joins its faces;
+        // without tags the footprints must match.
+        const ov = others.every((i) => Math.min(q.max[i], p.max[i]) - Math.max(q.min[i], p.min[i]) > 1);
+        if (p.module && q.module ? !(p.module === q.module && ov)
+          : !others.every((i) => Math.abs(q.min[i] - p.min[i]) < 2 && Math.abs(q.max[i] - p.max[i]) < 2)) continue;
         if (layers.some((l) => Math.abs(l.max[a] - q.min[a]) < 0.6 || Math.abs(q.max[a] - l.min[a]) < 0.6)) { layers.push(q); used.add(q); grew = true; }
       }
     }
