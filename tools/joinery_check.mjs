@@ -13,14 +13,14 @@ export const DEFAULTS = {
   },
   thickness: { solid_surface: [6, 12, 19] },
   // Viroc: Investwood TDS 2022.1 - sheets 2600 / 3000 x 1250 (all colours), E class 1 >= 4500, class 2 4000-4500 MPa.
-  E: { viroc: 4000, plywood: 5000, mdf: 2500, compact: 9000, egger: 3000, solid_surface: 8000, softwood: 11000 },   // MPa bending, conservative
-  density: { solid_surface: 1700, steel: 7850 },
+  E: { hardwood: 10000, viroc: 4000, plywood: 5000, mdf: 2500, compact: 9000, egger: 3000, solid_surface: 8000, softwood: 11000 },   // MPa bending, conservative
+  density: { solid_surface: 1700, steel: 7850, hardwood: 700 },
   shelf: { q_kN_m2: 1.5, limit: 300, warn: 400, min_len: 300 },   // uniform load; deflection limit span / limit (FAIL), / warn (WARN)
   access: { door_w: 1000, door_h: 2100, max_kg_two_men: 100 },     // site door (confirm) and two-person lift
   tall_mm: 1200,
 };
 
-export const kindOf = (mat = "") => /viroc/i.test(mat) ? "viroc" : /valchromat|mdf/i.test(mat) ? "mdf" : /plywood|ply\b/i.test(mat) ? "plywood"
+export const kindOf = (mat = "") => /\boak\b|hardwood|walnut|ash\b/i.test(mat) ? "hardwood" : /viroc/i.test(mat) ? "viroc" : /valchromat|mdf/i.test(mat) ? "mdf" : /plywood|ply\b/i.test(mat) ? "plywood"
   : /compact|hpl/i.test(mat) ? "compact" : /egger/i.test(mat) ? "egger" : /solid surface|corian/i.test(mat) ? "solid_surface"
   : /softwood|timber|batten/i.test(mat) ? "softwood" : /steel|foot/i.test(mat) ? "steel" : "other";
 
@@ -103,6 +103,11 @@ export function checkJoinery(D, cfg = {}) {
     // is a load). Point supports across the span: panels normal to the span. Edge supports: a panel or a wall rail (code BR,
     // under the shelf or over it with the shelf screwed up into it) along a long edge. Both directions are tried; the
     // stiffest way wins.
+    // laid on a board or frame that covers most of it: carried all over
+    const area = (s.max[0] - s.min[0]) * (s.max[1] - s.min[1]);
+    const under = parts.filter((p) => !s.layers.includes(p) && p.max[2] <= s.min[2] + 1 && s.min[2] - p.max[2] <= 15)
+      .reduce((a, p) => a + Math.max(0, Math.min(p.max[0], s.max[0]) - Math.max(p.min[0], s.min[0])) * Math.max(0, Math.min(p.max[1], s.max[1]) - Math.max(p.min[1], s.min[1])), 0);
+    if (under >= 0.8 * area) continue;
     let best = null;
     for (const ax of [0, 1]) {
       const cr = 1 - ax, len = s.max[ax] - s.min[ax], b = s.max[cr] - s.min[cr];
