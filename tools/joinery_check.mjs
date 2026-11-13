@@ -8,7 +8,7 @@ import { BOARD_KINDS, DENSITY, hingeCount } from "./locker_system.mjs";
 // Defaults; a project config overrides any key. Values marked (confirm) are to check with the supplier or on site.
 export const DEFAULTS = {
   stock: {   // sheet sizes L x W, first = normal stock; later ones = larger standard sheets (check local stock)
-    viroc: [[2600, 1250], [3000, 1250]], plywood: [[2440, 1220]], mdf: [[2440, 1220], [2800, 2070]],
+    viroc: [[2600, 1250], [3000, 1250]], plywood: [[2440, 1220]], mdf: [[2440, 1830], [2440, 1220], [3660, 1220], [3660, 2440]],   // mdf incl. Valchromat TDS 2023.1
     compact: [[3050, 1300]], egger: [[2800, 2070]], solid_surface: [[3660, 760]], softwood: 4800,
   },
   thickness: { solid_surface: [6, 12, 19] },
