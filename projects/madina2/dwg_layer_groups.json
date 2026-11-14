@@ -1,0 +1,23 @@
+{
+  "_note": "Layer = unit with everything it includes (user 14 Nov 2026: 'same family same size in the same layer, the unit with its including; the arch should be with its backing'). Keys = AutoCAD wcmatch patterns on the type name (after the 'Madina2 ' prefix); first match wins; anything else keeps its own type name.",
+  "prefix": "Madina2 ",
+  "groups": [
+    ["West Arch Unit AW-A,Arch Back Panel AW-A", "West Arch AW-A"],
+    ["West Arch Unit AW-B,Arch Back Panel AW-B", "West Arch AW-B"],
+    ["Rear Arch Unit RA-A,Arch Back Panel RA-A", "Rear Arch RA-A"],
+    ["Rear Arch Unit RA-B*", "Rear Arch RA-B"],
+    ["East Arch Unit AR,East Arch Hangers HG-E", "East Arch AR"],
+    ["East Arch Unit AR-E-R", "East Arch AR-E-R"],
+    ["L Fascia LF-A-1-*", "L Fascia LF-A-1"],
+    ["L Fascia LF-A-2-*", "L Fascia LF-A-2"],
+    ["L Fascia LF-A-3-*", "L Fascia LF-A-3"],
+    ["L Fascia LF-B-1-*", "L Fascia LF-B-1"],
+    ["L Fascia LF-B-2-*", "L Fascia LF-B-2"],
+    ["L Fascia LF-C-*", "L Fascia LF-C"],
+    ["L Fascia LF-D-1-*", "L Fascia LF-D-1"],
+    ["L Fascia LF-D-2-*", "L Fascia LF-D-2"],
+    ["L Fascia LF-E-*", "L Fascia LF-E"],
+    ["Ceiling * CF-1,Ceiling Flower Mesh FM-1", "Ceiling CF-1"],
+    ["East Counter E-C1*,East Steel Structure ST-E2", "East Counter E-C1"]
+  ]
+}
