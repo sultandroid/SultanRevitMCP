@@ -1,4 +1,5 @@
-param([string[]]$Files, [switch]$Explode, [switch]$ModelTab)
+param([string[]]$Files, [switch]$Explode, [switch]$ModelTab, [switch]$CountOnly, [int]$TimeoutSec = 240)
+# -CountOnly: report entity counts only, change nothing. -TimeoutSec: per file (big exploded sheets need 900+).
 # Clean Revit sheet DWGs for the workshop: audit, purge, remove duplicate/overlapping lines (OVERKILL), join touching lines and
 # arcs into polylines (PEDIT Join, 0.5 mm fuzz) in model and paper space, zoom extents, save in place (AutoCAD 2018 format).
 # Reports entity counts before/after so a bad run shows.
@@ -44,12 +45,13 @@ $lines = @(
   "_.QUIT _Y",
   ""
 )
+if ($CountOnly) { $lines = @($count, "FABCOUNT", "_.QUIT _Y", "") }
 Set-Content -Path $scr -Value ($lines -join "`r`n") -Encoding ASCII
 foreach ($f in $Files) {
   $full = (Resolve-Path $f).Path
   $p = Start-Process -FilePath $acc -ArgumentList "/i `"$full`" /s `"$scr`" /l en-US" -NoNewWindow -PassThru -RedirectStandardOutput "$scr.out"
-  if (-not $p.WaitForExit(240000)) { $p.Kill(); Write-Output "$([IO.Path]::GetFileName($full)): TIMEOUT"; continue }
+  if (-not $p.WaitForExit($TimeoutSec * 1000)) { $p.Kill(); Write-Output "$([IO.Path]::GetFileName($full)): TIMEOUT"; continue }
   $out = (Get-Content "$scr.out" -Raw) -replace "`0", ""
-  $m = [regex]::Matches($out, "FABCOUNT lines=\d[^\r\n]*") | ForEach-Object { $_.Value -replace 'FABCOUNT ', '' }
+  $m = @([regex]::Matches($out, "FABCOUNT lines=\d[^\r\n]*") | ForEach-Object { $_.Value -replace "FABCOUNT ", "" })
   Write-Output "$([IO.Path]::GetFileName($full)): before [$($m[0])] after [$($m[-1])]"
 }
