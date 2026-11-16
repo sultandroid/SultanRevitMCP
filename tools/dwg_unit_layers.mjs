@@ -19,14 +19,15 @@ const args = process.argv.slice(2), flag = (f) => args.includes(f), val = (f) =>
 // --groups <json>: {prefix, groups: [[wcmatch pattern, layer name], ...]} puts a unit and its parts (arch + back panel,
 // fascia marble + soffit, ...) on one layer; first match wins.
 const G = val("--groups") ? JSON.parse(fs.readFileSync(val("--groups"), "utf8")) : {};
+const marker = val("--view") ?? "-FAB-3D"; // the exported view name follows "-<typeId>"
 const byType = !flag("--by-mark"), prefix = val("--prefix") ?? G.prefix ?? "", groups = G.groups ?? [];
-const [dwg, unitsFile] = args.filter((a, i) => !a.startsWith("--") && !["--prefix", "--groups"].includes(args[i - 1]));
+const [dwg, unitsFile] = args.filter((a, i) => !a.startsWith("--") && !["--prefix", "--groups", "--view"].includes(args[i - 1]));
 const U = unitsFile ? JSON.parse(fs.readFileSync(unitsFile, "utf8")).filter((u) => u.p) : [];
 const san = (s) => s.replace(/[<>\/\\":;?*|=,`]/g, "-").trim();
 const lst = U.map((u) => `(${u.t} ${u.p.x.toFixed(1)} ${u.p.y.toFixed(1)} ${u.p.z.toFixed(1)} "${san(u.mk)}")`).join(" ");
 const lisp = String.raw`(setvar "CMDECHO" 0)
 (setq MAP '(${lst}))
-(defun tid (nm / i j) (setq i (vl-string-search "-FAB-3D" nm)) (if (null i) (setq i (strlen nm)))
+(defun tid (nm / i j) (setq i (vl-string-search "${marker}" nm)) (if (null i) (setq i (strlen nm)))
   (setq j i) (while (and (> j 0) (wcmatch (substr nm j 1) "#")) (setq j (1- j))) (atoi (substr nm (1+ j) (- i j))))
 (defun near (ty pt / b bd d) (setq b nil bd 1e99)
   (foreach m MAP (if (or (null ty) (= (car m) ty)) (progn (setq d (distance (list (nth 1 m) (nth 2 m) (nth 3 m)) pt)) (if (< d bd) (setq bd d b m)))))
@@ -34,7 +35,7 @@ const lisp = String.raw`(setvar "CMDECHO" 0)
 (setq cols '(1 2 3 4 5 6 30 40 140 150 160 200 210 220 11 21 31 41 51 61 71 81 91 101 111 121 131 141 151 161 171 181 191 201 211 221 231 241 8 9) ci 0 made nil)
 (setq BYTYPE ${byType ? "T" : "nil"})
 ; type name from the block name "<Family> - <Type>-<id>-<view>": the part after the last " - ", without the id and the prefix
-(defun tname (nm / i j p) (setq i (vl-string-search "-FAB-3D" nm)) (if (null i) (setq i (strlen nm)))
+(defun tname (nm / i j p) (setq i (vl-string-search "${marker}" nm)) (if (null i) (setq i (strlen nm)))
   (setq j i) (while (and (> j 0) (wcmatch (substr nm j 1) "#")) (setq j (1- j))) (setq nm (substr nm 1 (1- j)))
   (while (setq p (vl-string-search " - " nm)) (setq nm (substr nm (+ p 4))))
   (if (wcmatch nm "${prefix}*") (setq nm (substr nm ${prefix.length + 1})))
