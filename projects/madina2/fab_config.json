@@ -295,6 +295,25 @@
         1484143
       ],
       "note": "Rattan band of the C02 tray, all round the\nCeiling Wood Frame (as the design renders).\n6 PANELS, 8 FR MDF oak veneer, natural\nrattan weave ~3 mm pasted under:\nS + N: 2 no. 1610 x 420 each, joint x 3320.\nW + E: 1730 x 420, between the frame lines.\nFIXING: screwed up through the C02 12.5\ngypsum board into the furring channels\n(by the gypsum contractor, @ 400 max across\nthe band) @ 300; rattan pasted over the\nscrew heads on site.\nUnderside +3.189. 1 mm scribe to the TF-1\nlining (A-2701 obsolete: TF-1 lining is fixed\non site), butt to the Ceiling Wood Frame\nsides (A-2702). No openings: no lights or\ngrilles in the band.\nCut 6 panels from 3 sheets 1220 x 2440\n(2 strips of 420 per sheet)."
+    },
+    "ST-E2": {
+      "no": 2119,
+      "title": "East Steel Frame ST-E2",
+      "group": "2 Fab: Arch Units",
+      "ref": "East Steel Frame",
+      "with": [
+        "East Arch Hangers"
+      ],
+      "marks": [
+        "East Steel Frame"
+      ],
+      "cnc": false,
+      "ceiling": false,
+      "revisions": [
+        1490963
+      ],
+      "note": "Stand-alone steel that holds the 3 east arches\n(behind the arches, hidden by the spandrels).\nSHS 40x40x2 S235, bolted kit (parts max ~2.5 m\nto carry in), floor fixing only, no wall anchors.\nTop +2.920, 80 clear under the ceiling.\nALL STEEL PAINTED BLACK: no galvanising, no\npowder coat (rods and nuts too).\nكل الحديد دهان أسود، من غير جلفنة ولا بودرة\n\nCUT LIST SHS 40x40x2 (length x qty):\nS1 front post 2912 x2 (base plate 100x100x8)\nS2 back post 2832 x4 (base plate 50x100x8)\nS3 front top chord +2.880: 4169 x1\nS4 front bottom chord +2.780: 4169 x1\nS5 truss diagonal ~402 x5, cut to the chords\nS6 back rail +1.480 / +2.880: 4249 x2\nS7 back floor rail 4169 x1\nS8 end rail top / +1.480 / floor 548 x6\nS9 end diagonal ~2873 x2, cut to fit\nS10 back diagonal ~3125 x1, cut to fit\nTotal 52.3 m: buy 10 bars x 6 m.\nالإجمالي 52.3 م: اشتري 10 عيدان 6 م\n\nARCH HANGERS HG-E (at the 2 arch joints):\nL 40x40x4 cross member 548 x2, top leg flush\n+2.920, bolted between top chord and back rail.\nFlat bar 40x6 x 923 x4 in the seam between the\narch heads, 2 screws 4x30 each side.\nM10 rod 145 x4 welded to the bar top, through\n12 hole in the angle, nut + washer under/over:\nlevel the shelf plates +/-25 on site, lock.\nظبط الرفوف بالصواميل في الموقع واقفلها\nShelf plate 523 x 116 x 10 x2 at +1.907,\nbolted M8 to the flat bars.\nCalc: MD2-SF-ZZ-GF-CA-S-0001 (max ratio 0.28).",
+      "scale": 20
     }
   },
   "sections": {
