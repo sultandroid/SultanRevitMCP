@@ -195,6 +195,26 @@ The user's arrangement (set by hand on Madina 1 sheet 120, 3 Nov 2026):
 
 Every sheet has a key plan in the title block's KEY PLAN panel: a small cropped plan with the area or unit on that sheet highlighted in red. Use a viewport with no title, because the panel already has its heading. A view can sit on only one sheet, so duplicate it for each sheet.
 
+### Location keyplans
+
+A location keyplan answers **where**, not only what: keep enough fixed context to identify the bay, wall, room or grid intersection. It must show north/orientation where the project convention requires it, the relevant grid or permanent reference, and every item covered by the sheet in red. The red mark count must equal the schedule/QTY count. Do not reuse a generic diagram, typed coordinates or a render; duplicate a live plan and derive the marks from the current model.
+
+For a fabrication sign, cabinet or showcase, add a native location plan or location section when the title-block panel cannot show the required grid/bay, adjacent condition and two-direction set-out. Dimension to verified grids, structure or finished walls—not to movable furniture or an indicative rendering. See [sign fabrication](sign-fabrication.md) for sign-specific requirements.
+
+## Native sheet QA and type hierarchy
+
+Issue sheets from native Revit views, schedules, legends, dimensions and text. A controlled manufacturer cut sheet or approved reference image may be attached or placed only as reference; it never replaces a native plan, elevation, section, location keyplan, anchor detail or material legend.
+
+Set a readable paper hierarchy before placing the views: sheet/drawing title first, view title second, heading/keynote number third, dimension and schedule body next, then note text. Use the established 5 mm body and 5.5 mm bold heading minimums; make a hierarchy by weight, case, spacing and placement, not by shrinking critical information. A view title, scale, note, leader, dimension figure or keyplan label that cannot read at printed scale is a layout failure—re-crop, split the sheet or add a detail.
+
+Native-sheet QA before issue:
+
+- Render the full sheet and crop-check the title block, every keyplan, dense detail and notes/table column.
+- Confirm each viewport is live, has the intended view template, title and scale; no flattened viewport screenshot may conceal a stale view.
+- Check the location keyplan against the current model, including every repeated item covered by a typical sheet.
+- Check day/unlit and night/lit-only sign views from the same model, orientation and datum. A lit-only view shows only the intended lit zone as active; it is not a brightness simulation.
+- Check that text hierarchy remains readable after PDF export at the issued sheet size.
+
 ## Free-standing units in sections
 
 In every section, free-standing units (island displays, counters, display units) are hidden and shown only by their outer outline: one grey dashed rectangle per unit, the extent of its main parts, with no internal lines. Outlets mounted on the unit are hidden with it. Use `hide_elements` for the unit, then draw detail lines in the "Indicative Outline" style (weight 1, grey, Dash). The exceptions are the unit's own detail sheet and its working views (on Madina 1, J131 and WK-Pegboard Bend are the counter D-01, and J132 is the island D-02). The script `isl_outline.mjs` logs the lines it creates, so a rerun replaces them. Rerun it whenever a section is added or a unit moves.

@@ -8,6 +8,8 @@ Start with how the workshop will make the item and how the site team will instal
 2. Set the assembly boundary by how the workshop makes and installs the item. Keep components in one marked unit when they are made and fitted together. Use separate marked instances for units that must be made, handled or fitted separately. Keep shared supports separate where they are made or fitted as their own pieces.
 3. Model joints, setbacks, rebates, service voids and fillers at their actual sizes when they govern fit or fabrication. Check the resulting overall size after every split or build-up change. Keep repeat parts the same size where the design and fit allow.
 4. Work through the assembly and fitting order. Check support and fixing locations, access for tools and services, the route into the space, and clearance to the surveyed structure and neighbouring units. Check working movement where there are doors, drawers or other moving parts.
+5. For a support, bracket or anchor, model the load path and keep the shop-made assembly separate from site-installed fixings. An anchor pattern is conditional until substrate, loads, edge distances and the selected anchor's technical evidence are verified. Use [structural preliminary screen](structural-preliminary-screen.md) before treating a support arrangement as buildable.
+6. For any fascia sign, letter, light box or illuminated graphic, read [sign fabrication](sign-fabrication.md). Model both the physical build-up and service access; a render or generic light glow is not fabrication information.
 
 ## Verify from the model
 

@@ -8,6 +8,10 @@ Owner rule (Mohamed Sultan, 12 Nov 2026, after a wrong report): a structural rep
 export. Robot's report templates carry the cover of an old job (King Abdullah site hoarding) and imperial units. Always build
 the Samaya calc note.
 
+## Preliminary screen before formal analysis
+
+Before selecting a member, support frame or anchor arrangement, read [preliminary structural screen](../samaya-revit/references/structural-preliminary-screen.md). It records the load path, stability and substrate/anchor constraints and decides whether formal analysis is required. It never authorises drilling or installation. Anchor design stays conditional until the real substrate, loads, edge distances, selected anchor and manufacturer evidence are verified.
+
 ## Steps
 1. Model and solve in Robot from a script (`projects/<job>/steel/*_robot.ps1` pattern; `$app.Interactive = 0`, no dialogs).
    Check equilibrium first: sum of dead reactions = self-weight + applied dead loads. A wrong section (zero or wrong unit weight)
@@ -31,3 +35,4 @@ the Samaya calc note.
 - 5 Serviceability and stability. 6 Conclusions.
 - Robot's own output is a separate document number (CA-S-0002) with the same header and logo, never the main report.
 - No cost or saving content; no "ASSUMED" / open items wording; tables never split.
+- For proprietary anchors, sign modules, drivers or brackets, cite the selected manufacturer's current data sheet / installation instruction and exact product identity. Record the project selection status and the limits of the assessment.

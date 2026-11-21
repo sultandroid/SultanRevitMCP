@@ -33,9 +33,18 @@ Every material shows its own hatch where it is cut in a section or detail, so th
 | Window and door aluminium | Solid fill, aluminium grey (or the frame colour) | | |
 | Glass and mirror | Diagonal lines, its own angle so it is never mistaken for a board | 60° | 1 mm |
 | Mall floor finish (existing) | Diagonal lines, wide, as stone | 45° | 4 mm |
+| GRP / fiberglass sign laminate | Paired thin diagonal lines for section cuts. Show a keyed sample at the plotted scale and use a solid thin-layer convention where a pair becomes illegible. | 45° | Project legend |
+| Sign acrylic face, acrylic diffuser and polycarbonate lens | Diagonal lines, its own angle so it is not mistaken for board or glass | 30° | 1 mm |
+| Aluminium composite panel / folded aluminium sign pan | Solid fill, aluminium grey or approved finish colour | | |
+| Vinyl graphic, printed film and thin sign laminate | Solid black thin line | | |
+| LED module, LED tape, driver and aluminium LED extrusion | Keynote / symbolic detail only; do not use a generic cut hatch | | |
+
+### Illuminated sign sections
+
+A lit-only elevation is not a section substitute. In a section, hatch the physical face, diffuser, pan, returns and metal support by their real material. Key the LED module, LED tape, driver, cable route and access panel with the sign mark and component reference. Do not hatch an abstract glow or use shaded material colour to represent illumination. See [sign fabrication](sign-fabrication.md) for the required day/unlit and night/lit-only view pair.
 
 `fab_sheet.mjs` picks the hatch from the material name in this order: MDF, glass and mirror, timber, cane, metal, thin layers (Endura, 12 Nov 2026: "MDF 18 Oak Veneer" and "Solid Oak Rail" had come out solid black).
 
 ## Applying it
 
-Use the bridge's `set_material_hatch` for each material. Its pattern is created if missing, and is named from the hatch, for example `Hatch 45 1.5`. After a change, re-render one section and check each material reads.
+Use the bridge's `set_material_hatch` for each physical material. Its pattern is created if missing, and is named from the hatch, for example `Hatch 45 1.5`. After a change, re-render one section and check each material reads. Do not create a hatch for a light effect, an unspecified proprietary component or an image-based finish; key it and cite the approved manufacturer source instead.
